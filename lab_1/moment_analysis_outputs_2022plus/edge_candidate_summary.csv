@@ -1,0 +1,6 @@
+candidate,source_table,pair,condition,vol_regime,horizon_bars,horizon_hours,count,threshold_pct,mr_return_mean_pct,mr_win_rate_pct,mr_return_t_stat
+USDJPY lower-tail long MR,shock_mr_summary.csv,USDJPY,lower_5pct,all,12,48,343,-0.3861623093,0.0483811337,54.5189504373,0.8519107258
+EURUSD extreme-up short MR,shock_mr_summary.csv,EURUSD,upper_1pct,all,3,12,69,0.5845017782,-0.0058965741,56.5217391304,-0.1192740976
+AUDJPY lower-tail long MR,shock_mr_summary.csv,AUDJPY,lower_5pct,all,12,48,343,-0.4801615003,0.2024476065,60.0583090379,3.1847326418
+AUDJPY extreme-down long MR,shock_mr_summary.csv,AUDJPY,lower_1pct,all,12,48,69,-0.8377828918,0.3856066008,62.3188405797,2.2491952119
+AUDJPY Q5 lower-tail long MR,shock_mr_by_vol_summary.csv,AUDJPY,lower_5pct,Q5_high,6,24,168,-0.4801615003,0.1446152386,54.7619047619,1.6576277645

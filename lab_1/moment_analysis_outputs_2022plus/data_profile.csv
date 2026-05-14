@@ -1,0 +1,4 @@
+source_file,requested_start,requested_end,analysis_start,analysis_end,raw_rows,duplicate_timestamps,missing_timestamp_rows,missing_ohlc_rows,clean_rows,first_timestamp,last_timestamp,pair,common_rows
+USDJPY240.csv,2022-01-01,,2022-01-02 20:00:00,2026-04-02 12:00:00,25855,0,0,0,25855,2010-03-18 08:00:00,2026-04-02 12:00:00,USDJPY,6849
+EURUSD240.csv,2022-01-01,,2022-01-02 20:00:00,2026-04-02 12:00:00,25850,0,0,0,25850,2010-04-13 00:00:00,2026-04-24 20:00:00,EURUSD,6849
+AUDJPY240.csv,2022-01-01,,2022-01-02 20:00:00,2026-04-02 12:00:00,25851,0,0,0,25851,2010-04-12 12:00:00,2026-04-24 20:00:00,AUDJPY,6848

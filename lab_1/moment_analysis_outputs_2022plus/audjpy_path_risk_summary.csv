@@ -1,0 +1,3 @@
+candidate,pair,horizon_bars,horizon_hours,threshold_pct,count,next_open_return_mean_pct,next_open_return_median_pct,next_open_win_rate_pct,mae_mean_pct,mae_5pct_pct,mfe_mean_pct,mfe_95pct_pct
+AUDJPY lower5 long h6 next-open,AUDJPY,6,24,-0.4801615003,341,0.1168664928,0.1561346451,57.4780058651,-0.7446179267,-2.0229855013,0.7360817424,1.9022840215
+AUDJPY Q5 lower5 long h6 next-open,AUDJPY,6,24,-0.4801615003,168,0.1401767776,0.1761094187,54.7619047619,-0.9173325716,-2.6542244832,0.8931539919,2.2855924566
