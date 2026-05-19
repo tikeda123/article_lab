@@ -449,9 +449,9 @@
           </div>
 
           <div>
-            <label for="spreadPips">想定スプレッド（pips）</label>
+            <label for="spreadPips">想定スプレッド（pips・1トレードあたり）</label>
             <input id="spreadPips" type="number" value="0.2" min="0" step="0.1" oninput="calculate()" />
-            <div class="hint">例：USDJPY 0.2pips など</div>
+            <div class="hint">エントリーから決済までの実効コストとして入力。通常は片道表示スプレッドを1回分の取引コストとして扱います</div>
           </div>
 
           <div>
@@ -533,7 +533,7 @@
           <div class="quote-conversion">
             <label for="quoteToJpyRate">決済通貨→円レート</label>
             <input id="quoteToJpyRate" type="number" value="155" min="0.0001" step="0.01" oninput="calculate()" />
-            <div class="hint">例：EURUSDならUSDJPYレートを入力</div>
+            <div class="hint">例：EURUSD / GBPUSDならUSDJPY、EURGBPならGBPJPYを入力</div>
           </div>
 
           <div>
@@ -796,10 +796,11 @@ Full Kelly係数 f* = (b × p - q) / b<br>
             <div>
               <label for="simSizingMode">資金管理方式</label>
               <select id="simSizingMode" onchange="runSimulationPanel()">
-                <option value="compound" selected>複利型：資金に応じて注文数量を再計算</option>
+                <option value="compound" selected>簡易複利型：現在資金 × リスク率で損益計算</option>
                 <option value="fixed">固定数量型：共有注文数量を固定</option>
               </select>
-              <div class="hint">固定数量型は、注文リスク計算タブの現在の注文予定数量を使います</div>
+              <div class="hint">簡易複利型はFXの注文刻みや証拠金制約を毎回厳密再計算するモデルではありません</div>
+              <div class="hint">固定数量型はリスク率固定ではありません。注文リスク計算タブの現在の注文数量を固定し、その数量で勝敗を繰り返した場合の資金推移を見ます</div>
             </div>
 
             <div>
@@ -815,6 +816,12 @@ Full Kelly係数 f* = (b × p - q) / b<br>
               <label for="simTrades">トレード回数</label>
               <input id="simTrades" type="number" value="500" min="1" max="1000" step="10" oninput="markSimulationStale()" />
               <div class="hint">例：500回。教育用ツールのため最大1,000回</div>
+            </div>
+
+            <div>
+              <label for="simRandomSeed">乱数シード</label>
+              <input id="simRandomSeed" type="number" value="12345" min="0" max="4294967295" step="1" oninput="markSimulationStale()" />
+              <div class="hint">同じシードならMonte Carlo結果とKelly倍率別比較を再現できます</div>
             </div>
 
             <div>
@@ -850,6 +857,7 @@ Full Kelly係数 f* = (b × p - q) / b<br>
 
           <div class="actions">
             <button class="primary" onclick="runSimulationPanel()">シミュレーション実行</button>
+            <button class="secondary" onclick="randomizeSimulationSeed()">ランダム再実行</button>
             <button class="secondary" onclick="resetSimulationDefaults()">シミュレーション条件を初期値に戻す</button>
           </div>
 
@@ -857,7 +865,7 @@ Full Kelly係数 f* = (b × p - q) / b<br>
           <div class="formula">
 Kelly係数 f* = (b × p - q) / b<br>
 採用リスク率 = min(Kelly係数 × Kelly倍率, リスク上限)<br>
-複利型の1回損失 = 現在資金 × 採用リスク率<br>
+簡易複利型の1回損失 = 現在資金 × 採用リスク率<br>
 固定数量型の1回損失 = 共有注文数量 × 1通貨あたり1pip価値 × 選択した負けトレード幅
           </div>
         </div>
@@ -870,7 +878,7 @@ Kelly係数 f* = (b × p - q) / b<br>
               <div class="metric" id="simMetricUsedRiskBox"><div class="label">採用リスク率</div><div class="value" id="simUsedRiskRate">-</div><div class="sub">Kelly倍率・上限反映後</div></div>
               <div class="metric"><div class="label">1回の許容損失額</div><div class="value" id="simRiskAmount">-</div><div class="sub">初期資金ベース</div></div>
               <div class="metric"><div class="label">初期推奨数量</div><div class="value" id="simInitialLots">-</div><div class="sub">複利型の初回目安</div></div>
-              <div class="metric" id="simMetricRuinBox"><div class="label">Monte Carlo破産確率</div><div class="value" id="simRuinProb">-</div><div class="sub">破産ライン割れの発生率</div></div>
+              <div class="metric" id="simMetricRuinBox"><div class="label">破産ライン割れ確率</div><div class="value" id="simRuinProb">-</div><div class="sub">設定した初期資金比を下回ったシナリオ割合</div></div>
               <div class="metric"><div class="label">生存率</div><div class="value" id="simSurvivalRate">-</div><div class="sub">破産ラインを割らなかった割合</div></div>
               <div class="metric"><div class="label">最終資産中央値</div><div class="value" id="simFinalMedian">-</div><div class="sub">全シナリオの中央値</div></div>
               <div class="metric"><div class="label">最大DD中央値</div><div class="value" id="simDdMedian">-</div><div class="sub">資産曲線の最大下落率</div></div>
@@ -878,7 +886,7 @@ Kelly係数 f* = (b × p - q) / b<br>
 
             <div class="charts">
               <div class="chart-card"><h3>連敗耐久性：連敗数と残資金</h3><canvas id="simLosingStreakChart"></canvas><div class="hint">複利型は資金減少に応じて損失額も縮小します。</div></div>
-              <div class="chart-card"><h3>Monte Carlo：資産曲線サンプル</h3><canvas id="simEquityPathsChart"></canvas><div class="hint">ランダムに抽出した複数シナリオの資産推移です。</div></div>
+              <div class="chart-card"><h3>Monte Carlo：資産曲線サンプル</h3><canvas id="simEquityPathsChart"></canvas><div class="hint">シードから生成した代表シナリオの資産推移です。</div></div>
               <div class="chart-card"><h3>最終資産分布</h3><canvas id="simFinalDistributionChart"></canvas><div class="hint">最終資産のヒストグラムです。</div></div>
               <div class="chart-card"><h3>Kelly倍率別比較</h3><canvas id="simKellyCompareChart"></canvas><div class="hint">Full / Half / Quarter / 1/10 Kellyを比較します。</div></div>
             </div>
@@ -895,7 +903,7 @@ Kelly係数 f* = (b × p - q) / b<br>
           <div class="card section">
             <h2>Kelly倍率別 比較表</h2>
             <table>
-              <thead><tr><th>Kelly倍率</th><th>理論リスク率</th><th>採用リスク率</th><th>上限</th><th>比較数量</th><th>破産確率</th><th>最終資産中央値</th><th>最終資産 下位5%</th><th>最大DD中央値</th><th>最長連敗中央値</th></tr></thead>
+              <thead><tr><th>Kelly倍率</th><th>理論リスク率</th><th>採用リスク率</th><th>上限</th><th>比較数量</th><th>ライン割れ確率</th><th>最終資産中央値</th><th>最終資産 下位5%</th><th>最大DD中央値</th><th>最長連敗中央値</th></tr></thead>
               <tbody id="simKellyComparisonBody"></tbody>
             </table>
           </div>
@@ -903,8 +911,8 @@ Kelly係数 f* = (b × p - q) / b<br>
           <section class="card section">
             <h2>このシミュレーターの読み方</h2>
             <div class="mode-box"><div class="mode-title">連敗耐久性 <span class="pill">直感的</span></div><p>勝率が高くても連敗は発生します。この資金管理で何連敗まで耐えられるかを確認します。</p></div>
-            <div class="mode-box"><div class="mode-title">Monte Carlo破産確率 <span class="pill">ばらつき</span></div><p>勝ち負けの順番が変わるだけで最大DDや最終資産は大きく変わります。多数のランダムシナリオで確認します。</p></div>
-            <div class="mode-box"><div class="mode-title">Kelly倍率別比較 <span class="pill">攻めと生存性</span></div><p>Full Kellyは理論上の成長率が高くなりやすい一方、DDも大きくなります。Half Kelly以下は理論上の最大成長率を一部犠牲にして、推定誤差や連敗への耐性を高める考え方です。</p></div>
+            <div class="mode-box"><div class="mode-title">破産ライン割れ確率 <span class="pill">ばらつき</span></div><p>勝ち負けの順番が変わるだけで最大DDや最終資産は大きく変わります。ここでは、設定した破産ラインを一度でも下回ったシナリオ割合を確認します。</p></div>
+            <div class="mode-box"><div class="mode-title">Kelly倍率別比較 <span class="pill">攻めと生存性</span></div><p>Full Kellyは理論上の成長率が高くなりやすい一方、DDも大きくなります。各倍率には同じ勝敗列と大損イベント列を適用するため、乱数ゆらぎより倍率差を比較しやすくしています。</p></div>
             <p class="hint">注意：このシミュレーションは教育用の単純化モデルです。実際のFXでは、スプレッド拡大、スリッページ、STOP超過、約定拒否、ファットテール、勝率推定誤差、相場環境の変化が発生します。</p>
           </section>
         </div>
@@ -1018,7 +1026,7 @@ Kelly係数 f* = (b × p - q) / b<br>
       }
       priceHint.textContent = mode === "JPY"
         ? "JPY建て例：USDJPY = 155、EURJPY = 170"
-        : "非JPY建て例：EURUSD = 1.0850、GBPUSD = 1.2700。決済通貨→円レートにはUSDJPYなどを入力";
+        : "非JPY建て例：EURUSD = 1.0850、GBPUSD = 1.2700、EURGBP = 0.8600。決済通貨→円レートはEURUSD/GBPUSDならUSDJPY、EURGBPならGBPJPY";
       calculate();
     }
 
@@ -1544,6 +1552,24 @@ Kelly係数 f* = (b × p - q) / b<br>
       return values[lower] + (values[upper] - values[lower]) * (index - lower);
     }
 
+    function normalizeSeed(value) {
+      if (!isFinite(value)) return NaN;
+      return Math.floor(value) >>> 0;
+    }
+
+    function seededUnit(seed, simulation, trade, stream) {
+      let x = normalizeSeed(seed);
+      x ^= Math.imul(simulation + 1, 0x9e3779b1);
+      x ^= Math.imul(trade + 1, 0x85ebca77);
+      x ^= Math.imul(stream + 1, 0xc2b2ae3d);
+      x ^= x >>> 16;
+      x = Math.imul(x, 0x7feb352d);
+      x ^= x >>> 15;
+      x = Math.imul(x, 0x846ca68b);
+      x ^= x >>> 16;
+      return (x >>> 0) / 4294967296;
+    }
+
     function collectSimulationInputs() {
       calculate();
       const base = window.currentPositionSnapshot;
@@ -1556,6 +1582,7 @@ Kelly係数 f* = (b × p - q) / b<br>
       const simulationPayoffRatio = simulationLossPips > 0 ? base.effectiveProfit / simulationLossPips : 0;
       const fullKelly = calcKelly(winRate, simulationPayoffRatio);
       const usedRiskRate = Math.min(fullKelly * base.kellyMultiplier, base.riskCap);
+      const randomSeedInput = getNumber("simRandomSeed");
       return {
         ...base,
         rawWinRate,
@@ -1571,6 +1598,8 @@ Kelly係数 f* = (b × p - q) / b<br>
         fixedLots: base.positionLotsForSimulation,
         trades: Math.floor(getNumber("simTrades")),
         simulations: Math.floor(getNumber("simSimulations")),
+        randomSeedInput,
+        randomSeed: normalizeSeed(randomSeedInput),
         ruinLinePct: getNumber("simRuinLinePct") / 100,
         ruinLine: base.capital * getNumber("simRuinLinePct") / 100,
         tailLossProb: getNumber("simTailLossProb") / 100,
@@ -1590,6 +1619,7 @@ Kelly係数 f* = (b × p - q) / b<br>
       if (values.fixedLots < values.minimumOrderLots) return "共有注文数量が最低注文数量を下回っています。注文リスク計算タブの条件を確認してください。";
       if (values.trades < 1 || values.trades > 1000) return "トレード回数は1〜1000で入力してください。";
       if (values.simulations < 100 || values.simulations > 10000) return "シミュレーション本数は100〜10000で入力してください。";
+      if (!Number.isInteger(values.randomSeedInput) || values.randomSeedInput < 0 || values.randomSeedInput > 4294967295) return "乱数シードは0〜4,294,967,295の整数で入力してください。";
       if (values.ruinLinePct <= 0 || values.ruinLinePct >= 1) return "破産ラインは1〜99%で入力してください。";
       if (values.tailLossProb < 0 || values.tailLossProb > 1) return "大損発生確率は0〜100%で入力してください。";
       if (values.tailLossMultiplier < 1) return "大損倍率は1以上で入力してください。";
@@ -1629,7 +1659,7 @@ Kelly係数 f* = (b × p - q) / b<br>
         const path = keepPaths && simulation < 30 ? [{ t: 0, equity }] : null;
 
         for (let trade = 1; trade <= values.trades; trade += 1) {
-          const win = Math.random() < values.winRate;
+          const win = seededUnit(values.randomSeed, simulation, trade, 1) < values.winRate;
           if (values.sizingMode === "compound") {
             const risk = equity * riskRate;
             if (win) {
@@ -1637,7 +1667,7 @@ Kelly係数 f* = (b × p - q) / b<br>
               lossStreak = 0;
             } else {
               let loss = risk;
-              if (Math.random() < values.tailLossProb) loss *= values.tailLossMultiplier;
+              if (seededUnit(values.randomSeed, simulation, trade, 2) < values.tailLossProb) loss *= values.tailLossMultiplier;
               equity -= loss;
               lossStreak += 1;
               if (lossStreak > longestLossStreak) longestLossStreak = lossStreak;
@@ -1647,7 +1677,7 @@ Kelly係数 f* = (b × p - q) / b<br>
             lossStreak = 0;
           } else {
             let loss = fixedLoss;
-            if (Math.random() < values.tailLossProb) loss *= values.tailLossMultiplier;
+            if (seededUnit(values.randomSeed, simulation, trade, 2) < values.tailLossProb) loss *= values.tailLossMultiplier;
             equity -= loss;
             lossStreak += 1;
             if (lossStreak > longestLossStreak) longestLossStreak = lossStreak;
@@ -1858,7 +1888,7 @@ Kelly係数 f* = (b × p - q) / b<br>
 
     function drawKellyComparison(id, rows) {
       const { context, width, height } = canvasBox(id);
-      const box = drawAxes(context, width, height, "赤=破産確率 / 青=最終資産中央値");
+      const box = drawAxes(context, width, height, "赤=ライン割れ確率 / 青=最終資産中央値");
       const maxFinal = Math.max(...rows.map((row) => row.finalMedian));
       const maxRuin = Math.max(1, ...rows.map((row) => row.ruinProb * 100));
       const groupWidth = box.plotWidth / rows.length;
@@ -1963,16 +1993,21 @@ Kelly係数 f* = (b × p - q) / b<br>
 
       if (main.ruinProb >= 0.1) {
         message.className = "notice danger";
-        message.textContent = "破産確率が高めです。Kelly倍率を下げる、リスク上限を1%にする、期待値前提を見直すことを検討してください。";
+        message.textContent = "破産ライン割れ確率が高めです。Kelly倍率を下げる、リスク上限を1%にする、期待値前提を見直すことを検討してください。";
       } else if (main.ruinProb >= 0.03) {
         message.className = "notice";
-        message.textContent = "破産確率が一定程度あります。勝率劣化・スリッページ拡大・ファットテールを考慮し、保守的な設定を推奨します。";
+        message.textContent = "破産ライン割れ確率が一定程度あります。勝率劣化・スリッページ拡大・ファットテールを考慮し、保守的な設定を推奨します。";
       } else {
         message.className = "notice ok";
-        message.textContent = `注文リスク計算タブの入力条件を使って、連敗耐久性・Monte Carlo破産確率・Kelly倍率別比較を計算しました。負けトレード幅は${values.lossPipsMode === "targetStop" ? "今回の損切り幅 + STOP超過見積り" : "Kelly計算の実効平均損失pips"}を使っています。安全保証ではなく目安です。`;
+        message.textContent = `注文リスク計算タブの入力条件を使って、連敗耐久性・Monte Carlo破産ライン割れ確率・Kelly倍率別比較を計算しました。乱数シードは${values.randomSeed}で、Kelly倍率別比較には同じ勝敗列と大損イベント列を使っています。負けトレード幅は${values.lossPipsMode === "targetStop" ? "今回の損切り幅 + STOP超過見積り" : "Kelly計算の実効平均損失pips"}を使っています。安全保証ではなく目安です。`;
       }
 
       updateSimulationOutput(values, main, losingRows, comparisons);
+    }
+
+    function randomizeSimulationSeed() {
+      document.getElementById("simRandomSeed").value = Math.floor(Math.random() * 4294967296);
+      runSimulationPanel();
     }
 
     function resetSimulationDefaults() {
@@ -1980,6 +2015,7 @@ Kelly係数 f* = (b × p - q) / b<br>
       document.getElementById("simLossPipsMode").value = "average";
       document.getElementById("simTrades").value = 500;
       document.getElementById("simSimulations").value = 5000;
+      document.getElementById("simRandomSeed").value = 12345;
       document.getElementById("simRuinLinePct").value = 50;
       document.getElementById("simWinRatePenalty").value = 0;
       document.getElementById("simTailLossProb").value = 1;
