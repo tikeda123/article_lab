@@ -390,7 +390,7 @@
     <section class="hero">
       <h1>FX Kelly基準 リスク管理ツール</h1>
       <p>
-        Kelly基準から「1回の最大許容損失額」を求め、注文前のロット数・損切り幅・連敗耐久性を確認します。注文リスク計算タブの入力条件を、破産耐久性シミュレーターでもそのまま使います。
+        Kelly基準から「1回の最大許容損失額」を求め、注文前の注文数量・損切り幅・連敗耐久性を確認します。注文リスク計算タブの入力条件を、破産耐久性シミュレーターでもそのまま使います。
       </p>
     </section>
 
@@ -408,15 +408,15 @@
           <label class="mode-option">
             <input type="radio" name="mode" value="lotsToStop" checked onchange="setMode(this.value)" />
             <span>
-              <strong>ロット数 → 許容損切りpips</strong>
-              <span>注文予定ロットで、何pipsまで逆行を許容できるか</span>
+              <strong>注文数量 → 許容損切りpips</strong>
+              <span>注文予定数量で、何pipsまで逆行を許容できるか</span>
             </span>
           </label>
           <label class="mode-option">
             <input type="radio" name="mode" value="stopToLots" onchange="setMode(this.value)" />
             <span>
-              <strong>損切りpips → 最大ロット数</strong>
-              <span>損切り幅を先に決めて、最大ロット数を逆算</span>
+              <strong>損切りpips → 最大注文数量</strong>
+              <span>損切り幅を先に決めて、最大注文数量を逆算</span>
             </span>
           </label>
         </div>
@@ -439,13 +439,13 @@
           <div>
             <label for="avgProfit">平均利益（pips）</label>
             <input id="avgProfit" type="number" value="30" min="0" step="0.1" oninput="calculate()" />
-            <div class="hint">コスト控除前の平均利益</div>
+            <div class="hint">コスト控除前。同じ通貨ペア・同じ戦略条件の平均pipsを使用</div>
           </div>
 
           <div>
             <label for="avgLoss">平均損失（pips）</label>
             <input id="avgLoss" type="number" value="30" min="0" step="0.1" oninput="calculate()" />
-            <div class="hint">コスト控除前の平均損失</div>
+            <div class="hint">コスト控除前。数量が大きく違う実績を混ぜる場合は円損益も確認</div>
           </div>
 
           <div>
@@ -455,9 +455,9 @@
           </div>
 
           <div>
-            <label for="slippagePips">想定スリッページ等（pips）</label>
+            <label for="slippagePips">想定スリッページ・STOP超過（pips）</label>
             <input id="slippagePips" type="number" value="0.3" min="0" step="0.1" oninput="calculate()" />
-            <div class="hint">約定ずれ・STOP超過などの保守的な見積り</div>
+            <div class="hint">チャート上の損切り幅から控除する保守的な見積り</div>
           </div>
 
           <div>
@@ -485,11 +485,17 @@
 
           <div class="section-title">FX注文条件</div>
 
+          <div>
+            <label for="minimumOrderLots">最低注文数量（通貨）</label>
+            <input id="minimumOrderLots" type="number" value="100" min="1" step="1" oninput="calculate()" />
+            <div class="hint">このツールの注文可否判定用。実際の最低取引数量はFX会社ごとに確認</div>
+          </div>
+
           <div class="mode-dependent for-lotsToStop lot-input-group">
-            <label for="orderLots">注文予定ロット数（1ロット=1通貨）</label>
-            <input id="orderLots" type="number" value="100" min="100" step="1" oninput="calculate()" />
-            <div class="hint">1ロット=1通貨として計算。100以上の整数のみ。小数と99以下は不可</div>
-            <div class="lot-buttons" aria-label="注文予定ロット数の加算ボタン">
+            <label for="orderLots">注文予定数量（通貨）</label>
+            <input id="orderLots" type="number" value="10000" min="100" step="1" oninput="calculate()" />
+            <div class="hint">入力値をそのまま通貨数量として計算。最低注文数量以上の整数のみ</div>
+            <div class="lot-buttons" aria-label="注文予定数量の加算ボタン">
               <button type="button" class="lot-add" onclick="addLots(100)">+100</button>
               <button type="button" class="lot-add" onclick="addLots(1000)">+1,000</button>
               <button type="button" class="lot-add" onclick="addLots(10000)">+10,000</button>
@@ -527,13 +533,22 @@
           <div>
             <label for="price">現在レート</label>
             <input id="price" type="number" value="155" min="0.0001" step="0.01" oninput="calculate()" />
-            <div class="hint">建玉金額・必要証拠金の概算に使用。非JPY建てでは決済通貨→円レートも反映します</div>
+            <div class="hint" id="priceHint">JPY建て例：USDJPY = 155。非JPY建て例：EURUSD = 1.0850、GBPUSD = 1.2700</div>
+          </div>
+
+          <div>
+            <label for="accountType">口座種別</label>
+            <select id="accountType" onchange="handleAccountTypeChange()">
+              <option value="jpIndividual" selected>国内個人口座（最大25倍）</option>
+              <option value="flexible">法人口座・海外口座・教育用任意設定</option>
+            </select>
+            <div class="hint" id="accountTypeHint">国内個人口座を想定する場合は25倍以下で入力</div>
           </div>
 
           <div>
             <label for="leverage">レバレッジ</label>
             <input id="leverage" type="number" value="5" min="1" step="1" oninput="calculate()" />
-            <div class="hint">同じ数量なら1pip損益は変えませんが、証拠金上の最大ロット数を変えます</div>
+            <div class="hint">同じ数量なら1pip損益は変えませんが、証拠金上の最大注文数量を変えます</div>
           </div>
         </div>
 
@@ -551,10 +566,11 @@ Full Kelly係数 f* = (b × p - q) / b<br>
 採用リスク率 = min(Full Kelly係数 × Kelly倍率, リスク上限)<br>
 最大許容損失額 = 口座資金 × 採用リスク率<br>
 1万通貨あたり1pip価値 = 10,000通貨 × pipサイズ × 決済通貨→円レート<br>
-1ロット = 1通貨（注文予定ロット数が注文数量）<br>
-証拠金上の最大ロット数 = 口座資金 × レバレッジ ÷ 建玉単価円<br>
-許容損切りpips = 最大許容損失額 ÷ 1pip損失額<br>
-最大ロット数 = 最大許容損失額 ÷ (損切りpips × 1通貨あたり1pip価値)
+注文予定数量 = 入力した通貨数量<br>
+証拠金上の最大注文数量 = 口座資金 × レバレッジ ÷ 建玉単価円<br>
+実効損失幅上限 = 最大許容損失額 ÷ 1pip損失額<br>
+チャート上の損切り目安 = max(0, 実効損失幅上限 - STOP超過見積り)<br>
+最大注文数量 = 最大許容損失額 ÷ ((損切りpips + STOP超過見積り) × 1通貨あたり1pip価値)
           </div>
         </div>
       </div>
@@ -570,15 +586,27 @@ Full Kelly係数 f* = (b × p - q) / b<br>
           </div>
 
           <div class="metric big mode-dependent for-lotsToStop">
-            <div class="label">注文予定ロットで許容できる損切り幅</div>
+            <div class="label">チャート上で許容できる損切り幅</div>
             <div class="value" id="allowableStopPips">-</div>
-            <div class="sub">このpipsを超える逆行で、Kelly上の許容損失を超えます</div>
+            <div class="sub">STOP超過見積りを控除後。この幅を超えるとKelly上の許容損失を超えます</div>
           </div>
 
           <div class="metric big mode-dependent for-stopToLots">
-            <div class="label">想定損切り幅で許容できる最大ロット数</div>
+            <div class="label">実際に注文できる最大数量</div>
             <div class="value" id="maxLots">-</div>
-            <div class="sub">Kelly上限と証拠金上限の小さい方を表示します</div>
+            <div class="sub">Kelly上限・証拠金上限・最低注文数量を反映</div>
+          </div>
+
+          <div class="metric mode-dependent for-lotsToStop">
+            <div class="label">実効損失幅上限</div>
+            <div class="value" id="effectiveStopPips">-</div>
+            <div class="sub">チャート損切り幅 + STOP超過見積り</div>
+          </div>
+
+          <div class="metric mode-dependent for-stopToLots">
+            <div class="label">Kelly上の理論最大数量</div>
+            <div class="value" id="theoreticalMaxLots">-</div>
+            <div class="sub">証拠金上限・最低注文数量を反映する前</div>
           </div>
 
           <div class="metric">
@@ -608,7 +636,7 @@ Full Kelly係数 f* = (b × p - q) / b<br>
           <div class="metric">
             <div class="label">実効注文数量</div>
             <div class="value" id="units">-</div>
-            <div class="sub">証拠金上限で調整後。1ロット=1通貨</div>
+            <div class="sub">証拠金上限で調整後。入力値は通貨数量</div>
           </div>
 
           <div class="metric">
@@ -630,7 +658,7 @@ Full Kelly係数 f* = (b × p - q) / b<br>
           </div>
 
           <div class="metric">
-            <div class="label">証拠金上の最大注文ロット数</div>
+            <div class="label">証拠金上の最大注文数量</div>
             <div class="value" id="marginMaxLots">-</div>
             <div class="sub">口座資金 × レバレッジ ÷ 建玉単価円</div>
           </div>
@@ -638,27 +666,30 @@ Full Kelly係数 f* = (b × p - q) / b<br>
 
         <div id="message" class="notice"></div>
 
-        <h2 style="margin-top: 24px;">ロット別：許容できる損切り幅</h2>
+        <h2 style="margin-top: 24px;">注文数量別：許容できる損切り幅</h2>
         <table>
           <thead>
             <tr>
-              <th>注文ロット（=通貨）</th>
-              <th>注文数量</th>
+              <th>比較数量</th>
+              <th>通貨数量</th>
               <th>1pip損失</th>
-              <th>許容損切り幅</th>
+              <th>実効損失幅上限</th>
+              <th>チャート損切り目安</th>
+              <th>判定</th>
             </tr>
           </thead>
           <tbody id="lotComparisonBody"></tbody>
         </table>
 
-        <h2 style="margin-top: 24px;">損切り幅別：最大ロット数</h2>
+        <h2 style="margin-top: 24px;">損切り幅別：最大注文数量</h2>
         <table>
           <thead>
             <tr>
-              <th>損切り幅</th>
-              <th>最大ロット数</th>
+              <th>チャート損切り幅</th>
+              <th>実効損失幅</th>
               <th>最大注文数量</th>
               <th>1pip損失</th>
+              <th>判定</th>
             </tr>
           </thead>
           <tbody id="stopComparisonBody"></tbody>
@@ -672,7 +703,7 @@ Full Kelly係数 f* = (b × p - q) / b<br>
       <div class="mode-box">
         <div class="mode-title">重要な整理 <span class="pill">Kelly基準の本来の出力</span></div>
         <p>
-          Kelly基準が直接出すのは、損切りpipsでもロット数でもありません。Kelly基準が出すのは、<strong>口座資金に対して1回のトレードで許容できる最大損失率</strong>です。
+          Kelly基準が直接出すのは、損切りpipsでも注文数量でもありません。Kelly基準が出すのは、<strong>口座資金に対して1回のトレードで許容できる最大損失率</strong>です。
         </p>
         <p>
           FXでは、その許容損失率を「口座資金」「注文数量」「1pipあたり損失」「損切り幅」に変換して、実際の注文判断に落とし込む必要があります。
@@ -682,12 +713,12 @@ Full Kelly係数 f* = (b × p - q) / b<br>
       <div class="mode-box">
         <div class="mode-title">レバレッジに関する注意 <span class="pill">初心者が誤解しやすい点</span></div>
         <p>
-          レバレッジを変えても、同じ注文数量であれば1pipsあたりの損益は変わりません。ただし、このツールでは証拠金上の最大ロット数を超えないように注文予定ロットを自動調整します。
-          そのため、レバレッジを変えると実効注文数量が変わり、<strong>注文予定ロットで許容できる損切りpips</strong>も変わります。
+          レバレッジを変えても、同じ注文数量であれば1pipsあたりの損益は変わりません。ただし、このツールでは証拠金上の最大注文数量を超えないように注文予定数量を自動調整します。
+          そのため、レバレッジを変えると実効注文数量が変わり、<strong>注文予定数量で許容できる損切りpips</strong>も変わります。
         </p>
         <p>
-          損失に耐えるために証拠金やレバレッジを増やすことは、安全化ではありません。ポジション維持や追加建ての余力を増やす行為であり、実質的にはナンピンに近いリスク拡大です。
-          許容損失を超えそうな場合は、証拠金を増やすのではなく、ロットを下げるか、損切り条件を見直すべきです。
+          証拠金を追加するだけで、同じポジションの1pipあたり損益が増えるわけではありません。ただし、当初決めた損切りを先送りするために証拠金を追加したり、追加建てで注文数量を増やしたりする場合は、損失拡大リスクを高める行為になります。
+          安全策としてではなく、リスクを延命・拡大する行為になっていないかを確認してください。
         </p>
       </div>
 
@@ -708,7 +739,7 @@ Full Kelly係数 f* = (b × p - q) / b<br>
         <div class="card">
           <h2>共有される注文前提</h2>
           <p class="explain">
-            このタブは、注文リスク計算タブで入力した資金・勝率・損益・コスト・Kelly倍率・リスク上限・pip価値・注文予定ロット数を使って実行します。
+            このタブは、注文リスク計算タブで入力した資金・勝率・損益・コスト・Kelly倍率・リスク上限・pip価値・注文予定数量を使って実行します。
           </p>
 
           <div class="shared-summary" aria-label="注文リスク計算タブから共有される値">
@@ -717,7 +748,7 @@ Full Kelly係数 f* = (b × p - q) / b<br>
             <div class="shared-item"><div class="label">平均利益 / 平均損失</div><div class="value" id="simSharedAvgPips">-</div></div>
             <div class="shared-item"><div class="label">取引コスト</div><div class="value" id="simSharedCost">-</div></div>
             <div class="shared-item"><div class="label">Kelly倍率 / リスク上限</div><div class="value" id="simSharedKelly">-</div></div>
-            <div class="shared-item"><div class="label">固定ロット型の基準数量</div><div class="value" id="simSharedLots">-</div></div>
+            <div class="shared-item"><div class="label">固定数量型の基準数量</div><div class="value" id="simSharedLots">-</div></div>
             <div class="shared-item"><div class="label">1通貨あたり1pip価値</div><div class="value" id="simSharedPipValue">-</div></div>
           </div>
 
@@ -726,22 +757,22 @@ Full Kelly係数 f* = (b × p - q) / b<br>
             <div>
               <label for="simSizingMode">資金管理方式</label>
               <select id="simSizingMode" onchange="runSimulationPanel()">
-                <option value="compound" selected>複利型：資金に応じてロット再計算</option>
-                <option value="fixed">固定ロット型：共有注文ロット数を固定</option>
+                <option value="compound" selected>複利型：資金に応じて注文数量を再計算</option>
+                <option value="fixed">固定数量型：共有注文数量を固定</option>
               </select>
-              <div class="hint">固定ロット型は、注文リスク計算タブの現在の注文予定ロット数を使います</div>
+              <div class="hint">固定数量型は、注文リスク計算タブの現在の注文予定数量を使います</div>
             </div>
 
             <div>
               <label for="simTrades">トレード回数</label>
-              <input id="simTrades" type="number" value="500" min="1" max="5000" step="10" oninput="markSimulationStale()" />
-              <div class="hint">例：500回</div>
+              <input id="simTrades" type="number" value="500" min="1" max="1000" step="10" oninput="markSimulationStale()" />
+              <div class="hint">例：500回。教育用ツールのため最大1,000回</div>
             </div>
 
             <div>
               <label for="simSimulations">シミュレーション本数</label>
-              <input id="simSimulations" type="number" value="5000" min="100" max="50000" step="100" oninput="markSimulationStale()" />
-              <div class="hint">5,000〜10,000程度を推奨</div>
+              <input id="simSimulations" type="number" value="5000" min="100" max="10000" step="100" oninput="markSimulationStale()" />
+              <div class="hint">5,000程度を推奨。最大10,000本</div>
             </div>
 
             <div>
@@ -779,7 +810,7 @@ Full Kelly係数 f* = (b × p - q) / b<br>
 Kelly係数 f* = (b × p - q) / b<br>
 採用リスク率 = min(Kelly係数 × Kelly倍率, リスク上限)<br>
 複利型の1回損失 = 現在資金 × 採用リスク率<br>
-固定ロット型の1回損失 = 共有ロット数（=通貨数量） × 1通貨あたり1pip価値 × 実効平均損失pips
+固定数量型の1回損失 = 共有注文数量 × 1通貨あたり1pip価値 × 実効平均損失pips
           </div>
         </div>
 
@@ -790,7 +821,7 @@ Kelly係数 f* = (b × p - q) / b<br>
               <div class="metric" id="simMetricFullKellyBox"><div class="label">Full Kelly係数</div><div class="value" id="simFullKelly">-</div><div class="sub">コスト控除後の理論値</div></div>
               <div class="metric" id="simMetricUsedRiskBox"><div class="label">採用リスク率</div><div class="value" id="simUsedRiskRate">-</div><div class="sub">Kelly倍率・上限反映後</div></div>
               <div class="metric"><div class="label">1回の許容損失額</div><div class="value" id="simRiskAmount">-</div><div class="sub">初期資金ベース</div></div>
-              <div class="metric"><div class="label">初期推奨ロット</div><div class="value" id="simInitialLots">-</div><div class="sub">複利型の初回目安</div></div>
+              <div class="metric"><div class="label">初期推奨数量</div><div class="value" id="simInitialLots">-</div><div class="sub">複利型の初回目安</div></div>
               <div class="metric" id="simMetricRuinBox"><div class="label">Monte Carlo破産確率</div><div class="value" id="simRuinProb">-</div><div class="sub">破産ライン割れの発生率</div></div>
               <div class="metric"><div class="label">生存率</div><div class="value" id="simSurvivalRate">-</div><div class="sub">破産ラインを割らなかった割合</div></div>
               <div class="metric"><div class="label">最終資産中央値</div><div class="value" id="simFinalMedian">-</div><div class="sub">全シナリオの中央値</div></div>
@@ -808,7 +839,7 @@ Kelly係数 f* = (b × p - q) / b<br>
           <div class="card section">
             <h2>連敗耐久性テーブル</h2>
             <table>
-              <thead><tr><th>連敗数</th><th>複利型 残資金</th><th>複利型 DD</th><th>固定ロット型 残資金</th><th>固定ロット型 DD</th></tr></thead>
+              <thead><tr><th>連敗数</th><th>複利型 残資金</th><th>複利型 DD</th><th>固定数量型 残資金</th><th>固定数量型 DD</th></tr></thead>
               <tbody id="simLosingStreakBody"></tbody>
             </table>
           </div>
@@ -816,7 +847,7 @@ Kelly係数 f* = (b × p - q) / b<br>
           <div class="card section">
             <h2>Kelly倍率別 比較表</h2>
             <table>
-              <thead><tr><th>Kelly倍率</th><th>採用リスク率</th><th>破産確率</th><th>最終資産中央値</th><th>最終資産 下位5%</th><th>最大DD中央値</th><th>最長連敗中央値</th></tr></thead>
+              <thead><tr><th>Kelly倍率</th><th>理論リスク率</th><th>採用リスク率</th><th>上限</th><th>比較数量</th><th>破産確率</th><th>最終資産中央値</th><th>最終資産 下位5%</th><th>最大DD中央値</th><th>最長連敗中央値</th></tr></thead>
               <tbody id="simKellyComparisonBody"></tbody>
             </table>
           </div>
@@ -825,7 +856,7 @@ Kelly係数 f* = (b × p - q) / b<br>
             <h2>このシミュレーターの読み方</h2>
             <div class="mode-box"><div class="mode-title">連敗耐久性 <span class="pill">直感的</span></div><p>勝率が高くても連敗は発生します。この資金管理で何連敗まで耐えられるかを確認します。</p></div>
             <div class="mode-box"><div class="mode-title">Monte Carlo破産確率 <span class="pill">ばらつき</span></div><p>勝ち負けの順番が変わるだけで最大DDや最終資産は大きく変わります。多数のランダムシナリオで確認します。</p></div>
-            <div class="mode-box"><div class="mode-title">Kelly倍率別比較 <span class="pill">攻めと生存性</span></div><p>Full Kellyは理論上の成長率が高くなりやすい一方、DDも大きくなります。Half Kelly以下に落とすことで破産耐久性を高めます。</p></div>
+            <div class="mode-box"><div class="mode-title">Kelly倍率別比較 <span class="pill">攻めと生存性</span></div><p>Full Kellyは理論上の成長率が高くなりやすい一方、DDも大きくなります。Half Kelly以下は理論上の最大成長率を一部犠牲にして、推定誤差や連敗への耐性を高める考え方です。</p></div>
             <p class="hint">注意：このシミュレーションは教育用の単純化モデルです。実際のFXでは、スプレッド拡大、スリッページ、STOP超過、約定拒否、ファットテール、勝率推定誤差、相場環境の変化が発生します。</p>
           </section>
         </div>
@@ -834,7 +865,8 @@ Kelly係数 f* = (b × p - q) / b<br>
   </main>
 
   <script>
-    const MIN_ORDER_LOTS = 100;
+    const DEFAULT_MIN_ORDER_UNITS = 100;
+    const DEFAULT_ORDER_UNITS = 10000;
     const UNITS_PER_LOT = 1;
 
     function yen(value) {
@@ -857,10 +889,14 @@ Kelly係数 f* = (b × p - q) / b<br>
       return Number(value.toFixed(1)).toLocaleString("ja-JP") + " pips";
     }
 
-    function lotsText(value) {
+    function quantityText(value) {
       if (!isFinite(value)) return "-";
       const digits = value >= 100 ? 1 : value >= 10 ? 2 : 4;
-      return Number(value.toFixed(digits)).toLocaleString("ja-JP") + " ロット";
+      return Number(value.toFixed(digits)).toLocaleString("ja-JP") + "通貨";
+    }
+
+    function lotsText(value) {
+      return quantityText(value);
     }
 
     function getNumber(id) {
@@ -880,6 +916,10 @@ Kelly係数 f* = (b × p - q) / b<br>
 
     function currentQuoteCurrencyMode() {
       return document.getElementById("quoteCurrencyMode").value;
+    }
+
+    function currentAccountType() {
+      return document.getElementById("accountType").value;
     }
 
     function quoteToJpyRateForMode(mode) {
@@ -909,6 +949,30 @@ Kelly係数 f* = (b × p - q) / b<br>
       const mode = currentQuoteCurrencyMode();
       document.body.classList.toggle("quote-jpy", mode === "JPY");
       document.body.classList.toggle("quote-other", mode !== "JPY");
+      const priceInput = document.getElementById("price");
+      const priceHint = document.getElementById("priceHint");
+      if (mode !== "JPY" && Number(priceInput.value) > 20) {
+        priceInput.value = "";
+      } else if (mode === "JPY" && priceInput.value === "") {
+        priceInput.value = 155;
+      }
+      priceHint.textContent = mode === "JPY"
+        ? "JPY建て例：USDJPY = 155、EURJPY = 170"
+        : "非JPY建て例：EURUSD = 1.0850、GBPUSD = 1.2700。決済通貨→円レートにはUSDJPYなどを入力";
+      calculate();
+    }
+
+    function handleAccountTypeChange() {
+      const accountType = currentAccountType();
+      const leverageInput = document.getElementById("leverage");
+      const accountTypeHint = document.getElementById("accountTypeHint");
+      if (accountType === "jpIndividual") {
+        leverageInput.max = "25";
+        accountTypeHint.textContent = "国内個人口座を想定する場合は25倍以下で入力";
+      } else {
+        leverageInput.removeAttribute("max");
+        accountTypeHint.textContent = "法人口座・海外口座・教育用の任意設定です";
+      }
       calculate();
     }
 
@@ -928,12 +992,14 @@ Kelly係数 f* = (b × p - q) / b<br>
       if (values.avgProfit <= 0) errors.push("平均利益は正の数で入力してください。");
       if (values.avgLoss <= 0) errors.push("平均損失は正の数で入力してください。");
       if (values.spreadPips < 0 || values.slippagePips < 0) errors.push("コストは0以上で入力してください。");
+      if (!Number.isInteger(values.minimumOrderLots) || values.minimumOrderLots <= 0) errors.push("最低注文数量は1以上の整数で入力してください。");
       if (values.quoteToJpyRate <= 0) errors.push("決済通貨→円レートは正の数で入力してください。");
       if (values.pipValuePer10k <= 0) errors.push("自動計算された1pip価値が正の数になりません。");
-      if (values.price <= 0) errors.push("現在レートは正の数で入力してください。");
+      if (values.price <= 0) errors.push("現在レートは正の数で入力してください。非JPY建てペアではEURUSD=1.0850のようなレートを入力してください。");
       if (values.leverage <= 0) errors.push("レバレッジは正の数で入力してください。");
-      if (values.mode === "lotsToStop" && !Number.isInteger(values.orderLots)) errors.push("注文予定ロット数は小数不可です。整数で入力してください。");
-      if (values.mode === "lotsToStop" && values.orderLots < MIN_ORDER_LOTS) errors.push("注文予定ロット数は100以上の整数で入力してください。99以下は不可です。");
+      if (values.accountType === "jpIndividual" && values.leverage > 25) errors.push("国内個人口座を想定する場合、レバレッジは25倍以下で入力してください。");
+      if (values.mode === "lotsToStop" && !Number.isInteger(values.orderLots)) errors.push("注文予定数量は小数不可です。整数で入力してください。");
+      if (values.mode === "lotsToStop" && values.orderLots < values.minimumOrderLots) errors.push(`注文予定数量は最低注文数量の${quantityText(values.minimumOrderLots)}以上で入力してください。`);
       if (values.mode === "stopToLots" && values.targetStopPips <= 0) errors.push("想定損切り幅は正の数で入力してください。");
       return errors;
     }
@@ -942,7 +1008,9 @@ Kelly係数 f* = (b × p - q) / b<br>
       [
         "riskAmount",
         "allowableStopPips",
+        "effectiveStopPips",
         "maxLots",
+        "theoreticalMaxLots",
         "fullKelly",
         "usedRiskRate",
         "payoffRatio",
@@ -968,6 +1036,7 @@ Kelly係数 f* = (b × p - q) / b<br>
       const slippagePips = getNumber("slippagePips");
       const kellyMultiplier = getNumber("kellyMultiplier");
       const riskCap = getNumber("riskCap");
+      const minimumOrderLots = getNumber("minimumOrderLots");
       const orderLots = getNumber("orderLots");
       const targetStopPips = getNumber("targetStopPips");
       const unitsPerLot = UNITS_PER_LOT;
@@ -976,14 +1045,19 @@ Kelly係数 f* = (b × p - q) / b<br>
       const pipValuePer10k = calculatePipValuePer10k(quoteCurrencyMode, quoteToJpyRate);
       const price = getNumber("price");
       const leverage = getNumber("leverage");
+      const accountType = currentAccountType();
       const message = document.getElementById("message");
+      const orderLotsInput = document.getElementById("orderLots");
+      if (isFinite(minimumOrderLots) && minimumOrderLots > 0) {
+        orderLotsInput.min = lotInputText(minimumOrderLots);
+      }
 
       document.getElementById("pipValuePer10k").value = Number(pipValuePer10k.toFixed(4));
       document.getElementById("pipValueHint").textContent = quoteCurrencyMode === "JPY"
         ? "JPY建てペア: 10,000通貨 × 0.01円 = 100円"
         : `非JPY建てペア: 10,000通貨 × 0.0001 × ${num(quoteToJpyRate, 4)}円 = ${yen(pipValuePer10k)}`;
 
-      const values = { capital, winRatePct, avgProfit, avgLoss, spreadPips, slippagePips, kellyMultiplier, riskCap, orderLots, targetStopPips, unitsPerLot, quoteCurrencyMode, quoteToJpyRate, pipValuePer10k, price, leverage, mode };
+      const values = { capital, winRatePct, avgProfit, avgLoss, spreadPips, slippagePips, kellyMultiplier, riskCap, minimumOrderLots, orderLots, targetStopPips, unitsPerLot, quoteCurrencyMode, quoteToJpyRate, pipValuePer10k, price, leverage, accountType, mode };
       const errors = validateInputs(values);
       if (errors.length > 0) {
         window.currentPositionSnapshot = null;
@@ -1008,7 +1082,6 @@ Kelly係数 f* = (b × p - q) / b<br>
       const pipValuePerLot = pipValuePer10k * unitsPerLot / 10000;
       const marginMaxLots = calculateMarginMaxLots(capital, leverage, price, quoteToJpyRate, unitsPerLot);
       const marginMaxIntegerLots = isFinite(marginMaxLots) ? Math.floor(marginMaxLots) : NaN;
-      const orderLotsInput = document.getElementById("orderLots");
       if (isFinite(marginMaxLots) && marginMaxLots > 0) {
         orderLotsInput.max = lotInputText(marginMaxIntegerLots);
       } else {
@@ -1017,6 +1090,7 @@ Kelly係数 f* = (b × p - q) / b<br>
 
       let lotsForDisplay = orderLots;
       let allowedStopPips = NaN;
+      let effectiveStopPips = NaN;
       let maxLots = NaN;
       let kellyMaxLots = NaN;
       let units = NaN;
@@ -1024,15 +1098,18 @@ Kelly係数 f* = (b × p - q) / b<br>
       let notional = NaN;
       let margin = NaN;
       let orderLotsWasCapped = false;
+      let orderIsExecutable = true;
 
-      if (mode === "lotsToStop" && isFinite(marginMaxIntegerLots) && marginMaxIntegerLots < MIN_ORDER_LOTS) {
-        const minUnits = MIN_ORDER_LOTS * unitsPerLot;
+      if (mode === "lotsToStop" && isFinite(marginMaxIntegerLots) && marginMaxIntegerLots < minimumOrderLots) {
+        const minUnits = minimumOrderLots * unitsPerLot;
         const minNotional = minUnits * price * quoteToJpyRate;
         const minMargin = minNotional / leverage;
 
         document.getElementById("riskAmount").textContent = yen(riskAmount);
         document.getElementById("allowableStopPips").textContent = "-";
+        document.getElementById("effectiveStopPips").textContent = "-";
         document.getElementById("maxLots").textContent = "-";
+        document.getElementById("theoreticalMaxLots").textContent = "-";
         document.getElementById("fullKelly").textContent = pct(fullKelly);
         document.getElementById("usedRiskRate").textContent = pct(usedRiskRate);
         document.getElementById("riskCapStatus").textContent = isCapped ? "Kelly計算値がリスク上限で制限されています" : "Kelly倍率と上限を反映後";
@@ -1043,12 +1120,12 @@ Kelly係数 f* = (b × p - q) / b<br>
         document.getElementById("notional").textContent = yen(minNotional);
         document.getElementById("margin").textContent = yen(minMargin);
         document.getElementById("marginMaxLots").textContent = lotsText(marginMaxLots);
-        renderLotComparison(riskAmount, pipValuePerLot, unitsPerLot);
-        renderStopComparison(riskAmount, pipValuePerLot, unitsPerLot);
+        renderLotComparison(riskAmount, pipValuePerLot, unitsPerLot, marginMaxIntegerLots, minimumOrderLots, slippagePips);
+        renderStopComparison(riskAmount, pipValuePerLot, unitsPerLot, marginMaxIntegerLots, minimumOrderLots, slippagePips);
         window.currentPositionSnapshot = null;
         renderSimulationSharedSummary();
         message.className = "notice danger";
-        message.textContent = `現在の口座資金・レバレッジ・レートでは、最低注文ロット数の${MIN_ORDER_LOTS}ロットを建てられません。\n証拠金上の整数最大注文ロット数は${lotInputText(marginMaxIntegerLots)}ロットです。\n証拠金やレバレッジを増やして耐えるのではなく、口座条件・注文数量・取引条件を見直してください。`;
+        message.textContent = `現在の口座資金・レバレッジ・レートでは、最低注文数量の${quantityText(minimumOrderLots)}を建てられません。\n証拠金上の整数最大注文数量は${quantityText(marginMaxIntegerLots)}です。\n口座条件・注文数量・取引条件を見直してください。`;
         return;
       }
 
@@ -1061,22 +1138,30 @@ Kelly係数 f* = (b × p - q) / b<br>
         }
         units = lotsForDisplay * unitsPerLot;
         lossPerPip = lotsForDisplay * pipValuePerLot;
-        allowedStopPips = lossPerPip > 0 ? riskAmount / lossPerPip : NaN;
+        effectiveStopPips = lossPerPip > 0 ? riskAmount / lossPerPip : NaN;
+        allowedStopPips = Math.max(0, effectiveStopPips - slippagePips);
         notional = units * price * quoteToJpyRate;
         margin = notional / leverage;
       } else {
-        kellyMaxLots = targetStopPips > 0 ? riskAmount / (targetStopPips * pipValuePerLot) : NaN;
+        const effectiveTargetStopPips = targetStopPips + slippagePips;
+        kellyMaxLots = effectiveTargetStopPips > 0 ? riskAmount / (effectiveTargetStopPips * pipValuePerLot) : NaN;
         maxLots = isFinite(marginMaxIntegerLots) ? Math.floor(Math.min(kellyMaxLots, marginMaxIntegerLots)) : Math.floor(kellyMaxLots);
         lotsForDisplay = maxLots;
-        units = maxLots * unitsPerLot;
-        lossPerPip = maxLots * pipValuePerLot;
-        notional = units * price * quoteToJpyRate;
-        margin = notional / leverage;
+        effectiveStopPips = effectiveTargetStopPips;
+        orderIsExecutable = maxLots >= minimumOrderLots;
+        if (orderIsExecutable) {
+          units = maxLots * unitsPerLot;
+          lossPerPip = maxLots * pipValuePerLot;
+          notional = units * price * quoteToJpyRate;
+          margin = notional / leverage;
+        }
       }
 
       document.getElementById("riskAmount").textContent = yen(riskAmount);
       document.getElementById("allowableStopPips").textContent = pips(allowedStopPips);
-      document.getElementById("maxLots").textContent = lotsText(maxLots);
+      document.getElementById("effectiveStopPips").textContent = pips(effectiveStopPips);
+      document.getElementById("maxLots").textContent = mode === "stopToLots" && !orderIsExecutable ? "注文不可" : quantityText(maxLots);
+      document.getElementById("theoreticalMaxLots").textContent = quantityText(kellyMaxLots);
       document.getElementById("fullKelly").textContent = pct(fullKelly);
       document.getElementById("usedRiskRate").textContent = pct(usedRiskRate);
       document.getElementById("riskCapStatus").textContent = isCapped ? "Kelly計算値がリスク上限で制限されています" : "Kelly倍率と上限を反映後";
@@ -1088,10 +1173,10 @@ Kelly係数 f* = (b × p - q) / b<br>
       document.getElementById("margin").textContent = yen(margin);
       document.getElementById("marginMaxLots").textContent = lotsText(marginMaxLots);
 
-      renderLotComparison(riskAmount, pipValuePerLot, unitsPerLot);
-      renderStopComparison(riskAmount, pipValuePerLot, unitsPerLot);
+      renderLotComparison(riskAmount, pipValuePerLot, unitsPerLot, marginMaxIntegerLots, minimumOrderLots, slippagePips);
+      renderStopComparison(riskAmount, pipValuePerLot, unitsPerLot, marginMaxIntegerLots, minimumOrderLots, slippagePips);
 
-      window.currentPositionSnapshot = {
+      window.currentPositionSnapshot = orderIsExecutable ? {
         mode,
         capital,
         winRatePct,
@@ -1111,6 +1196,7 @@ Kelly係数 f* = (b × p - q) / b<br>
         riskAmount,
         pipValuePerLot,
         unitsPerLot,
+        minimumOrderLots,
         marginMaxLots,
         quoteCurrencyMode,
         quoteToJpyRate,
@@ -1118,7 +1204,7 @@ Kelly係数 f* = (b × p - q) / b<br>
         positionLotsForSimulation: lotsForDisplay,
         positionUnitsForSimulation: units,
         targetStopPips,
-      };
+      } : null;
       renderSimulationSharedSummary();
 
       const messages = [];
@@ -1148,65 +1234,74 @@ Kelly係数 f* = (b × p - q) / b<br>
 
       if (orderLotsWasCapped) {
         if (className !== "notice danger") className = "notice";
-        messages.push(`注文予定ロット数が証拠金上の最大値を超えたため、${lotsText(marginMaxLots)}に自動調整しました。`);
+        messages.push(`注文予定数量が証拠金上の最大値を超えたため、${quantityText(marginMaxIntegerLots)}に自動調整しました。`);
       }
 
       if (mode === "lotsToStop" && allowedStopPips > 0 && allowedStopPips < 10) {
         if (className !== "notice danger") className = "notice";
-        messages.push("このロット数では、許容できる損切り幅が10pips未満です。わずかな逆行でKelly上の許容損失を超える可能性があります。");
+        messages.push("この注文数量では、チャート上で許容できる損切り幅が10pips未満です。わずかな逆行でKelly上の許容損失を超える可能性があります。");
       }
 
-      if (mode === "stopToLots" && maxLots > 0 && maxLots < 1) {
+      if (mode === "stopToLots" && maxLots > 0 && maxLots < minimumOrderLots) {
         if (className !== "notice danger") className = "notice";
-        messages.push("この損切り幅では、許容できる最大ロット数が1ロット未満です。損切り幅を狭めるか、取引数量をかなり小さくする必要があります。");
+        messages.push(`この条件で許容できる最大注文数量は${quantityText(maxLots)}で、最低注文数量の${quantityText(minimumOrderLots)}に届きません。結果欄は注文不可として扱います。`);
       }
 
-      if (mode === "stopToLots" && maxLots > 0 && maxLots < MIN_ORDER_LOTS) {
-        if (className !== "notice danger") className = "notice";
-        messages.push(`この条件で許容できる最大ロット数は${lotsText(maxLots)}で、最低注文ロット数の${MIN_ORDER_LOTS}ロットに届きません。`);
-      }
+      messages.push(`証拠金上の最大注文数量は${quantityText(marginMaxLots)}です。この値を超える注文予定数量は入力できません。`);
 
-      messages.push(`証拠金上の最大注文ロット数は${lotsText(marginMaxLots)}です。この値を超える注文予定ロット数は入力できません。`);
-
-      messages.push("同じ注文数量ならレバレッジは1pip損益を変えません。ただし、このツールでは証拠金上限で注文予定ロットを自動調整するため、レバレッジ変更で実効注文数量と許容損切りpipsが変わる場合があります。");
-      messages.push("損失に耐えるために証拠金やレバレッジを増やすことは、安全化ではなくナンピン的なリスク拡大として扱ってください。");
+      messages.push("同じ注文数量ならレバレッジは1pip損益を変えません。ただし、このツールでは証拠金上限で注文予定数量を自動調整するため、レバレッジ変更で実効注文数量と許容損切りpipsが変わる場合があります。");
+      messages.push("証拠金追加だけで1pip損益は増えません。ただし、損切り先送りや追加建てに使う場合は、リスクを延命・拡大していないか確認してください。");
 
       message.className = className;
       message.textContent = messages.join("\n");
     }
 
-    function renderLotComparison(riskAmount, pipValuePerLot, unitsPerLot) {
+    function renderLotComparison(riskAmount, pipValuePerLot, unitsPerLot, marginMaxIntegerLots, minimumOrderLots, slippagePips) {
       const body = document.getElementById("lotComparisonBody");
       body.innerHTML = "";
-      const lotChoices = [100, 1000, 10000, 100000];
+      const lotChoices = [...new Set([minimumOrderLots, 1000, 10000, 100000].filter((lots) => isFinite(lots) && lots > 0).map((lots) => Math.floor(lots)))].sort((a, b) => a - b);
       lotChoices.forEach((lots) => {
         const lp = lots * pipValuePerLot;
-        const allowedPips = lp > 0 ? riskAmount / lp : NaN;
+        const effectiveAllowedPips = lp > 0 ? riskAmount / lp : NaN;
+        const chartStopPips = Math.max(0, effectiveAllowedPips - slippagePips);
+        const isBelowMinimum = lots < minimumOrderLots;
+        const exceedsMargin = isFinite(marginMaxIntegerLots) && lots > marginMaxIntegerLots;
+        const status = isBelowMinimum ? "最低注文数量未満" : exceedsMargin ? "証拠金上限超過" : "注文可能";
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${lotsText(lots)}</td>
+          <td>${quantityText(lots)}</td>
           <td>${num(lots * unitsPerLot, 0)}通貨</td>
           <td>${yen(lp)}</td>
-          <td>${pips(allowedPips)}</td>
+          <td>${pips(effectiveAllowedPips)}</td>
+          <td>${pips(chartStopPips)}</td>
+          <td>${status}</td>
         `;
         body.appendChild(tr);
       });
     }
 
-    function renderStopComparison(riskAmount, pipValuePerLot, unitsPerLot) {
+    function renderStopComparison(riskAmount, pipValuePerLot, unitsPerLot, marginMaxIntegerLots, minimumOrderLots, slippagePips) {
       const body = document.getElementById("stopComparisonBody");
       body.innerHTML = "";
       const stopChoices = [5, 10, 20, 30, 50, 100, 200];
       stopChoices.forEach((stop) => {
-        const maxLots = stop > 0 ? riskAmount / (stop * pipValuePerLot) : NaN;
-        const maxUnits = maxLots * unitsPerLot;
-        const lp = maxLots * pipValuePerLot;
+        const effectiveStop = stop + slippagePips;
+        const kellyLots = effectiveStop > 0 ? riskAmount / (effectiveStop * pipValuePerLot) : NaN;
+        const cappedLots = isFinite(marginMaxIntegerLots) ? Math.floor(Math.min(kellyLots, marginMaxIntegerLots)) : Math.floor(kellyLots);
+        const isExecutable = cappedLots >= minimumOrderLots;
+        const maxUnits = isExecutable ? cappedLots * unitsPerLot : NaN;
+        const lp = isExecutable ? cappedLots * pipValuePerLot : NaN;
+        const marginCapped = isFinite(marginMaxIntegerLots) && kellyLots > marginMaxIntegerLots;
+        const status = isExecutable
+          ? (marginCapped ? "証拠金上限反映" : "注文可能")
+          : `注文不可（理論上 ${quantityText(cappedLots)}）`;
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${pips(stop)}</td>
-          <td>${lotsText(maxLots)}</td>
-          <td>${num(maxUnits, 0)}通貨</td>
+          <td>${pips(effectiveStop)}</td>
+          <td>${isExecutable ? quantityText(cappedLots) : "注文不可"}</td>
           <td>${yen(lp)}</td>
+          <td>${status}</td>
         `;
         body.appendChild(tr);
       });
@@ -1214,10 +1309,11 @@ Kelly係数 f* = (b × p - q) / b<br>
 
     function addLots(amount) {
       const input = document.getElementById("orderLots");
-      const current = Number.isInteger(Number(input.value)) ? Number(input.value) : MIN_ORDER_LOTS;
+      const minimum = Number(input.min) || DEFAULT_MIN_ORDER_UNITS;
+      const current = Number.isInteger(Number(input.value)) ? Math.max(Number(input.value), minimum) : minimum;
       const max = Number(input.max);
       const next = current + amount;
-      input.value = isFinite(max) && max >= MIN_ORDER_LOTS ? Math.min(next, max) : next;
+      input.value = isFinite(max) && max >= minimum ? Math.min(next, max) : next;
       calculate();
     }
 
@@ -1232,12 +1328,15 @@ Kelly係数 f* = (b × p - q) / b<br>
       document.getElementById("slippagePips").value = 0.3;
       document.getElementById("kellyMultiplier").value = 0.5;
       document.getElementById("riskCap").value = 0.02;
-      document.getElementById("orderLots").value = MIN_ORDER_LOTS;
+      document.getElementById("minimumOrderLots").value = DEFAULT_MIN_ORDER_UNITS;
+      document.getElementById("orderLots").value = DEFAULT_ORDER_UNITS;
       document.getElementById("targetStopPips").value = 30;
       document.getElementById("quoteCurrencyMode").value = "JPY";
       document.getElementById("quoteToJpyRate").value = 155;
       document.getElementById("price").value = 155;
+      document.getElementById("accountType").value = "jpIndividual";
       document.getElementById("leverage").value = 5;
+      handleAccountTypeChange();
       handleQuoteCurrencyChange();
     }
 
@@ -1278,13 +1377,13 @@ Kelly係数 f* = (b × p - q) / b<br>
       }
 
       const riskCapLabel = Number.isFinite(snapshot.riskCap) ? pct(snapshot.riskCap) : "上限なし";
-      const modeLabel = snapshot.mode === "stopToLots" ? "最大ロット数" : "注文予定ロット";
+      const modeLabel = snapshot.mode === "stopToLots" ? "最大注文数量" : "注文予定数量";
       setText("simSharedCapital", yen(snapshot.capital));
       setText("simSharedWinRate", `${num(snapshot.winRatePct, 1)}%`);
       setText("simSharedAvgPips", `${pips(snapshot.avgProfit)} / ${pips(snapshot.avgLoss)}`);
       setText("simSharedCost", pips(snapshot.roundTripCost));
       setText("simSharedKelly", `${num(snapshot.kellyMultiplier * 100, 0)}% / ${riskCapLabel}`);
-      setText("simSharedLots", `${modeLabel}: ${lotsText(snapshot.positionLotsForSimulation)}`);
+      setText("simSharedLots", `${modeLabel}: ${quantityText(snapshot.positionLotsForSimulation)}`);
       setText("simSharedPipValue", `${yen(snapshot.pipValuePerLot)} / 通貨`);
     }
 
@@ -1321,6 +1420,7 @@ Kelly係数 f* = (b × p - q) / b<br>
         fullKelly,
         usedRiskRate,
         sizingMode: document.getElementById("simSizingMode").value,
+        minimumOrderLots: base.minimumOrderLots,
         fixedLots: base.positionLotsForSimulation,
         trades: Math.floor(getNumber("simTrades")),
         simulations: Math.floor(getNumber("simSimulations")),
@@ -1338,9 +1438,10 @@ Kelly係数 f* = (b × p - q) / b<br>
       if (values.winRate <= 0 || values.winRate >= 1) return "勝率悪化補正後の勝率は0%超かつ100%未満にしてください。";
       if (values.avgProfit <= 0 || values.avgLoss <= 0) return "平均利益・平均損失は正の数で入力してください。";
       if (values.effectiveProfit <= 0) return "取引コストが平均利益以上です。Kelly計算上は取引不適です。";
-      if (values.pipValuePerLot <= 0 || values.fixedLots <= 0) return "pip価値、共有ロット数は正の数で入力してください。";
-      if (values.trades < 1 || values.trades > 5000) return "トレード回数は1〜5000で入力してください。";
-      if (values.simulations < 100 || values.simulations > 50000) return "シミュレーション本数は100〜50000で入力してください。";
+      if (values.pipValuePerLot <= 0 || values.fixedLots <= 0) return "pip価値、共有注文数量は正の数で入力してください。";
+      if (values.fixedLots < values.minimumOrderLots) return "共有注文数量が最低注文数量を下回っています。注文リスク計算タブの条件を確認してください。";
+      if (values.trades < 1 || values.trades > 1000) return "トレード回数は1〜1000で入力してください。";
+      if (values.simulations < 100 || values.simulations > 10000) return "シミュレーション本数は100〜10000で入力してください。";
       if (values.ruinLinePct <= 0 || values.ruinLinePct >= 1) return "破産ラインは1〜99%で入力してください。";
       if (values.tailLossProb < 0 || values.tailLossProb > 1) return "大損発生確率は0〜100%で入力してください。";
       if (values.tailLossMultiplier < 1) return "大損倍率は1以上で入力してください。";
@@ -1349,6 +1450,14 @@ Kelly係数 f* = (b × p - q) / b<br>
 
     function computeSimulationInitialLots(values, riskRate) {
       return Math.max(0, values.capital * riskRate / (values.effectiveLoss * values.pipValuePerLot));
+    }
+
+    function fixedLotsForRiskRate(values, riskRate) {
+      const theoreticalLots = computeSimulationInitialLots(values, riskRate);
+      const marginCappedLots = isFinite(values.marginMaxLots)
+        ? Math.min(theoreticalLots, Math.floor(values.marginMaxLots))
+        : theoreticalLots;
+      return Math.max(0, Math.floor(marginCappedLots));
     }
 
     function runMonteCarlo(values, riskRate, keepPaths) {
@@ -1455,8 +1564,19 @@ Kelly係数 f* = (b × p - q) / b<br>
         { label: "Quarter", multiplier: 0.25 },
         { label: "1/10", multiplier: 0.1 },
       ].map((row) => {
-        const riskRate = Math.min(values.fullKelly * row.multiplier, values.riskCap);
-        return { label: row.label, ...runMonteCarlo(values, riskRate, false) };
+        const theoreticalRiskRate = values.fullKelly * row.multiplier;
+        const riskRate = Math.min(theoreticalRiskRate, values.riskCap);
+        const comparisonFixedLots = values.sizingMode === "fixed" ? fixedLotsForRiskRate(values, riskRate) : NaN;
+        const comparisonValues = values.sizingMode === "fixed"
+          ? { ...values, fixedLots: comparisonFixedLots }
+          : values;
+        return {
+          label: row.label,
+          theoreticalRiskRate,
+          riskCapApplied: riskRate < theoreticalRiskRate,
+          comparisonFixedLots,
+          ...runMonteCarlo(comparisonValues, riskRate, false),
+        };
       });
     }
 
@@ -1629,7 +1749,10 @@ Kelly係数 f* = (b × p - q) / b<br>
       document.getElementById("simKellyComparisonBody").innerHTML = comparisons.map((row) => `
         <tr>
           <td>${row.label}</td>
+          <td>${pct(row.theoreticalRiskRate)}</td>
           <td>${pct(row.riskRate)}</td>
+          <td>${row.riskCapApplied ? "適用" : "なし"}</td>
+          <td>${isFinite(row.comparisonFixedLots) ? quantityText(row.comparisonFixedLots) : "-"}</td>
           <td>${pct(row.ruinProb)}</td>
           <td>${yen(row.finalMedian)}</td>
           <td>${yen(row.finalP05)}</td>
@@ -1640,7 +1763,7 @@ Kelly係数 f* = (b × p - q) / b<br>
 
       drawLines("simLosingStreakChart", [
         { label: "複利型", data: losingRows.map((row) => ({ x: row.streak, y: row.compoundEquity })), color: "#2563eb" },
-        { label: "固定ロット型", data: losingRows.map((row) => ({ x: row.streak, y: row.fixedEquity })), color: "#dc2626" },
+        { label: "固定数量型", data: losingRows.map((row) => ({ x: row.streak, y: row.fixedEquity })), color: "#dc2626" },
       ], "x", "y", { yLabel: "残資金", yFormat: yen, minX: 0, maxX: Math.max(...losingRows.map((row) => row.streak)), minY: 0, maxY: values.capital, legend: true });
 
       drawLines("simEquityPathsChart", main.samplePaths.map((path, index) => ({
@@ -1680,7 +1803,7 @@ Kelly係数 f* = (b × p - q) / b<br>
       setText("simFullKelly", pct(values.fullKelly));
       setText("simUsedRiskRate", pct(riskRate));
       setText("simRiskAmount", yen(values.capital * riskRate));
-      setText("simInitialLots", `${num(computeSimulationInitialLots(values, riskRate), 1)}ロット`);
+      setText("simInitialLots", quantityText(computeSimulationInitialLots(values, riskRate)));
       setText("simRuinProb", pct(main.ruinProb));
       setText("simSurvivalRate", pct(main.survivalRate));
       setText("simFinalMedian", yen(main.finalMedian));
@@ -1715,6 +1838,7 @@ Kelly係数 f* = (b × p - q) / b<br>
       runSimulationPanel();
     }
 
+    handleAccountTypeChange();
     handleQuoteCurrencyChange();
   </script>
 </body>
