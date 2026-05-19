@@ -1,0 +1,1721 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FX Kelly基準 リスク管理ツール</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --accent: #2563eb;
+      --accent-dark: #1d4ed8;
+      --accent-soft: #dbeafe;
+      --danger: #dc2626;
+      --danger-soft: #fef2f2;
+      --warning: #d97706;
+      --warning-soft: #fff7ed;
+      --ok: #059669;
+      --ok-soft: #ecfdf5;
+      --ink: #111827;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 16px 56px;
+    }
+
+    .hero { margin-bottom: 18px; }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: 34px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .tab-list {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 0 0 20px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+    }
+
+    .tab-button {
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      border-radius: 999px;
+    }
+
+    .tab-button.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+      padding: 22px;
+    }
+
+    .card h2 { margin: 0 0 16px; font-size: 20px; }
+    .card h3 { margin: 22px 0 10px; font-size: 16px; }
+
+    .mode-switch {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .mode-option {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fafafa;
+      cursor: pointer;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .mode-option input { width: auto; margin-top: 4px; }
+    .mode-option strong { display: block; line-height: 1.35; }
+    .mode-option span { display: block; color: var(--muted); font-size: 12px; margin-top: 3px; }
+    .mode-option:has(input:checked) { border-color: #93c5fd; background: var(--accent-soft); }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    label {
+      display: block;
+      font-weight: 750;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .hint { color: var(--muted); font-size: 12px; margin-top: 4px; }
+
+    input, select {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    input:focus, select:focus {
+      outline: 2px solid var(--accent-soft);
+      border-color: var(--accent);
+    }
+
+    .actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+
+    .lot-buttons {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 11px 18px;
+      font-weight: 750;
+      cursor: pointer;
+      font-size: 14px;
+      transition: transform 0.05s ease, opacity 0.15s ease;
+    }
+
+    button:active { transform: translateY(1px); }
+    button:hover { opacity: 0.92; }
+
+    .lot-add {
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      background: #f7f7f7;
+      color: #3f3f46;
+      min-height: 42px;
+      padding: 0 8px;
+      font-size: 17px;
+      font-weight: 650;
+      line-height: 1;
+      white-space: nowrap;
+      box-shadow: inset 0 0 0 1px #eeeeee;
+    }
+
+    .primary { color: #fff; background: var(--accent); }
+    .secondary { color: var(--text); background: #eef2ff; }
+
+    .section-title {
+      grid-column: 1 / -1;
+      margin: 8px 0 -2px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+      color: var(--ink);
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .mode-dependent { display: none; }
+    body.mode-lotsToStop .for-lotsToStop { display: block; }
+    body.mode-stopToLots .for-stopToLots { display: block; }
+    .lot-input-group { grid-column: 1 / -1; }
+    .quote-conversion { display: none; }
+    body.quote-other .quote-conversion { display: block; }
+
+    .result-main {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .metric {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fafafa;
+      min-height: 106px;
+    }
+
+    .metric .label { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+    .metric .value { font-size: 22px; font-weight: 850; line-height: 1.25; }
+    .metric .sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    .okish { background: var(--ok-soft); border-color: #a7f3d0; }
+    .warnish { background: var(--warning-soft); border-color: #fed7aa; }
+    .dangerish { background: var(--danger-soft); border-color: #fecaca; }
+
+    .big {
+      grid-column: span 2;
+      background: var(--accent-soft);
+      border-color: #bfdbfe;
+    }
+
+    .big .value { font-size: 30px; color: var(--accent-dark); }
+
+    .notice {
+      padding: 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-top: 12px;
+      border: 1px solid var(--border);
+      background: var(--warning-soft);
+      color: #7c2d12;
+      white-space: pre-line;
+    }
+
+    .notice.ok { background: var(--ok-soft); color: #064e3b; border-color: #a7f3d0; }
+    .notice.danger { background: var(--danger-soft); color: #7f1d1d; border-color: #fecaca; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--border);
+      text-align: right;
+      vertical-align: top;
+    }
+
+    th:first-child, td:first-child { text-align: left; }
+    th { color: var(--muted); font-weight: 750; background: #fafafa; }
+
+    .explain { margin-top: 18px; color: var(--muted); font-size: 14px; }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .simulation-grid {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .charts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .chart-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      padding: 16px;
+    }
+
+    canvas {
+      width: 100%;
+      height: 300px;
+      display: block;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .shared-summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 12px 0 18px;
+    }
+
+    .shared-item {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fafafa;
+      padding: 10px;
+    }
+
+    .shared-item .label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 2px;
+    }
+
+    .shared-item .value {
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .section { margin-top: 20px; }
+
+    .formula {
+      background: var(--ink);
+      color: #f9fafb;
+      padding: 14px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .mode-box {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fafafa;
+      margin-top: 14px;
+    }
+
+    .mode-title { font-weight: 850; margin-bottom: 8px; }
+
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #3730a3;
+      font-size: 12px;
+      font-weight: 750;
+      margin-left: 6px;
+    }
+
+    .risk-cap-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .risk-cap-row select { flex: 1; }
+
+    @media (max-width: 900px) {
+      .grid, .form-grid, .result-main, .mode-switch, .simulation-grid, .result-grid, .charts, .shared-summary { grid-template-columns: 1fr; }
+      .big { grid-column: span 1; }
+    }
+
+    @media (max-width: 620px) {
+      .hero h1 { font-size: 26px; }
+      .lot-buttons { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .lot-add { font-size: 16px; min-height: 42px; }
+    }
+  </style>
+</head>
+<body class="mode-lotsToStop">
+  <main class="container">
+    <section class="hero">
+      <h1>FX Kelly基準 リスク管理ツール</h1>
+      <p>
+        Kelly基準から「1回の最大許容損失額」を求め、注文前のロット数・損切り幅・連敗耐久性を確認します。注文リスク計算タブの入力条件を、破産耐久性シミュレーターでもそのまま使います。
+      </p>
+    </section>
+
+    <nav class="tab-list" aria-label="ツール切り替え">
+      <button type="button" class="tab-button active" id="positionTab" onclick="activateTab('position')">注文リスク計算</button>
+      <button type="button" class="tab-button" id="simulationTab" onclick="activateTab('simulation')">破産耐久性シミュレーター</button>
+    </nav>
+
+    <section id="positionPanel" class="tab-panel active">
+    <section class="grid">
+      <div class="card">
+        <h2>入力条件</h2>
+
+        <div class="mode-switch" aria-label="計算モード">
+          <label class="mode-option">
+            <input type="radio" name="mode" value="lotsToStop" checked onchange="setMode(this.value)" />
+            <span>
+              <strong>ロット数 → 許容損切りpips</strong>
+              <span>注文予定ロットで、何pipsまで逆行を許容できるか</span>
+            </span>
+          </label>
+          <label class="mode-option">
+            <input type="radio" name="mode" value="stopToLots" onchange="setMode(this.value)" />
+            <span>
+              <strong>損切りpips → 最大ロット数</strong>
+              <span>損切り幅を先に決めて、最大ロット数を逆算</span>
+            </span>
+          </label>
+        </div>
+
+        <div class="form-grid">
+          <div class="section-title">Kelly計算の前提</div>
+
+          <div>
+            <label for="capital">口座資金（円）</label>
+            <input id="capital" type="number" value="1000000" min="1" step="1" oninput="calculate()" />
+            <div class="hint">例：100万円なら 1000000</div>
+          </div>
+
+          <div>
+            <label for="winRate">勝率（%）</label>
+            <input id="winRate" type="number" value="55" min="0" max="100" step="0.1" oninput="calculate()" />
+            <div class="hint">例：55</div>
+          </div>
+
+          <div>
+            <label for="avgProfit">平均利益（pips）</label>
+            <input id="avgProfit" type="number" value="30" min="0" step="0.1" oninput="calculate()" />
+            <div class="hint">コスト控除前の平均利益</div>
+          </div>
+
+          <div>
+            <label for="avgLoss">平均損失（pips）</label>
+            <input id="avgLoss" type="number" value="30" min="0" step="0.1" oninput="calculate()" />
+            <div class="hint">コスト控除前の平均損失</div>
+          </div>
+
+          <div>
+            <label for="spreadPips">想定スプレッド（pips）</label>
+            <input id="spreadPips" type="number" value="0.2" min="0" step="0.1" oninput="calculate()" />
+            <div class="hint">例：USDJPY 0.2pips など</div>
+          </div>
+
+          <div>
+            <label for="slippagePips">想定スリッページ等（pips）</label>
+            <input id="slippagePips" type="number" value="0.3" min="0" step="0.1" oninput="calculate()" />
+            <div class="hint">約定ずれ・STOP超過などの保守的な見積り</div>
+          </div>
+
+          <div>
+            <label for="kellyMultiplier">Kelly倍率</label>
+            <select id="kellyMultiplier" onchange="calculate()">
+              <option value="1">Full Kelly（100%）</option>
+              <option value="0.5" selected>Half Kelly（50%）</option>
+              <option value="0.25">Quarter Kelly（25%）</option>
+              <option value="0.1">1/10 Kelly（10%）</option>
+            </select>
+            <div class="hint">実運用ではFull Kellyではなく、Half Kelly以下が現実的</div>
+          </div>
+
+          <div>
+            <label for="riskCap">1回あたりリスク上限</label>
+            <select id="riskCap" onchange="calculate()">
+              <option value="0.01">1% 上限（超保守的）</option>
+              <option value="0.02" selected>2% 上限（標準的）</option>
+              <option value="0.03">3% 上限（やや攻め）</option>
+              <option value="0.05">5% 上限（警告域）</option>
+              <option value="999">上限なし（非推奨）</option>
+            </select>
+            <div class="hint">採用リスク率 = min(Kelly係数 × Kelly倍率, リスク上限)</div>
+          </div>
+
+          <div class="section-title">FX注文条件</div>
+
+          <div class="mode-dependent for-lotsToStop lot-input-group">
+            <label for="orderLots">注文予定ロット数（1ロット=1通貨）</label>
+            <input id="orderLots" type="number" value="100" min="100" step="1" oninput="calculate()" />
+            <div class="hint">1ロット=1通貨として計算。100以上の整数のみ。小数と99以下は不可</div>
+            <div class="lot-buttons" aria-label="注文予定ロット数の加算ボタン">
+              <button type="button" class="lot-add" onclick="addLots(100)">+100</button>
+              <button type="button" class="lot-add" onclick="addLots(1000)">+1,000</button>
+              <button type="button" class="lot-add" onclick="addLots(10000)">+10,000</button>
+              <button type="button" class="lot-add" onclick="addLots(100000)">+100,000</button>
+            </div>
+          </div>
+
+          <div class="mode-dependent for-stopToLots">
+            <label for="targetStopPips">想定損切り幅（pips）</label>
+            <input id="targetStopPips" type="number" value="30" min="0.1" step="0.1" oninput="calculate()" />
+            <div class="hint">例：30pipsで損切りしたい場合は30</div>
+          </div>
+
+          <div>
+            <label for="quoteCurrencyMode">通貨ペアの決済通貨</label>
+            <select id="quoteCurrencyMode" onchange="handleQuoteCurrencyChange()">
+              <option value="JPY" selected>JPY建てペア（USDJPY / EURJPY など）</option>
+              <option value="OTHER">非JPY建てペア（EURUSD / GBPUSD など）</option>
+            </select>
+            <div class="hint">1pip価値の円換算に使います</div>
+          </div>
+
+          <div class="quote-conversion">
+            <label for="quoteToJpyRate">決済通貨→円レート</label>
+            <input id="quoteToJpyRate" type="number" value="155" min="0.0001" step="0.01" oninput="calculate()" />
+            <div class="hint">例：EURUSDならUSDJPYレートを入力</div>
+          </div>
+
+          <div>
+            <label for="pipValuePer10k">1万通貨あたり1pip価値（円・自動計算）</label>
+            <input id="pipValuePer10k" type="number" value="100" readonly />
+            <div class="hint" id="pipValueHint">JPY建てペア: 10,000通貨 × 0.01円 = 100円</div>
+          </div>
+
+          <div>
+            <label for="price">現在レート</label>
+            <input id="price" type="number" value="155" min="0.0001" step="0.01" oninput="calculate()" />
+            <div class="hint">建玉金額・必要証拠金の概算に使用。非JPY建てでは決済通貨→円レートも反映します</div>
+          </div>
+
+          <div>
+            <label for="leverage">レバレッジ</label>
+            <input id="leverage" type="number" value="5" min="1" step="1" oninput="calculate()" />
+            <div class="hint">同じ数量なら1pip損益は変えませんが、証拠金上の最大ロット数を変えます</div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="primary" onclick="calculate()">計算する</button>
+          <button class="secondary" onclick="resetDefault()">初期値に戻す</button>
+        </div>
+
+        <div class="explain">
+          <div class="formula">
+Full Kelly係数 f* = (b × p - q) / b<br>
+実効平均利益 = 平均利益 - 取引コスト<br>
+実効平均損失 = 平均損失 + 取引コスト<br>
+損益比 b = 実効平均利益 ÷ 実効平均損失<br>
+採用リスク率 = min(Full Kelly係数 × Kelly倍率, リスク上限)<br>
+最大許容損失額 = 口座資金 × 採用リスク率<br>
+1万通貨あたり1pip価値 = 10,000通貨 × pipサイズ × 決済通貨→円レート<br>
+1ロット = 1通貨（注文予定ロット数が注文数量）<br>
+証拠金上の最大ロット数 = 口座資金 × レバレッジ ÷ 建玉単価円<br>
+許容損切りpips = 最大許容損失額 ÷ 1pip損失額<br>
+最大ロット数 = 最大許容損失額 ÷ (損切りpips × 1通貨あたり1pip価値)
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>計算結果</h2>
+
+        <div class="result-main">
+          <div class="metric big">
+            <div class="label">Kelly基準上の最大許容損失額</div>
+            <div class="value" id="riskAmount">-</div>
+            <div class="sub">STOP_LOSS到達時に許容する最大損失額</div>
+          </div>
+
+          <div class="metric big mode-dependent for-lotsToStop">
+            <div class="label">注文予定ロットで許容できる損切り幅</div>
+            <div class="value" id="allowableStopPips">-</div>
+            <div class="sub">このpipsを超える逆行で、Kelly上の許容損失を超えます</div>
+          </div>
+
+          <div class="metric big mode-dependent for-stopToLots">
+            <div class="label">想定損切り幅で許容できる最大ロット数</div>
+            <div class="value" id="maxLots">-</div>
+            <div class="sub">Kelly上限と証拠金上限の小さい方を表示します</div>
+          </div>
+
+          <div class="metric">
+            <div class="label">Full Kelly係数</div>
+            <div class="value" id="fullKelly">-</div>
+            <div class="sub">コスト控除後の理論Kelly比率</div>
+          </div>
+
+          <div class="metric">
+            <div class="label">採用リスク率</div>
+            <div class="value" id="usedRiskRate">-</div>
+            <div class="sub" id="riskCapStatus">Kelly倍率と上限を反映後</div>
+          </div>
+
+          <div class="metric">
+            <div class="label">実効損益比</div>
+            <div class="value" id="payoffRatio">-</div>
+            <div class="sub">コスト控除後の平均利益 ÷ 平均損失</div>
+          </div>
+
+          <div class="metric">
+            <div class="label">取引コスト見積り</div>
+            <div class="value" id="roundTripCost">-</div>
+            <div class="sub">スプレッド + スリッページ等</div>
+          </div>
+
+          <div class="metric">
+            <div class="label">実効注文数量</div>
+            <div class="value" id="units">-</div>
+            <div class="sub">証拠金上限で調整後。1ロット=1通貨</div>
+          </div>
+
+          <div class="metric">
+            <div class="label">1pips逆行時の損失</div>
+            <div class="value" id="lossPerPip">-</div>
+            <div class="sub">注文数量ベース</div>
+          </div>
+
+          <div class="metric">
+            <div class="label">建玉金額の概算</div>
+            <div class="value" id="notional">-</div>
+            <div class="sub">現在レート × 通貨数量</div>
+          </div>
+
+          <div class="metric">
+            <div class="label">必要証拠金の概算</div>
+            <div class="value" id="margin">-</div>
+            <div class="sub">建玉金額 ÷ レバレッジ</div>
+          </div>
+
+          <div class="metric">
+            <div class="label">証拠金上の最大注文ロット数</div>
+            <div class="value" id="marginMaxLots">-</div>
+            <div class="sub">口座資金 × レバレッジ ÷ 建玉単価円</div>
+          </div>
+        </div>
+
+        <div id="message" class="notice"></div>
+
+        <h2 style="margin-top: 24px;">ロット別：許容できる損切り幅</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>注文ロット（=通貨）</th>
+              <th>注文数量</th>
+              <th>1pip損失</th>
+              <th>許容損切り幅</th>
+            </tr>
+          </thead>
+          <tbody id="lotComparisonBody"></tbody>
+        </table>
+
+        <h2 style="margin-top: 24px;">損切り幅別：最大ロット数</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>損切り幅</th>
+              <th>最大ロット数</th>
+              <th>最大注文数量</th>
+              <th>1pip損失</th>
+            </tr>
+          </thead>
+          <tbody id="stopComparisonBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top: 20px;">
+      <h2>このツールの考え方</h2>
+
+      <div class="mode-box">
+        <div class="mode-title">重要な整理 <span class="pill">Kelly基準の本来の出力</span></div>
+        <p>
+          Kelly基準が直接出すのは、損切りpipsでもロット数でもありません。Kelly基準が出すのは、<strong>口座資金に対して1回のトレードで許容できる最大損失率</strong>です。
+        </p>
+        <p>
+          FXでは、その許容損失率を「口座資金」「注文数量」「1pipあたり損失」「損切り幅」に変換して、実際の注文判断に落とし込む必要があります。
+        </p>
+      </div>
+
+      <div class="mode-box">
+        <div class="mode-title">レバレッジに関する注意 <span class="pill">初心者が誤解しやすい点</span></div>
+        <p>
+          レバレッジを変えても、同じ注文数量であれば1pipsあたりの損益は変わりません。ただし、このツールでは証拠金上の最大ロット数を超えないように注文予定ロットを自動調整します。
+          そのため、レバレッジを変えると実効注文数量が変わり、<strong>注文予定ロットで許容できる損切りpips</strong>も変わります。
+        </p>
+        <p>
+          損失に耐えるために証拠金やレバレッジを増やすことは、安全化ではありません。ポジション維持や追加建ての余力を増やす行為であり、実質的にはナンピンに近いリスク拡大です。
+          許容損失を超えそうな場合は、証拠金を増やすのではなく、ロットを下げるか、損切り条件を見直すべきです。
+        </p>
+      </div>
+
+      <div class="mode-box">
+        <div class="mode-title">Full Kellyをそのまま使わない理由</div>
+        <p>
+          Kelly基準は、勝率・平均利益・平均損失が正しく推定できていることを前提にしています。しかし実際のFXでは、相場環境の変化、スプレッド拡大、スリッページ、STOP_LOSS超過、ファットテールにより、期待値は簡単に悪化します。
+        </p>
+        <p>
+          そのため、このツールではKelly倍率に加えて、1回あたりリスク上限を設けています。初心者向けには、Half Kelly以下かつ1〜2%上限を基本にする方が現実的です。
+        </p>
+      </div>
+    </section>
+    </section>
+
+    <section id="simulationPanel" class="tab-panel">
+      <section class="simulation-grid">
+        <div class="card">
+          <h2>共有される注文前提</h2>
+          <p class="explain">
+            このタブは、注文リスク計算タブで入力した資金・勝率・損益・コスト・Kelly倍率・リスク上限・pip価値・注文予定ロット数を使って実行します。
+          </p>
+
+          <div class="shared-summary" aria-label="注文リスク計算タブから共有される値">
+            <div class="shared-item"><div class="label">口座資金</div><div class="value" id="simSharedCapital">-</div></div>
+            <div class="shared-item"><div class="label">勝率</div><div class="value" id="simSharedWinRate">-</div></div>
+            <div class="shared-item"><div class="label">平均利益 / 平均損失</div><div class="value" id="simSharedAvgPips">-</div></div>
+            <div class="shared-item"><div class="label">取引コスト</div><div class="value" id="simSharedCost">-</div></div>
+            <div class="shared-item"><div class="label">Kelly倍率 / リスク上限</div><div class="value" id="simSharedKelly">-</div></div>
+            <div class="shared-item"><div class="label">固定ロット型の基準数量</div><div class="value" id="simSharedLots">-</div></div>
+            <div class="shared-item"><div class="label">1通貨あたり1pip価値</div><div class="value" id="simSharedPipValue">-</div></div>
+          </div>
+
+          <h2>シミュレーション条件</h2>
+          <div class="form-grid">
+            <div>
+              <label for="simSizingMode">資金管理方式</label>
+              <select id="simSizingMode" onchange="runSimulationPanel()">
+                <option value="compound" selected>複利型：資金に応じてロット再計算</option>
+                <option value="fixed">固定ロット型：共有注文ロット数を固定</option>
+              </select>
+              <div class="hint">固定ロット型は、注文リスク計算タブの現在の注文予定ロット数を使います</div>
+            </div>
+
+            <div>
+              <label for="simTrades">トレード回数</label>
+              <input id="simTrades" type="number" value="500" min="1" max="5000" step="10" oninput="markSimulationStale()" />
+              <div class="hint">例：500回</div>
+            </div>
+
+            <div>
+              <label for="simSimulations">シミュレーション本数</label>
+              <input id="simSimulations" type="number" value="5000" min="100" max="50000" step="100" oninput="markSimulationStale()" />
+              <div class="hint">5,000〜10,000程度を推奨</div>
+            </div>
+
+            <div>
+              <label for="simRuinLinePct">破産ライン（初期資金比 %）</label>
+              <input id="simRuinLinePct" type="number" value="50" min="1" max="99" step="1" oninput="markSimulationStale()" />
+              <div class="hint">例：50%以下を実質破産とみなす</div>
+            </div>
+
+            <div>
+              <label for="simWinRatePenalty">勝率悪化補正（%pt）</label>
+              <input id="simWinRatePenalty" type="number" value="0" min="0" max="50" step="0.5" oninput="markSimulationStale()" />
+              <div class="hint">例：3なら55%→52%</div>
+            </div>
+
+            <div>
+              <label for="simTailLossProb">大損発生確率（負けトレード中 %）</label>
+              <input id="simTailLossProb" type="number" value="1" min="0" max="100" step="0.1" oninput="markSimulationStale()" />
+              <div class="hint">STOP超過・窓開け・急変動の簡易モデル</div>
+            </div>
+
+            <div>
+              <label for="simTailLossMultiplier">大損倍率</label>
+              <input id="simTailLossMultiplier" type="number" value="3" min="1" max="20" step="0.1" oninput="markSimulationStale()" />
+              <div class="hint">通常負けの何倍の損失にするか</div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="primary" onclick="runSimulationPanel()">シミュレーション実行</button>
+            <button class="secondary" onclick="resetSimulationDefaults()">シミュレーション条件を初期値に戻す</button>
+          </div>
+
+          <div id="simMessage" class="notice"></div>
+          <div class="formula">
+Kelly係数 f* = (b × p - q) / b<br>
+採用リスク率 = min(Kelly係数 × Kelly倍率, リスク上限)<br>
+複利型の1回損失 = 現在資金 × 採用リスク率<br>
+固定ロット型の1回損失 = 共有ロット数（=通貨数量） × 1通貨あたり1pip価値 × 実効平均損失pips
+          </div>
+        </div>
+
+        <div>
+          <div class="card">
+            <h2>シミュレーション結果</h2>
+            <div class="result-grid">
+              <div class="metric" id="simMetricFullKellyBox"><div class="label">Full Kelly係数</div><div class="value" id="simFullKelly">-</div><div class="sub">コスト控除後の理論値</div></div>
+              <div class="metric" id="simMetricUsedRiskBox"><div class="label">採用リスク率</div><div class="value" id="simUsedRiskRate">-</div><div class="sub">Kelly倍率・上限反映後</div></div>
+              <div class="metric"><div class="label">1回の許容損失額</div><div class="value" id="simRiskAmount">-</div><div class="sub">初期資金ベース</div></div>
+              <div class="metric"><div class="label">初期推奨ロット</div><div class="value" id="simInitialLots">-</div><div class="sub">複利型の初回目安</div></div>
+              <div class="metric" id="simMetricRuinBox"><div class="label">Monte Carlo破産確率</div><div class="value" id="simRuinProb">-</div><div class="sub">破産ライン割れの発生率</div></div>
+              <div class="metric"><div class="label">生存率</div><div class="value" id="simSurvivalRate">-</div><div class="sub">破産ラインを割らなかった割合</div></div>
+              <div class="metric"><div class="label">最終資産中央値</div><div class="value" id="simFinalMedian">-</div><div class="sub">全シナリオの中央値</div></div>
+              <div class="metric"><div class="label">最大DD中央値</div><div class="value" id="simDdMedian">-</div><div class="sub">資産曲線の最大下落率</div></div>
+            </div>
+
+            <div class="charts">
+              <div class="chart-card"><h3>連敗耐久性：連敗数と残資金</h3><canvas id="simLosingStreakChart"></canvas><div class="hint">複利型は資金減少に応じて損失額も縮小します。</div></div>
+              <div class="chart-card"><h3>Monte Carlo：資産曲線サンプル</h3><canvas id="simEquityPathsChart"></canvas><div class="hint">ランダムに抽出した複数シナリオの資産推移です。</div></div>
+              <div class="chart-card"><h3>最終資産分布</h3><canvas id="simFinalDistributionChart"></canvas><div class="hint">最終資産のヒストグラムです。</div></div>
+              <div class="chart-card"><h3>Kelly倍率別比較</h3><canvas id="simKellyCompareChart"></canvas><div class="hint">Full / Half / Quarter / 1/10 Kellyを比較します。</div></div>
+            </div>
+          </div>
+
+          <div class="card section">
+            <h2>連敗耐久性テーブル</h2>
+            <table>
+              <thead><tr><th>連敗数</th><th>複利型 残資金</th><th>複利型 DD</th><th>固定ロット型 残資金</th><th>固定ロット型 DD</th></tr></thead>
+              <tbody id="simLosingStreakBody"></tbody>
+            </table>
+          </div>
+
+          <div class="card section">
+            <h2>Kelly倍率別 比較表</h2>
+            <table>
+              <thead><tr><th>Kelly倍率</th><th>採用リスク率</th><th>破産確率</th><th>最終資産中央値</th><th>最終資産 下位5%</th><th>最大DD中央値</th><th>最長連敗中央値</th></tr></thead>
+              <tbody id="simKellyComparisonBody"></tbody>
+            </table>
+          </div>
+
+          <section class="card section">
+            <h2>このシミュレーターの読み方</h2>
+            <div class="mode-box"><div class="mode-title">連敗耐久性 <span class="pill">直感的</span></div><p>勝率が高くても連敗は発生します。この資金管理で何連敗まで耐えられるかを確認します。</p></div>
+            <div class="mode-box"><div class="mode-title">Monte Carlo破産確率 <span class="pill">ばらつき</span></div><p>勝ち負けの順番が変わるだけで最大DDや最終資産は大きく変わります。多数のランダムシナリオで確認します。</p></div>
+            <div class="mode-box"><div class="mode-title">Kelly倍率別比較 <span class="pill">攻めと生存性</span></div><p>Full Kellyは理論上の成長率が高くなりやすい一方、DDも大きくなります。Half Kelly以下に落とすことで破産耐久性を高めます。</p></div>
+            <p class="hint">注意：このシミュレーションは教育用の単純化モデルです。実際のFXでは、スプレッド拡大、スリッページ、STOP超過、約定拒否、ファットテール、勝率推定誤差、相場環境の変化が発生します。</p>
+          </section>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const MIN_ORDER_LOTS = 100;
+    const UNITS_PER_LOT = 1;
+
+    function yen(value) {
+      if (!isFinite(value)) return "-";
+      return Math.round(value).toLocaleString("ja-JP") + "円";
+    }
+
+    function pct(value) {
+      if (!isFinite(value)) return "-";
+      return (value * 100).toFixed(2) + "%";
+    }
+
+    function num(value, digits = 0) {
+      if (!isFinite(value)) return "-";
+      return Number(value.toFixed(digits)).toLocaleString("ja-JP");
+    }
+
+    function pips(value) {
+      if (!isFinite(value)) return "-";
+      return Number(value.toFixed(1)).toLocaleString("ja-JP") + " pips";
+    }
+
+    function lotsText(value) {
+      if (!isFinite(value)) return "-";
+      const digits = value >= 100 ? 1 : value >= 10 ? 2 : 4;
+      return Number(value.toFixed(digits)).toLocaleString("ja-JP") + " ロット";
+    }
+
+    function getNumber(id) {
+      return Number(document.getElementById(id).value);
+    }
+
+    function currentMode() {
+      const checked = document.querySelector('input[name="mode"]:checked');
+      return checked ? checked.value : "lotsToStop";
+    }
+
+    function setMode(mode) {
+      document.body.classList.toggle("mode-lotsToStop", mode === "lotsToStop");
+      document.body.classList.toggle("mode-stopToLots", mode === "stopToLots");
+      calculate();
+    }
+
+    function currentQuoteCurrencyMode() {
+      return document.getElementById("quoteCurrencyMode").value;
+    }
+
+    function quoteToJpyRateForMode(mode) {
+      return mode === "JPY" ? 1 : getNumber("quoteToJpyRate");
+    }
+
+    function pipSizeForMode(mode) {
+      return mode === "JPY" ? 0.01 : 0.0001;
+    }
+
+    function calculatePipValuePer10k(mode, quoteToJpyRate) {
+      return 10000 * pipSizeForMode(mode) * quoteToJpyRate;
+    }
+
+    function lotInputText(value) {
+      if (!isFinite(value)) return "";
+      return String(Math.floor(value));
+    }
+
+    function calculateMarginMaxLots(capital, leverage, price, quoteToJpyRate, unitsPerLot) {
+      const notionalPerLot = price * quoteToJpyRate * unitsPerLot;
+      if (notionalPerLot <= 0 || !isFinite(notionalPerLot)) return NaN;
+      return capital * leverage / notionalPerLot;
+    }
+
+    function handleQuoteCurrencyChange() {
+      const mode = currentQuoteCurrencyMode();
+      document.body.classList.toggle("quote-jpy", mode === "JPY");
+      document.body.classList.toggle("quote-other", mode !== "JPY");
+      calculate();
+    }
+
+    function calcKelly(winRate, payoffRatio) {
+      const p = winRate;
+      const q = 1 - p;
+      const b = payoffRatio;
+      if (b <= 0 || !isFinite(b)) return 0;
+      const f = (b * p - q) / b;
+      return Math.max(f, 0);
+    }
+
+    function validateInputs(values) {
+      const errors = [];
+      if (values.capital <= 0) errors.push("口座資金は正の数で入力してください。");
+      if (values.winRatePct < 0 || values.winRatePct > 100) errors.push("勝率は0〜100%の範囲で入力してください。");
+      if (values.avgProfit <= 0) errors.push("平均利益は正の数で入力してください。");
+      if (values.avgLoss <= 0) errors.push("平均損失は正の数で入力してください。");
+      if (values.spreadPips < 0 || values.slippagePips < 0) errors.push("コストは0以上で入力してください。");
+      if (values.quoteToJpyRate <= 0) errors.push("決済通貨→円レートは正の数で入力してください。");
+      if (values.pipValuePer10k <= 0) errors.push("自動計算された1pip価値が正の数になりません。");
+      if (values.price <= 0) errors.push("現在レートは正の数で入力してください。");
+      if (values.leverage <= 0) errors.push("レバレッジは正の数で入力してください。");
+      if (values.mode === "lotsToStop" && !Number.isInteger(values.orderLots)) errors.push("注文予定ロット数は小数不可です。整数で入力してください。");
+      if (values.mode === "lotsToStop" && values.orderLots < MIN_ORDER_LOTS) errors.push("注文予定ロット数は100以上の整数で入力してください。99以下は不可です。");
+      if (values.mode === "stopToLots" && values.targetStopPips <= 0) errors.push("想定損切り幅は正の数で入力してください。");
+      return errors;
+    }
+
+    function clearPositionResults() {
+      [
+        "riskAmount",
+        "allowableStopPips",
+        "maxLots",
+        "fullKelly",
+        "usedRiskRate",
+        "payoffRatio",
+        "roundTripCost",
+        "units",
+        "lossPerPip",
+        "notional",
+        "margin",
+        "marginMaxLots",
+      ].forEach((id) => setText(id, "-"));
+      setText("riskCapStatus", "Kelly倍率と上限を反映後");
+      document.getElementById("lotComparisonBody").innerHTML = "";
+      document.getElementById("stopComparisonBody").innerHTML = "";
+    }
+
+    function calculate() {
+      const mode = currentMode();
+      const capital = getNumber("capital");
+      const winRatePct = getNumber("winRate");
+      const avgProfit = getNumber("avgProfit");
+      const avgLoss = getNumber("avgLoss");
+      const spreadPips = getNumber("spreadPips");
+      const slippagePips = getNumber("slippagePips");
+      const kellyMultiplier = getNumber("kellyMultiplier");
+      const riskCap = getNumber("riskCap");
+      const orderLots = getNumber("orderLots");
+      const targetStopPips = getNumber("targetStopPips");
+      const unitsPerLot = UNITS_PER_LOT;
+      const quoteCurrencyMode = currentQuoteCurrencyMode();
+      const quoteToJpyRate = quoteToJpyRateForMode(quoteCurrencyMode);
+      const pipValuePer10k = calculatePipValuePer10k(quoteCurrencyMode, quoteToJpyRate);
+      const price = getNumber("price");
+      const leverage = getNumber("leverage");
+      const message = document.getElementById("message");
+
+      document.getElementById("pipValuePer10k").value = Number(pipValuePer10k.toFixed(4));
+      document.getElementById("pipValueHint").textContent = quoteCurrencyMode === "JPY"
+        ? "JPY建てペア: 10,000通貨 × 0.01円 = 100円"
+        : `非JPY建てペア: 10,000通貨 × 0.0001 × ${num(quoteToJpyRate, 4)}円 = ${yen(pipValuePer10k)}`;
+
+      const values = { capital, winRatePct, avgProfit, avgLoss, spreadPips, slippagePips, kellyMultiplier, riskCap, orderLots, targetStopPips, unitsPerLot, quoteCurrencyMode, quoteToJpyRate, pipValuePer10k, price, leverage, mode };
+      const errors = validateInputs(values);
+      if (errors.length > 0) {
+        window.currentPositionSnapshot = null;
+        clearPositionResults();
+        renderSimulationSharedSummary();
+        message.className = "notice danger";
+        message.textContent = errors.join("\n");
+        return;
+      }
+
+      const roundTripCost = spreadPips + slippagePips;
+      const effectiveProfit = Math.max(avgProfit - roundTripCost, 0);
+      const effectiveLoss = avgLoss + roundTripCost;
+      const payoffRatio = effectiveLoss > 0 ? effectiveProfit / effectiveLoss : 0;
+      const winRate = winRatePct / 100;
+      const fullKelly = calcKelly(winRate, payoffRatio);
+      const rawUsedRiskRate = fullKelly * kellyMultiplier;
+      const usedRiskRate = Math.min(rawUsedRiskRate, riskCap);
+      const isCapped = usedRiskRate < rawUsedRiskRate;
+      const riskAmount = capital * usedRiskRate;
+
+      const pipValuePerLot = pipValuePer10k * unitsPerLot / 10000;
+      const marginMaxLots = calculateMarginMaxLots(capital, leverage, price, quoteToJpyRate, unitsPerLot);
+      const marginMaxIntegerLots = isFinite(marginMaxLots) ? Math.floor(marginMaxLots) : NaN;
+      const orderLotsInput = document.getElementById("orderLots");
+      if (isFinite(marginMaxLots) && marginMaxLots > 0) {
+        orderLotsInput.max = lotInputText(marginMaxIntegerLots);
+      } else {
+        orderLotsInput.removeAttribute("max");
+      }
+
+      let lotsForDisplay = orderLots;
+      let allowedStopPips = NaN;
+      let maxLots = NaN;
+      let kellyMaxLots = NaN;
+      let units = NaN;
+      let lossPerPip = NaN;
+      let notional = NaN;
+      let margin = NaN;
+      let orderLotsWasCapped = false;
+
+      if (mode === "lotsToStop" && isFinite(marginMaxIntegerLots) && marginMaxIntegerLots < MIN_ORDER_LOTS) {
+        const minUnits = MIN_ORDER_LOTS * unitsPerLot;
+        const minNotional = minUnits * price * quoteToJpyRate;
+        const minMargin = minNotional / leverage;
+
+        document.getElementById("riskAmount").textContent = yen(riskAmount);
+        document.getElementById("allowableStopPips").textContent = "-";
+        document.getElementById("maxLots").textContent = "-";
+        document.getElementById("fullKelly").textContent = pct(fullKelly);
+        document.getElementById("usedRiskRate").textContent = pct(usedRiskRate);
+        document.getElementById("riskCapStatus").textContent = isCapped ? "Kelly計算値がリスク上限で制限されています" : "Kelly倍率と上限を反映後";
+        document.getElementById("payoffRatio").textContent = num(payoffRatio, 3);
+        document.getElementById("roundTripCost").textContent = pips(roundTripCost);
+        document.getElementById("units").textContent = "-";
+        document.getElementById("lossPerPip").textContent = "-";
+        document.getElementById("notional").textContent = yen(minNotional);
+        document.getElementById("margin").textContent = yen(minMargin);
+        document.getElementById("marginMaxLots").textContent = lotsText(marginMaxLots);
+        renderLotComparison(riskAmount, pipValuePerLot, unitsPerLot);
+        renderStopComparison(riskAmount, pipValuePerLot, unitsPerLot);
+        window.currentPositionSnapshot = null;
+        renderSimulationSharedSummary();
+        message.className = "notice danger";
+        message.textContent = `現在の口座資金・レバレッジ・レートでは、最低注文ロット数の${MIN_ORDER_LOTS}ロットを建てられません。\n証拠金上の整数最大注文ロット数は${lotInputText(marginMaxIntegerLots)}ロットです。\n証拠金やレバレッジを増やして耐えるのではなく、口座条件・注文数量・取引条件を見直してください。`;
+        return;
+      }
+
+      if (mode === "lotsToStop") {
+        lotsForDisplay = orderLots;
+        if (isFinite(marginMaxIntegerLots) && marginMaxIntegerLots > 0 && lotsForDisplay > marginMaxIntegerLots) {
+          lotsForDisplay = marginMaxIntegerLots;
+          orderLotsWasCapped = true;
+          orderLotsInput.value = lotInputText(marginMaxIntegerLots);
+        }
+        units = lotsForDisplay * unitsPerLot;
+        lossPerPip = lotsForDisplay * pipValuePerLot;
+        allowedStopPips = lossPerPip > 0 ? riskAmount / lossPerPip : NaN;
+        notional = units * price * quoteToJpyRate;
+        margin = notional / leverage;
+      } else {
+        kellyMaxLots = targetStopPips > 0 ? riskAmount / (targetStopPips * pipValuePerLot) : NaN;
+        maxLots = isFinite(marginMaxIntegerLots) ? Math.floor(Math.min(kellyMaxLots, marginMaxIntegerLots)) : Math.floor(kellyMaxLots);
+        lotsForDisplay = maxLots;
+        units = maxLots * unitsPerLot;
+        lossPerPip = maxLots * pipValuePerLot;
+        notional = units * price * quoteToJpyRate;
+        margin = notional / leverage;
+      }
+
+      document.getElementById("riskAmount").textContent = yen(riskAmount);
+      document.getElementById("allowableStopPips").textContent = pips(allowedStopPips);
+      document.getElementById("maxLots").textContent = lotsText(maxLots);
+      document.getElementById("fullKelly").textContent = pct(fullKelly);
+      document.getElementById("usedRiskRate").textContent = pct(usedRiskRate);
+      document.getElementById("riskCapStatus").textContent = isCapped ? "Kelly計算値がリスク上限で制限されています" : "Kelly倍率と上限を反映後";
+      document.getElementById("payoffRatio").textContent = num(payoffRatio, 3);
+      document.getElementById("roundTripCost").textContent = pips(roundTripCost);
+      document.getElementById("units").textContent = num(units, 0) + "通貨";
+      document.getElementById("lossPerPip").textContent = yen(lossPerPip);
+      document.getElementById("notional").textContent = yen(notional);
+      document.getElementById("margin").textContent = yen(margin);
+      document.getElementById("marginMaxLots").textContent = lotsText(marginMaxLots);
+
+      renderLotComparison(riskAmount, pipValuePerLot, unitsPerLot);
+      renderStopComparison(riskAmount, pipValuePerLot, unitsPerLot);
+
+      window.currentPositionSnapshot = {
+        mode,
+        capital,
+        winRatePct,
+        winRate,
+        avgProfit,
+        avgLoss,
+        spreadPips,
+        slippagePips,
+        roundTripCost,
+        effectiveProfit,
+        effectiveLoss,
+        payoffRatio,
+        fullKelly,
+        kellyMultiplier,
+        riskCap: riskCap >= 999 ? Infinity : riskCap,
+        usedRiskRate,
+        riskAmount,
+        pipValuePerLot,
+        unitsPerLot,
+        marginMaxLots,
+        quoteCurrencyMode,
+        quoteToJpyRate,
+        pipValuePer10k,
+        positionLotsForSimulation: lotsForDisplay,
+        positionUnitsForSimulation: units,
+        targetStopPips,
+      };
+      renderSimulationSharedSummary();
+
+      const messages = [];
+      let className = "notice ok";
+
+      if (effectiveProfit <= 0) {
+        className = "notice danger";
+        messages.push("取引コスト控除後の平均利益が0以下です。この条件では取引する前提が崩れています。");
+      }
+
+      if (fullKelly <= 0) {
+        className = "notice danger";
+        messages.push("この条件ではKelly係数が0以下です。勝率・損益比・コストから見ると、理論上は取引しない判断になります。");
+      }
+
+      if (isCapped) {
+        if (className !== "notice danger") className = "notice";
+        messages.push("Kelly計算上のリスク率が上限を超えたため、設定したリスク上限で制限しました。これは実運用では重要な安全装置です。");
+      }
+
+      if (usedRiskRate >= 0.05) {
+        if (className !== "notice danger") className = "notice";
+        messages.push("採用リスク率が5%以上です。Kelly基準上は計算できますが、実運用ではドローダウンが大きくなりやすい水準です。");
+      } else if (usedRiskRate > 0 && usedRiskRate <= 0.02) {
+        messages.push("採用リスク率は2%以内です。Kelly基準を使いつつ、保守的な上限をかけた設計になっています。");
+      }
+
+      if (orderLotsWasCapped) {
+        if (className !== "notice danger") className = "notice";
+        messages.push(`注文予定ロット数が証拠金上の最大値を超えたため、${lotsText(marginMaxLots)}に自動調整しました。`);
+      }
+
+      if (mode === "lotsToStop" && allowedStopPips > 0 && allowedStopPips < 10) {
+        if (className !== "notice danger") className = "notice";
+        messages.push("このロット数では、許容できる損切り幅が10pips未満です。わずかな逆行でKelly上の許容損失を超える可能性があります。");
+      }
+
+      if (mode === "stopToLots" && maxLots > 0 && maxLots < 1) {
+        if (className !== "notice danger") className = "notice";
+        messages.push("この損切り幅では、許容できる最大ロット数が1ロット未満です。損切り幅を狭めるか、取引数量をかなり小さくする必要があります。");
+      }
+
+      if (mode === "stopToLots" && maxLots > 0 && maxLots < MIN_ORDER_LOTS) {
+        if (className !== "notice danger") className = "notice";
+        messages.push(`この条件で許容できる最大ロット数は${lotsText(maxLots)}で、最低注文ロット数の${MIN_ORDER_LOTS}ロットに届きません。`);
+      }
+
+      messages.push(`証拠金上の最大注文ロット数は${lotsText(marginMaxLots)}です。この値を超える注文予定ロット数は入力できません。`);
+
+      messages.push("同じ注文数量ならレバレッジは1pip損益を変えません。ただし、このツールでは証拠金上限で注文予定ロットを自動調整するため、レバレッジ変更で実効注文数量と許容損切りpipsが変わる場合があります。");
+      messages.push("損失に耐えるために証拠金やレバレッジを増やすことは、安全化ではなくナンピン的なリスク拡大として扱ってください。");
+
+      message.className = className;
+      message.textContent = messages.join("\n");
+    }
+
+    function renderLotComparison(riskAmount, pipValuePerLot, unitsPerLot) {
+      const body = document.getElementById("lotComparisonBody");
+      body.innerHTML = "";
+      const lotChoices = [100, 1000, 10000, 100000];
+      lotChoices.forEach((lots) => {
+        const lp = lots * pipValuePerLot;
+        const allowedPips = lp > 0 ? riskAmount / lp : NaN;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${lotsText(lots)}</td>
+          <td>${num(lots * unitsPerLot, 0)}通貨</td>
+          <td>${yen(lp)}</td>
+          <td>${pips(allowedPips)}</td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    function renderStopComparison(riskAmount, pipValuePerLot, unitsPerLot) {
+      const body = document.getElementById("stopComparisonBody");
+      body.innerHTML = "";
+      const stopChoices = [5, 10, 20, 30, 50, 100, 200];
+      stopChoices.forEach((stop) => {
+        const maxLots = stop > 0 ? riskAmount / (stop * pipValuePerLot) : NaN;
+        const maxUnits = maxLots * unitsPerLot;
+        const lp = maxLots * pipValuePerLot;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${pips(stop)}</td>
+          <td>${lotsText(maxLots)}</td>
+          <td>${num(maxUnits, 0)}通貨</td>
+          <td>${yen(lp)}</td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    function addLots(amount) {
+      const input = document.getElementById("orderLots");
+      const current = Number.isInteger(Number(input.value)) ? Number(input.value) : MIN_ORDER_LOTS;
+      const max = Number(input.max);
+      const next = current + amount;
+      input.value = isFinite(max) && max >= MIN_ORDER_LOTS ? Math.min(next, max) : next;
+      calculate();
+    }
+
+    function resetDefault() {
+      document.querySelector('input[name="mode"][value="lotsToStop"]').checked = true;
+      setMode("lotsToStop");
+      document.getElementById("capital").value = 1000000;
+      document.getElementById("winRate").value = 55;
+      document.getElementById("avgProfit").value = 30;
+      document.getElementById("avgLoss").value = 30;
+      document.getElementById("spreadPips").value = 0.2;
+      document.getElementById("slippagePips").value = 0.3;
+      document.getElementById("kellyMultiplier").value = 0.5;
+      document.getElementById("riskCap").value = 0.02;
+      document.getElementById("orderLots").value = MIN_ORDER_LOTS;
+      document.getElementById("targetStopPips").value = 30;
+      document.getElementById("quoteCurrencyMode").value = "JPY";
+      document.getElementById("quoteToJpyRate").value = 155;
+      document.getElementById("price").value = 155;
+      document.getElementById("leverage").value = 5;
+      handleQuoteCurrencyChange();
+    }
+
+    function setText(id, text) {
+      const element = document.getElementById(id);
+      if (element) element.textContent = text;
+    }
+
+    function isSimulationActive() {
+      return document.getElementById("simulationPanel").classList.contains("active");
+    }
+
+    function activateTab(tab) {
+      const positionActive = tab === "position";
+      document.getElementById("positionPanel").classList.toggle("active", positionActive);
+      document.getElementById("simulationPanel").classList.toggle("active", !positionActive);
+      document.getElementById("positionTab").classList.toggle("active", positionActive);
+      document.getElementById("simulationTab").classList.toggle("active", !positionActive);
+      document.getElementById("positionTab").setAttribute("aria-selected", String(positionActive));
+      document.getElementById("simulationTab").setAttribute("aria-selected", String(!positionActive));
+      calculate();
+      if (!positionActive) runSimulationPanel();
+    }
+
+    function renderSimulationSharedSummary() {
+      const snapshot = window.currentPositionSnapshot;
+      if (!snapshot) {
+        [
+          "simSharedCapital",
+          "simSharedWinRate",
+          "simSharedAvgPips",
+          "simSharedCost",
+          "simSharedKelly",
+          "simSharedLots",
+          "simSharedPipValue",
+        ].forEach((id) => setText(id, "-"));
+        return;
+      }
+
+      const riskCapLabel = Number.isFinite(snapshot.riskCap) ? pct(snapshot.riskCap) : "上限なし";
+      const modeLabel = snapshot.mode === "stopToLots" ? "最大ロット数" : "注文予定ロット";
+      setText("simSharedCapital", yen(snapshot.capital));
+      setText("simSharedWinRate", `${num(snapshot.winRatePct, 1)}%`);
+      setText("simSharedAvgPips", `${pips(snapshot.avgProfit)} / ${pips(snapshot.avgLoss)}`);
+      setText("simSharedCost", pips(snapshot.roundTripCost));
+      setText("simSharedKelly", `${num(snapshot.kellyMultiplier * 100, 0)}% / ${riskCapLabel}`);
+      setText("simSharedLots", `${modeLabel}: ${lotsText(snapshot.positionLotsForSimulation)}`);
+      setText("simSharedPipValue", `${yen(snapshot.pipValuePerLot)} / 通貨`);
+    }
+
+    function markSimulationStale(showNotice = true) {
+      if (!showNotice || !isSimulationActive()) return;
+      const message = document.getElementById("simMessage");
+      message.className = "notice";
+      message.textContent = "シミュレーション条件が変更されました。現在の条件で再実行してください。";
+    }
+
+    function percentile(values, percentilePoint) {
+      if (!values.length) return NaN;
+      const index = (values.length - 1) * percentilePoint;
+      const lower = Math.floor(index);
+      const upper = Math.ceil(index);
+      if (lower === upper) return values[lower];
+      return values[lower] + (values[upper] - values[lower]) * (index - lower);
+    }
+
+    function collectSimulationInputs() {
+      calculate();
+      const base = window.currentPositionSnapshot;
+      if (!base) return null;
+      const rawWinRate = base.winRate;
+      const winRatePenalty = getNumber("simWinRatePenalty") / 100;
+      const winRate = Math.max(0, Math.min(1, rawWinRate - winRatePenalty));
+      const fullKelly = calcKelly(winRate, base.payoffRatio);
+      const usedRiskRate = Math.min(fullKelly * base.kellyMultiplier, base.riskCap);
+      return {
+        ...base,
+        rawWinRate,
+        winRatePenalty,
+        winRate,
+        fullKelly,
+        usedRiskRate,
+        sizingMode: document.getElementById("simSizingMode").value,
+        fixedLots: base.positionLotsForSimulation,
+        trades: Math.floor(getNumber("simTrades")),
+        simulations: Math.floor(getNumber("simSimulations")),
+        ruinLinePct: getNumber("simRuinLinePct") / 100,
+        ruinLine: base.capital * getNumber("simRuinLinePct") / 100,
+        tailLossProb: getNumber("simTailLossProb") / 100,
+        tailLossMultiplier: getNumber("simTailLossMultiplier"),
+      };
+    }
+
+    function validateSimulationInputs(values) {
+      if (!values) return "注文リスク計算タブの入力条件を確認してください。";
+      if (values.capital <= 0) return "口座資金は正の数で入力してください。";
+      if (values.rawWinRate < 0 || values.rawWinRate > 1) return "勝率は0〜100%で入力してください。";
+      if (values.winRate <= 0 || values.winRate >= 1) return "勝率悪化補正後の勝率は0%超かつ100%未満にしてください。";
+      if (values.avgProfit <= 0 || values.avgLoss <= 0) return "平均利益・平均損失は正の数で入力してください。";
+      if (values.effectiveProfit <= 0) return "取引コストが平均利益以上です。Kelly計算上は取引不適です。";
+      if (values.pipValuePerLot <= 0 || values.fixedLots <= 0) return "pip価値、共有ロット数は正の数で入力してください。";
+      if (values.trades < 1 || values.trades > 5000) return "トレード回数は1〜5000で入力してください。";
+      if (values.simulations < 100 || values.simulations > 50000) return "シミュレーション本数は100〜50000で入力してください。";
+      if (values.ruinLinePct <= 0 || values.ruinLinePct >= 1) return "破産ラインは1〜99%で入力してください。";
+      if (values.tailLossProb < 0 || values.tailLossProb > 1) return "大損発生確率は0〜100%で入力してください。";
+      if (values.tailLossMultiplier < 1) return "大損倍率は1以上で入力してください。";
+      return "";
+    }
+
+    function computeSimulationInitialLots(values, riskRate) {
+      return Math.max(0, values.capital * riskRate / (values.effectiveLoss * values.pipValuePerLot));
+    }
+
+    function runMonteCarlo(values, riskRate, keepPaths) {
+      const finals = [];
+      const drawdowns = [];
+      const longestLosses = [];
+      const paths = [];
+      let ruinCount = 0;
+      const fixedLoss = values.fixedLots * values.pipValuePerLot * values.effectiveLoss;
+      const fixedProfit = values.fixedLots * values.pipValuePerLot * values.effectiveProfit;
+      const sampleEvery = Math.max(1, Math.floor(values.trades / 200));
+      const payoffRatio = values.effectiveProfit / values.effectiveLoss;
+
+      for (let simulation = 0; simulation < values.simulations; simulation += 1) {
+        let equity = values.capital;
+        let peak = values.capital;
+        let maxDrawdown = 0;
+        let ruined = false;
+        let lossStreak = 0;
+        let longestLossStreak = 0;
+        const path = keepPaths && simulation < 30 ? [{ t: 0, equity }] : null;
+
+        for (let trade = 1; trade <= values.trades; trade += 1) {
+          const win = Math.random() < values.winRate;
+          if (values.sizingMode === "compound") {
+            const risk = equity * riskRate;
+            if (win) {
+              equity += risk * payoffRatio;
+              lossStreak = 0;
+            } else {
+              let loss = risk;
+              if (Math.random() < values.tailLossProb) loss *= values.tailLossMultiplier;
+              equity -= loss;
+              lossStreak += 1;
+              if (lossStreak > longestLossStreak) longestLossStreak = lossStreak;
+            }
+          } else if (win) {
+            equity += fixedProfit;
+            lossStreak = 0;
+          } else {
+            let loss = fixedLoss;
+            if (Math.random() < values.tailLossProb) loss *= values.tailLossMultiplier;
+            equity -= loss;
+            lossStreak += 1;
+            if (lossStreak > longestLossStreak) longestLossStreak = lossStreak;
+          }
+
+          if (equity > peak) peak = equity;
+          maxDrawdown = Math.max(maxDrawdown, peak > 0 ? (peak - equity) / peak : 1);
+          if (!ruined && equity <= values.ruinLine) ruined = true;
+          if (equity <= 0) {
+            equity = 0;
+            ruined = true;
+          }
+          if (path && (trade % sampleEvery === 0 || trade === values.trades)) path.push({ t: trade, equity });
+          if (equity <= 0) break;
+        }
+
+        if (ruined) ruinCount += 1;
+        finals.push(equity);
+        drawdowns.push(maxDrawdown);
+        longestLosses.push(longestLossStreak);
+        if (path) paths.push(path);
+      }
+
+      finals.sort((a, b) => a - b);
+      drawdowns.sort((a, b) => a - b);
+      longestLosses.sort((a, b) => a - b);
+      return {
+        riskRate,
+        ruinProb: ruinCount / values.simulations,
+        survivalRate: 1 - ruinCount / values.simulations,
+        finalMedian: percentile(finals, 0.5),
+        finalP05: percentile(finals, 0.05),
+        finalP95: percentile(finals, 0.95),
+        ddMedian: percentile(drawdowns, 0.5),
+        ddP95: percentile(drawdowns, 0.95),
+        longestLossMedian: percentile(longestLosses, 0.5),
+        finalEquities: finals,
+        samplePaths: paths,
+      };
+    }
+
+    function buildLosingStreakRows(values, riskRate) {
+      const streaks = [1, 3, 5, 10, 15, 20, 30, 40, 50];
+      const fixedLoss = values.fixedLots * values.pipValuePerLot * values.effectiveLoss;
+      return streaks.map((streak) => {
+        const compoundEquity = values.capital * Math.pow(1 - riskRate, streak);
+        const fixedEquity = Math.max(0, values.capital - fixedLoss * streak);
+        return {
+          streak,
+          compoundEquity,
+          compoundDD: (values.capital - compoundEquity) / values.capital,
+          fixedEquity,
+          fixedDD: (values.capital - fixedEquity) / values.capital,
+        };
+      });
+    }
+
+    function buildKellyComparisons(values) {
+      return [
+        { label: "Full", multiplier: 1 },
+        { label: "Half", multiplier: 0.5 },
+        { label: "Quarter", multiplier: 0.25 },
+        { label: "1/10", multiplier: 0.1 },
+      ].map((row) => {
+        const riskRate = Math.min(values.fullKelly * row.multiplier, values.riskCap);
+        return { label: row.label, ...runMonteCarlo(values, riskRate, false) };
+      });
+    }
+
+    function canvasBox(id) {
+      const canvas = document.getElementById(id);
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = Math.max(320, Math.floor(rect.width * dpr));
+      canvas.height = Math.floor(300 * dpr);
+      const context = canvas.getContext("2d");
+      context.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return { context, width: canvas.width / dpr, height: canvas.height / dpr };
+    }
+
+    function drawAxes(context, width, height, label) {
+      context.clearRect(0, 0, width, height);
+      context.fillStyle = "#fff";
+      context.fillRect(0, 0, width, height);
+      const left = 56;
+      const right = 18;
+      const top = 18;
+      const bottom = 42;
+      const plotWidth = width - left - right;
+      const plotHeight = height - top - bottom;
+      context.strokeStyle = "#e5e7eb";
+      context.lineWidth = 1;
+      for (let i = 0; i <= 4; i += 1) {
+        const y = top + plotHeight * i / 4;
+        context.beginPath();
+        context.moveTo(left, y);
+        context.lineTo(width - right, y);
+        context.stroke();
+      }
+      context.strokeStyle = "#111827";
+      context.beginPath();
+      context.moveTo(left, top);
+      context.lineTo(left, height - bottom);
+      context.lineTo(width - right, height - bottom);
+      context.stroke();
+      context.fillStyle = "#6b7280";
+      context.font = "12px system-ui";
+      context.fillText(label, 8, 14);
+      return { left, right, top, bottom, plotWidth, plotHeight };
+    }
+
+    function drawLines(id, series, xKey, yKey, options = {}) {
+      const { context, width, height } = canvasBox(id);
+      const box = drawAxes(context, width, height, options.yLabel || "");
+      const xs = [];
+      const ys = [];
+      series.forEach((line) => line.data.forEach((point) => {
+        xs.push(point[xKey]);
+        ys.push(point[yKey]);
+      }));
+      const minX = options.minX ?? Math.min(...xs);
+      const maxX = options.maxX ?? Math.max(...xs);
+      let minY = options.minY ?? Math.min(...ys);
+      let maxY = options.maxY ?? Math.max(...ys);
+      if (minY === maxY) {
+        minY *= 0.9;
+        maxY *= 1.1;
+      }
+      const scaleX = (x) => box.left + (x - minX) / (maxX - minX || 1) * box.plotWidth;
+      const scaleY = (y) => box.top + (maxY - y) / (maxY - minY || 1) * box.plotHeight;
+      context.font = "11px system-ui";
+      context.fillStyle = "#6b7280";
+      for (let i = 0; i <= 4; i += 1) {
+        const yValue = minY + (maxY - minY) * (4 - i) / 4;
+        const y = box.top + box.plotHeight * i / 4;
+        context.fillText(options.yFormat ? options.yFormat(yValue) : num(yValue), 6, y + 4);
+      }
+      for (let i = 0; i <= 4; i += 1) {
+        const xValue = minX + (maxX - minX) * i / 4;
+        const x = box.left + box.plotWidth * i / 4;
+        context.fillText(options.xFormat ? options.xFormat(xValue) : Math.round(xValue), x - 12, height - 16);
+      }
+      const colors = ["#2563eb", "#dc2626", "#059669", "#d97706", "#7c3aed", "#0891b2"];
+      series.forEach((line, index) => {
+        context.strokeStyle = line.color || colors[index % colors.length];
+        context.lineWidth = line.width || 2;
+        context.beginPath();
+        line.data.forEach((point, pointIndex) => {
+          const x = scaleX(point[xKey]);
+          const y = scaleY(point[yKey]);
+          if (pointIndex === 0) context.moveTo(x, y);
+          else context.lineTo(x, y);
+        });
+        context.stroke();
+      });
+      if (options.legend) {
+        let x = box.left + 4;
+        const y = box.top + 8;
+        context.font = "12px system-ui";
+        series.forEach((line, index) => {
+          context.fillStyle = line.color || colors[index % colors.length];
+          context.fillRect(x, y - 9, 10, 10);
+          context.fillStyle = "#374151";
+          context.fillText(line.label, x + 14, y);
+          x += 110;
+        });
+      }
+    }
+
+    function drawHistogram(id, values) {
+      const { context, width, height } = canvasBox(id);
+      const box = drawAxes(context, width, height, "頻度");
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      const bins = 30;
+      const counts = Array(bins).fill(0);
+      values.forEach((value) => {
+        const index = Math.min(bins - 1, Math.max(0, Math.floor((value - min) / (max - min || 1) * bins)));
+        counts[index] += 1;
+      });
+      const maxCount = Math.max(...counts);
+      context.fillStyle = "#2563eb";
+      counts.forEach((count, index) => {
+        const x = box.left + index * box.plotWidth / bins;
+        const barWidth = box.plotWidth / bins - 2;
+        const barHeight = count / (maxCount || 1) * box.plotHeight;
+        context.fillRect(x, box.top + box.plotHeight - barHeight, barWidth, barHeight);
+      });
+      context.font = "11px system-ui";
+      context.fillStyle = "#6b7280";
+      for (let i = 0; i <= 4; i += 1) {
+        const xValue = min + (max - min) * i / 4;
+        const x = box.left + box.plotWidth * i / 4;
+        context.fillText(yen(xValue), x - 26, height - 16);
+      }
+    }
+
+    function drawKellyComparison(id, rows) {
+      const { context, width, height } = canvasBox(id);
+      const box = drawAxes(context, width, height, "赤=破産確率 / 青=最終資産中央値");
+      const maxFinal = Math.max(...rows.map((row) => row.finalMedian));
+      const maxRuin = Math.max(1, ...rows.map((row) => row.ruinProb * 100));
+      const groupWidth = box.plotWidth / rows.length;
+      const barWidth = groupWidth * 0.28;
+      rows.forEach((row, index) => {
+        const centerX = box.left + groupWidth * index + groupWidth / 2;
+        const ruinHeight = (row.ruinProb * 100) / maxRuin * box.plotHeight;
+        const finalHeight = row.finalMedian / maxFinal * box.plotHeight;
+        context.fillStyle = "#dc2626";
+        context.fillRect(centerX - barWidth - 2, box.top + box.plotHeight - ruinHeight, barWidth, ruinHeight);
+        context.fillStyle = "#2563eb";
+        context.fillRect(centerX + 2, box.top + box.plotHeight - finalHeight, barWidth, finalHeight);
+        context.fillStyle = "#374151";
+        context.font = "11px system-ui";
+        context.fillText(row.label, centerX - 18, height - 16);
+      });
+    }
+
+    function setMetricBox(id, className) {
+      const element = document.getElementById(id);
+      element.classList.remove("okish", "warnish", "dangerish");
+      if (className) element.classList.add(className);
+    }
+
+    function updateSimulationOutput(values, main, losingRows, comparisons) {
+      document.getElementById("simLosingStreakBody").innerHTML = losingRows.map((row) => `
+        <tr>
+          <td>${row.streak}連敗</td>
+          <td>${yen(row.compoundEquity)}</td>
+          <td>${pct(row.compoundDD)}</td>
+          <td>${yen(row.fixedEquity)}</td>
+          <td>${pct(row.fixedDD)}</td>
+        </tr>
+      `).join("");
+
+      document.getElementById("simKellyComparisonBody").innerHTML = comparisons.map((row) => `
+        <tr>
+          <td>${row.label}</td>
+          <td>${pct(row.riskRate)}</td>
+          <td>${pct(row.ruinProb)}</td>
+          <td>${yen(row.finalMedian)}</td>
+          <td>${yen(row.finalP05)}</td>
+          <td>${pct(row.ddMedian)}</td>
+          <td>${num(row.longestLossMedian, 0)}回</td>
+        </tr>
+      `).join("");
+
+      drawLines("simLosingStreakChart", [
+        { label: "複利型", data: losingRows.map((row) => ({ x: row.streak, y: row.compoundEquity })), color: "#2563eb" },
+        { label: "固定ロット型", data: losingRows.map((row) => ({ x: row.streak, y: row.fixedEquity })), color: "#dc2626" },
+      ], "x", "y", { yLabel: "残資金", yFormat: yen, minX: 0, maxX: Math.max(...losingRows.map((row) => row.streak)), minY: 0, maxY: values.capital, legend: true });
+
+      drawLines("simEquityPathsChart", main.samplePaths.map((path, index) => ({
+        label: `path${index}`,
+        data: path.map((point) => ({ x: point.t, y: point.equity })),
+        width: 1.2,
+        color: index === 0 ? "#2563eb" : "rgba(37,99,235,.22)",
+      })), "x", "y", { yLabel: "資産", yFormat: yen, minX: 0, maxX: values.trades, minY: 0, maxY: Math.max(values.capital * 1.2, main.finalP95) });
+
+      drawHistogram("simFinalDistributionChart", main.finalEquities);
+      drawKellyComparison("simKellyCompareChart", comparisons);
+    }
+
+    function runSimulationPanel() {
+      const message = document.getElementById("simMessage");
+      const values = collectSimulationInputs();
+      const error = validateSimulationInputs(values);
+      if (error) {
+        message.className = "notice danger";
+        message.textContent = error;
+        return;
+      }
+
+      const riskRate = values.usedRiskRate;
+      if (values.fullKelly <= 0 || riskRate <= 0) {
+        message.className = "notice danger";
+        message.textContent = "この条件ではKelly係数が0以下です。理論上は取引しない判断になります。";
+        setText("simFullKelly", pct(values.fullKelly));
+        setText("simUsedRiskRate", pct(0));
+        return;
+      }
+
+      const main = runMonteCarlo(values, riskRate, true);
+      const losingRows = buildLosingStreakRows(values, riskRate);
+      const comparisons = buildKellyComparisons(values);
+
+      setText("simFullKelly", pct(values.fullKelly));
+      setText("simUsedRiskRate", pct(riskRate));
+      setText("simRiskAmount", yen(values.capital * riskRate));
+      setText("simInitialLots", `${num(computeSimulationInitialLots(values, riskRate), 1)}ロット`);
+      setText("simRuinProb", pct(main.ruinProb));
+      setText("simSurvivalRate", pct(main.survivalRate));
+      setText("simFinalMedian", yen(main.finalMedian));
+      setText("simDdMedian", pct(main.ddMedian));
+
+      setMetricBox("simMetricFullKellyBox", values.fullKelly >= 0.1 ? "warnish" : "okish");
+      setMetricBox("simMetricUsedRiskBox", riskRate >= 0.05 ? "dangerish" : riskRate >= 0.03 ? "warnish" : "okish");
+      setMetricBox("simMetricRuinBox", main.ruinProb >= 0.1 ? "dangerish" : main.ruinProb >= 0.03 ? "warnish" : "okish");
+
+      if (main.ruinProb >= 0.1) {
+        message.className = "notice danger";
+        message.textContent = "破産確率が高めです。Kelly倍率を下げる、リスク上限を1%にする、期待値前提を見直すことを検討してください。";
+      } else if (main.ruinProb >= 0.03) {
+        message.className = "notice";
+        message.textContent = "破産確率が一定程度あります。勝率劣化・スリッページ拡大・ファットテールを考慮し、保守的な設定を推奨します。";
+      } else {
+        message.className = "notice ok";
+        message.textContent = "注文リスク計算タブの入力条件を使って、連敗耐久性・Monte Carlo破産確率・Kelly倍率別比較を計算しました。安全保証ではなく目安です。";
+      }
+
+      updateSimulationOutput(values, main, losingRows, comparisons);
+    }
+
+    function resetSimulationDefaults() {
+      document.getElementById("simSizingMode").value = "compound";
+      document.getElementById("simTrades").value = 500;
+      document.getElementById("simSimulations").value = 5000;
+      document.getElementById("simRuinLinePct").value = 50;
+      document.getElementById("simWinRatePenalty").value = 0;
+      document.getElementById("simTailLossProb").value = 1;
+      document.getElementById("simTailLossMultiplier").value = 3;
+      runSimulationPanel();
+    }
+
+    handleQuoteCurrencyChange();
+  </script>
+</body>
+</html>
