@@ -4,6 +4,8 @@ Japanese: [README.ja.md](README.ja.md)
 
 This lab demonstrates how to inspect backtest overfitting risk in the AI-assisted quant research era using real USDJPY 60-minute data.
 
+This lab supports the Qiita article "[AI Makes Edge Discovery Easy, But Is That Backtest Real? How to Check Backtest Overfitting with PBO](https://qiita.com/tikeda123/items/fd589372f78ffa4c48fb)". The Japanese article is "[AIでエッジ探しが簡単になった時代に、そのバックテストは本物か？PBOで過学習を確認する](https://qiita.com/tikeda123/items/ab7070663e8e002e785f)".
+
 The article's purpose is to explain that when AI and Python make it easy to test many trading rules, the best-looking backtest should not be accepted at face value. The selection process itself must be checked: does the strategy selected in-sample remain competitive out-of-sample?
 
 This is not a production trading strategy. It is an educational experiment using 144 moving-average crossover candidates, CSCV-style splits, and a simplified PBO measure to observe how much the selection process may depend on historical data.
@@ -240,6 +242,11 @@ This result does not prove that moving-average crossover strategies will remain 
 Treat this lab as a way to inspect selection risk and IS/OOS degradation, not as a method for selecting the "best" backtest.
 
 ## Article Mapping
+
+Published articles:
+
+- English: [AI Makes Edge Discovery Easy, But Is That Backtest Real? How to Check Backtest Overfitting with PBO](https://qiita.com/tikeda123/items/fd589372f78ffa4c48fb)
+- Japanese: [AIでエッジ探しが簡単になった時代に、そのバックテストは本物か？PBOで過学習を確認する](https://qiita.com/tikeda123/items/ab7070663e8e002e785f)
 
 Article outlines are:
 

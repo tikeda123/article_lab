@@ -4,6 +4,8 @@ English: [README.md](README.md)
 
 このディレクトリは、AI時代のクオンツトレードで問題になりやすいバックテスト過学習を、USDJPY 60分足の実データで確認するための実験ラボである。
 
+このラボは、Qiita記事「[AIでエッジ探しが簡単になった時代に、そのバックテストは本物か？PBOで過学習を確認する](https://qiita.com/tikeda123/items/ab7070663e8e002e785f)」に対応する。英語版記事は「[AI Makes Edge Discovery Easy, But Is That Backtest Real? How to Check Backtest Overfitting with PBO](https://qiita.com/tikeda123/items/fd589372f78ffa4c48fb)」である。
+
 記事の目的は、AIやPythonで大量の売買ルールを簡単に試せるようになった環境では、最も良いバックテスト成績だけを見るのではなく、インサンプルで選ばれた戦略がアウトオブサンプルでも残るかを検証する必要がある、という点を説明することである。
 
 この実験は完成した売買戦略の提案ではない。移動平均クロス戦略144候補を題材に、CSCV的な分割と簡易PBOで「選択プロセスそのものがどれくらい過去データに寄っているか」を観察する教育用実験である。
@@ -244,6 +246,11 @@ PY
 記事では、この実験を「最良バックテストを選ぶための手法」ではなく、「良すぎるバックテストを疑い、IS/OOS劣化と探索回数を可視化するための入口」として扱う。
 
 ## 記事との対応
+
+公開記事:
+
+- 日本語: [AIでエッジ探しが簡単になった時代に、そのバックテストは本物か？PBOで過学習を確認する](https://qiita.com/tikeda123/items/ab7070663e8e002e785f)
+- English: [AI Makes Edge Discovery Easy, But Is That Backtest Real? How to Check Backtest Overfitting with PBO](https://qiita.com/tikeda123/items/fd589372f78ffa4c48fb)
 
 記事骨子は `ai_edge_backtest_overfitting_outline.md` と `backtest_overfitting_experiment_outline.md` にある。
 

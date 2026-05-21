@@ -93,7 +93,9 @@ Kelly基準を「勝てる注文数量を出す公式」としてではなく、
 
 ## lab_4 概要
 
-`lab_4` は、AI時代のクオンツ探索で問題になりやすいバックテスト過学習を、USDJPY 60分足の実データで確認する実験ラボである。
+`lab_4` は、Qiita記事「[AIでエッジ探しが簡単になった時代に、そのバックテストは本物か？PBOで過学習を確認する](https://qiita.com/tikeda123/items/ab7070663e8e002e785f)」に対応する実験ラボである。
+
+AI時代のクオンツ探索で問題になりやすいバックテスト過学習を、USDJPY 60分足の実データで確認する。
 
 移動平均クロス戦略144候補を題材に、8ブロックのCSCV的なIS/OOS分割と簡易PBOで、ISで選ばれた戦略がOOSでも残るかを確認する。
 
@@ -101,6 +103,7 @@ Kelly基準を「勝てる注文数量を出す公式」としてではなく、
 |---|---|
 | 詳細説明 | [lab_4/README.ja.md](lab_4/README.ja.md) |
 | 英語版 | [lab_4/README.md](lab_4/README.md) |
+| 記事 | [日本語](https://qiita.com/tikeda123/items/ab7070663e8e002e785f) / [English](https://qiita.com/tikeda123/items/fd589372f78ffa4c48fb) |
 | 実験コード | `lab_4/run_backtest_overfitting_experiment.py` |
 | 記事アウトライン | `lab_4/ai_edge_backtest_overfitting_outline.md`, `lab_4/backtest_overfitting_experiment_outline.md` |
 | 入力データ | 外部 `USDJPY60(29).csv` |

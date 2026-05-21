@@ -90,11 +90,14 @@ The lab provides a standalone educational HTML tool that translates the Kelly cr
 
 ## lab_4 Summary
 
-`lab_4` demonstrates how to inspect backtest overfitting risk in the AI-assisted strategy-search era. It uses USDJPY 60-minute data, generates 144 moving-average crossover strategy candidates, and evaluates whether the strategy selected in-sample remains competitive out-of-sample.
+`lab_4` supports the Qiita article "[AI Makes Edge Discovery Easy, But Is That Backtest Real? How to Check Backtest Overfitting with PBO](https://qiita.com/tikeda123/items/fd589372f78ffa4c48fb)".
+
+The lab demonstrates how to inspect backtest overfitting risk in the AI-assisted strategy-search era. It uses USDJPY 60-minute data, generates 144 moving-average crossover strategy candidates, and evaluates whether the strategy selected in-sample remains competitive out-of-sample.
 
 | Item | Content |
 |---|---|
 | Details | [lab_4/README.md](lab_4/README.md) |
+| Article | [English](https://qiita.com/tikeda123/items/fd589372f78ffa4c48fb) / [Japanese](https://qiita.com/tikeda123/items/ab7070663e8e002e785f) |
 | Script | `lab_4/run_backtest_overfitting_experiment.py` |
 | Article outlines | `lab_4/ai_edge_backtest_overfitting_outline.md`, `lab_4/backtest_overfitting_experiment_outline.md` |
 | Input data | External `USDJPY60(29).csv` in tab-separated OHLCV format |
