@@ -353,6 +353,85 @@ def profit_factor_from_returns(returns: np.ndarray) -> float:
     return pos / neg
 
 
+def as_bool(value: object) -> bool:
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return bool(value)
+    return str(value).strip().lower() in {"true", "1", "yes", "y"}
+
+
+def rankdata_average(values: np.ndarray) -> np.ndarray:
+    """Return 1-based average ranks, enough for Spearman correlation without scipy."""
+    arr = np.asarray(values, dtype=float)
+    order = np.argsort(arr, kind="mergesort")
+    ranks = np.empty(len(arr), dtype=float)
+    i = 0
+    while i < len(arr):
+        j = i + 1
+        while j < len(arr) and arr[order[j]] == arr[order[i]]:
+            j += 1
+        ranks[order[i:j]] = (i + 1 + j) / 2.0
+        i = j
+    return ranks
+
+
+def corrcoef_safe(x: np.ndarray, y: np.ndarray) -> float:
+    if len(x) < 2 or float(np.std(x)) <= 0 or float(np.std(y)) <= 0:
+        return math.nan
+    return float(np.corrcoef(x, y)[0, 1])
+
+
+def naive_fisher_p_value(pearson: float, n: int) -> float:
+    if n <= 3 or not math.isfinite(pearson):
+        return math.nan
+    r = max(min(pearson, 0.999999), -0.999999)
+    z = 0.5 * math.log((1.0 + r) / (1.0 - r)) * math.sqrt(n - 3)
+    return float(math.erfc(abs(z) / math.sqrt(2.0)))
+
+
+def regression_stats(x: np.ndarray, y: np.ndarray) -> Dict[str, float]:
+    if len(x) < 2 or float(np.std(x)) <= 0:
+        return {"slope": math.nan, "intercept": math.nan, "pearson": math.nan, "spearman": math.nan, "r2": math.nan, "naive_p": math.nan}
+    slope, intercept = np.polyfit(x, y, 1)
+    pearson = corrcoef_safe(x, y)
+    spearman = corrcoef_safe(rankdata_average(x), rankdata_average(y))
+    r2 = pearson * pearson if math.isfinite(pearson) else math.nan
+    return {
+        "slope": float(slope),
+        "intercept": float(intercept),
+        "pearson": pearson,
+        "spearman": spearman,
+        "r2": r2,
+        "naive_p": naive_fisher_p_value(pearson, len(x)),
+    }
+
+
+def wilson_interval(count: int, n: int, z: float = 1.96) -> Tuple[float, float]:
+    if n <= 0:
+        return (math.nan, math.nan)
+    p = count / n
+    denom = 1.0 + z * z / n
+    center = (p + z * z / (2.0 * n)) / denom
+    margin = z * math.sqrt((p * (1.0 - p) + z * z / (4.0 * n)) / n) / denom
+    return (max(0.0, center - margin), min(1.0, center + margin))
+
+
+def add_rate_labels(ax: plt.Axes, bars, counts: Sequence[int], total: int, upper_errors: Optional[Sequence[float]] = None) -> None:
+    for i, (bar, count) in enumerate(zip(bars, counts)):
+        height = float(bar.get_height())
+        upper_error = float(upper_errors[i]) if upper_errors is not None else 0.0
+        y = min(height + upper_error + 0.035, ax.get_ylim()[1] * 0.94)
+        ax.text(
+            bar.get_x() + bar.get_width() / 2.0,
+            y,
+            f"{count}/{total}\n{height:.2%}",
+            ha="center",
+            va="bottom",
+            fontsize=10,
+        )
+
+
 def summarize_candidates(pnl: np.ndarray, strategies: Sequence[StrategySpec], trade_stats: Sequence[TradeStats]) -> List[Dict[str, object]]:
     rows: List[Dict[str, object]] = []
     for j, spec in enumerate(strategies):
@@ -470,77 +549,200 @@ def make_figures(outdir: Path, candidate_rows: Sequence[Dict[str, object]], pbo_
     figdir.mkdir(parents=True, exist_ok=True)
 
     sharpes = np.array([float(r["full_sample_sharpe"]) for r in candidate_rows])
-    plt.figure(figsize=(8, 5))
-    plt.hist(sharpes, bins=20)
-    plt.axvline(np.max(sharpes), linestyle="--", linewidth=1.5, label="Best")
-    plt.title("Figure 1: Full-sample Sharpe distribution across 144 candidates")
-    plt.xlabel("Annualized Sharpe Ratio")
-    plt.ylabel("Frequency")
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig(figdir / "fig1_sharpe_distribution.png", dpi=160)
-    plt.close()
+    best_sharpe = float(np.max(sharpes))
+    q25, median, q75 = np.percentile(sharpes, [25, 50, 75])
+    positive_sharpe_count = int(np.sum(sharpes > 0))
+    fig, ax = plt.subplots(figsize=(8.5, 5.2))
+    ax.hist(sharpes, bins=20, color="#8ab6d6", edgecolor="#2f3e46", alpha=0.86)
+    ax.axvline(best_sharpe, color="#c1121f", linestyle="--", linewidth=1.8, label=f"Best = {best_sharpe:.3f}")
+    ax.axvline(median, color="#1d3557", linestyle="-", linewidth=1.5, label=f"Median = {median:.3f}")
+    ax.axvline(q25, color="#457b9d", linestyle=":", linewidth=1.7, label=f"25% = {q25:.3f}")
+    ax.axvline(q75, color="#457b9d", linestyle="-.", linewidth=1.7, label=f"75% = {q75:.3f}")
+    ax.set_title("Figure 1: Full-sample Sharpe distribution across 144 candidates")
+    ax.set_xlabel("Annualized Sharpe Ratio")
+    ax.set_ylabel("Frequency")
+    ax.text(
+        0.98,
+        0.95,
+        f"Sharpe > 0: {positive_sharpe_count}/{len(sharpes)}",
+        transform=ax.transAxes,
+        ha="right",
+        va="top",
+        bbox={"boxstyle": "round,pad=0.3", "facecolor": "white", "edgecolor": "#adb5bd", "alpha": 0.92},
+        fontsize=9.5,
+    )
+    ax.annotate(
+        "full-sample selected;\nnot validated",
+        xy=(best_sharpe, ax.get_ylim()[1] * 0.78),
+        xytext=(-95, 0),
+        textcoords="offset points",
+        ha="left",
+        va="center",
+        arrowprops={"arrowstyle": "->", "color": "#c1121f", "lw": 1.0},
+        fontsize=8.8,
+        color="#7f1d1d",
+        bbox={"boxstyle": "round,pad=0.25", "facecolor": "white", "edgecolor": "#c1121f", "alpha": 0.9},
+    )
+    ax.legend(loc="upper left", frameon=True)
+    ax.grid(axis="y", alpha=0.25)
+    fig.tight_layout()
+    fig.savefig(figdir / "fig1_sharpe_distribution.png", dpi=160)
+    plt.close(fig)
 
     is_sr = np.array([float(r["selected_is_sharpe"]) for r in pbo_rows])
     oos_sr = np.array([float(r["selected_oos_sharpe"]) for r in pbo_rows])
+    oos_losses = np.array([as_bool(r["oos_loss"]) for r in pbo_rows])
+    stats = regression_stats(is_sr, oos_sr)
     lim_min = float(min(np.min(is_sr), np.min(oos_sr))) - 0.1
     lim_max = float(max(np.max(is_sr), np.max(oos_sr))) + 0.1
-    plt.figure(figsize=(6, 6))
-    plt.scatter(is_sr, oos_sr, alpha=0.75)
-    plt.axhline(0, linewidth=1)
-    plt.axvline(0, linewidth=1)
-    plt.plot([lim_min, lim_max], [lim_min, lim_max], linestyle="--", linewidth=1)
-    plt.title("Figure 2: IS Sharpe vs OOS Sharpe for selected strategies")
-    plt.xlabel("Selected strategy IS Sharpe")
-    plt.ylabel("Selected strategy OOS Sharpe")
-    plt.xlim(lim_min, lim_max)
-    plt.ylim(lim_min, lim_max)
-    plt.tight_layout()
-    plt.savefig(figdir / "fig2_is_vs_oos_sharpe.png", dpi=160)
-    plt.close()
+    reg_x = np.array([float(np.min(is_sr)), float(np.max(is_sr))])
+    fig, ax = plt.subplots(figsize=(7.2, 6.2))
+    ax.scatter(is_sr[~oos_losses], oos_sr[~oos_losses], alpha=0.78, s=46, color="#2a9d8f", label="OOS gain")
+    ax.scatter(is_sr[oos_losses], oos_sr[oos_losses], alpha=0.88, s=52, color="#d62828", label="OOS loss")
+    ax.axhline(0, color="#333333", linewidth=0.9)
+    ax.axvline(0, color="#333333", linewidth=0.9)
+    ax.plot([lim_min, lim_max], [lim_min, lim_max], color="#6c757d", linestyle="--", linewidth=1, label="IS = OOS")
+    if math.isfinite(stats["slope"]) and math.isfinite(stats["intercept"]):
+        ax.plot(reg_x, stats["slope"] * reg_x + stats["intercept"], color="#023047", linewidth=2.0, label="OLS fit")
+    ax.set_title("Figure 2: IS Sharpe vs OOS Sharpe for selected strategies")
+    ax.set_xlabel("Selected strategy IS Sharpe")
+    ax.set_ylabel("Selected strategy OOS Sharpe")
+    ax.set_xlim(lim_min, lim_max)
+    ax.set_ylim(lim_min, lim_max)
+    ax.grid(alpha=0.22)
+    info = (
+        f"Slope = {stats['slope']:.3f}\n"
+        f"Pearson r = {stats['pearson']:.3f}\n"
+        f"Spearman rho = {stats['spearman']:.3f}\n"
+        f"R^2 = {stats['r2']:.3f}\n"
+        f"Mean OOS Sharpe = {np.mean(oos_sr):.3f}\n"
+        f"n = {len(pbo_rows)}\n"
+        f"Naive p(r) = {stats['naive_p']:.3f}"
+    )
+    ax.text(
+        0.03,
+        0.97,
+        info,
+        transform=ax.transAxes,
+        ha="left",
+        va="top",
+        bbox={"boxstyle": "round,pad=0.35", "facecolor": "white", "edgecolor": "#adb5bd", "alpha": 0.92},
+        fontsize=9.2,
+    )
+    ax.text(
+        0.03,
+        0.06,
+        "Naive p-value ignores CSCV split dependence.",
+        transform=ax.transAxes,
+        ha="left",
+        va="bottom",
+        fontsize=8.6,
+        color="#495057",
+    )
+    ax.legend(loc="lower right", frameon=True)
+    fig.tight_layout()
+    fig.savefig(figdir / "fig2_is_vs_oos_sharpe.png", dpi=160)
+    plt.close(fig)
 
     ranks = np.array([int(r["oos_rank_desc_1_best"]) for r in pbo_rows])
-    plt.figure(figsize=(8, 5))
-    plt.hist(ranks, bins=range(1, 146, 8))
-    plt.axvline(72.5, linestyle="--", linewidth=1.5, label="Median boundary")
-    plt.title("Figure 3: OOS rank distribution of IS-best strategies")
-    plt.xlabel("OOS rank among 144 candidates (1 = best)")
-    plt.ylabel("Frequency")
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig(figdir / "fig3_oos_rank_distribution.png", dpi=160)
-    plt.close()
+    n_strategies = int(summary["n_strategies"])
+    median_boundary = n_strategies / 2.0 + 0.5
+    lower_half_start = n_strategies // 2 + 1
+    lower_half_count = int(np.sum(ranks >= lower_half_start))
+    fig, ax = plt.subplots(figsize=(8.5, 5.2))
+    ax.hist(ranks, bins=range(1, n_strategies + 3, 8), color="#90be6d", edgecolor="#2f3e46", alpha=0.88)
+    ax.axvline(median_boundary, color="#c1121f", linestyle="--", linewidth=1.8, label=f"Median boundary: {n_strategies // 2}/{lower_half_start}")
+    ax.set_title(f"Figure 3: OOS rank distribution of IS-best strategies (rank 1 = best, rank {n_strategies} = worst)")
+    ax.set_xlabel(f"OOS rank among {n_strategies} candidates")
+    ax.set_ylabel("Frequency")
+    ax.text(
+        0.98,
+        0.97,
+        f"Ranks {lower_half_start}-{n_strategies}: {lower_half_count}/{len(ranks)} = {lower_half_count / len(ranks):.2%}",
+        transform=ax.transAxes,
+        ha="right",
+        va="top",
+        bbox={"boxstyle": "round,pad=0.35", "facecolor": "white", "edgecolor": "#adb5bd", "alpha": 0.92},
+        fontsize=10,
+    )
+    ax.legend(loc="upper left", frameon=True)
+    ax.grid(axis="y", alpha=0.25)
+    fig.tight_layout()
+    fig.savefig(figdir / "fig3_oos_rank_distribution.png", dpi=160)
+    plt.close(fig)
 
     pbo = float(summary["pbo_median_or_worse_rate"])
-    plt.figure(figsize=(6, 4))
-    plt.bar(["Median-or-worse", "Above median"], [pbo, 1.0 - pbo])
-    plt.ylim(0, 1)
-    plt.title(f"Figure 4: Simplified PBO = {pbo:.1%}")
-    plt.ylabel("Rate")
-    plt.tight_layout()
-    plt.savefig(figdir / "fig4_simplified_pbo.png", dpi=160)
-    plt.close()
+    total_combos = len(pbo_rows)
+    pbo_count = int(sum(as_bool(r["oos_median_or_worse"]) for r in pbo_rows))
+    pbo_counts = [pbo_count, total_combos - pbo_count]
+    pbo_rates = [pbo_count / total_combos, 1.0 - pbo_count / total_combos]
+    pbo_ci = [wilson_interval(pbo_counts[0], total_combos), wilson_interval(pbo_counts[1], total_combos)]
+    pbo_yerr = np.array([
+        [pbo_rates[i] - pbo_ci[i][0] for i in range(2)],
+        [pbo_ci[i][1] - pbo_rates[i] for i in range(2)],
+    ])
+    fig, ax = plt.subplots(figsize=(6.8, 4.6))
+    bars = ax.bar(["Median-or-worse", "Above median"], pbo_rates, yerr=pbo_yerr, capsize=6, color=["#d62828", "#2a9d8f"], alpha=0.86)
+    ax.set_ylim(0, 1.18)
+    ax.set_title(f"Figure 4: Simplified PBO = {pbo_count} / {total_combos} = {pbo:.2%}")
+    ax.set_ylabel("Rate")
+    ax.text(0.02, 0.96, "Error bars: 95% Wilson interval", transform=ax.transAxes, ha="left", va="top", fontsize=9)
+    ax.text(0.02, 0.89, "CSCV split dependence ignored; interval is indicative.", transform=ax.transAxes, ha="left", va="top", fontsize=8.5, color="#495057")
+    add_rate_labels(ax, bars, pbo_counts, total_combos, pbo_yerr[1])
+    ax.grid(axis="y", alpha=0.25)
+    fig.tight_layout()
+    fig.savefig(figdir / "fig4_simplified_pbo.png", dpi=160)
+    plt.close(fig)
 
     loss_prob = float(summary["oos_loss_probability"])
-    plt.figure(figsize=(6, 4))
-    plt.bar(["OOS loss", "OOS gain"], [loss_prob, 1.0 - loss_prob])
-    plt.ylim(0, 1)
-    plt.title(f"Figure 5: OOS loss probability = {loss_prob:.1%}")
-    plt.ylabel("Rate")
-    plt.tight_layout()
-    plt.savefig(figdir / "fig5_oos_loss_probability.png", dpi=160)
-    plt.close()
+    loss_count = int(sum(as_bool(r["oos_loss"]) for r in pbo_rows))
+    loss_counts = [loss_count, total_combos - loss_count]
+    loss_rates = [loss_count / total_combos, 1.0 - loss_count / total_combos]
+    loss_ci = [wilson_interval(loss_counts[0], total_combos), wilson_interval(loss_counts[1], total_combos)]
+    loss_yerr = np.array([
+        [loss_rates[i] - loss_ci[i][0] for i in range(2)],
+        [loss_ci[i][1] - loss_rates[i] for i in range(2)],
+    ])
+    fig, ax = plt.subplots(figsize=(6.8, 4.6))
+    bars = ax.bar(["OOS loss", "OOS gain"], loss_rates, yerr=loss_yerr, capsize=6, color=["#d62828", "#2a9d8f"], alpha=0.86)
+    ax.set_ylim(0, 1.12)
+    ax.set_title(f"Figure 5: OOS loss probability = {loss_count} / {total_combos} = {loss_prob:.2%}")
+    ax.set_ylabel("Rate")
+    ax.text(0.02, 0.96, "Error bars: 95% Wilson interval", transform=ax.transAxes, ha="left", va="top", fontsize=9)
+    ax.text(0.02, 0.89, "CSCV split dependence ignored; interval is indicative.", transform=ax.transAxes, ha="left", va="top", fontsize=8.5, color="#495057")
+    add_rate_labels(ax, bars, loss_counts, total_combos, loss_yerr[1])
+    ax.grid(axis="y", alpha=0.25)
+    fig.tight_layout()
+    fig.savefig(figdir / "fig5_oos_loss_probability.png", dpi=160)
+    plt.close(fig)
 
     ts = [datetime.strptime(str(r["timestamp"]), DATE_FMT) for r in best_ts_rows]
     equity = np.array([float(r["equity_curve"] ) for r in best_ts_rows])
-    plt.figure(figsize=(10, 5))
-    plt.plot(ts, equity)
-    plt.title("Figure 6: Cumulative equity curve of full-sample best strategy")
-    plt.xlabel("Time")
-    plt.ylabel("Equity, initial = 1.0")
-    plt.tight_layout()
-    plt.savefig(figdir / "fig6_best_strategy_equity_curve.png", dpi=160)
-    plt.close()
+    peaks = np.maximum.accumulate(equity)
+    drawdown = equity / peaks - 1.0
+    fig, (ax_eq, ax_dd) = plt.subplots(2, 1, figsize=(10.5, 7.0), sharex=True, gridspec_kw={"height_ratios": [2.2, 1.0]})
+    ax_eq.plot(ts, equity, color="#1d3557", linewidth=1.4)
+    ax_eq.set_title("Figure 6: Full-sample selected strategy; illustration, not validation")
+    ax_eq.set_ylabel("Equity, initial = 1.0")
+    ax_eq.grid(alpha=0.25)
+    ax_dd.fill_between(ts, drawdown, 0.0, color="#d62828", alpha=0.35)
+    ax_dd.plot(ts, drawdown, color="#a4161a", linewidth=1.0)
+    ax_dd.set_ylabel("Drawdown")
+    ax_dd.set_xlabel("Time")
+    ax_dd.grid(alpha=0.25)
+    ax_dd.text(
+        0.02,
+        0.08,
+        f"Max DD = {np.min(drawdown):.2%}",
+        transform=ax_dd.transAxes,
+        ha="left",
+        va="bottom",
+        bbox={"boxstyle": "round,pad=0.3", "facecolor": "white", "edgecolor": "#adb5bd", "alpha": 0.92},
+        fontsize=9.5,
+    )
+    fig.tight_layout()
+    fig.savefig(figdir / "fig6_best_strategy_equity_curve.png", dpi=160)
+    plt.close(fig)
 
 
 def build_best_strategy_timeseries(timestamps: Sequence[datetime], pnl: np.ndarray, strategies: Sequence[StrategySpec], candidate_rows: Sequence[Dict[str, object]]) -> List[Dict[str, object]]:
@@ -562,6 +764,8 @@ def build_best_strategy_timeseries(timestamps: Sequence[datetime], pnl: np.ndarr
 
 def write_markdown_report(path: Path, summary: Dict[str, object], dataq_full: Dict[str, object], dataq_exp: Dict[str, object], top_rows: Sequence[Dict[str, object]]) -> None:
     lines: List[str] = []
+    n_strategies = int(summary["n_strategies"])
+    lower_half_start = n_strategies // 2 + 1
     lines.append("# USDJPY 60分足 簡易PBO検証 実験レポート")
     lines.append("")
     lines.append("## 実験条件")
@@ -583,11 +787,12 @@ def write_markdown_report(path: Path, summary: Dict[str, object], dataq_full: Di
     lines.append("")
     lines.append(f"- 戦略候補数: {summary['n_strategies']}")
     lines.append(f"- CSCV組み合わせ数: {summary['combinations']}")
-    lines.append(f"- 簡易PBO（IS最良がOOS中央値以下）: {summary['pbo_median_or_worse_rate']:.2%}")
+    lines.append(f"- 簡易PBO（IS最良のOOS順位が{lower_half_start}〜{n_strategies}位に落ちた割合）: {summary['pbo_median_or_worse_rate']:.2%}")
     lines.append(f"- OOS損失確率: {summary['oos_loss_probability']:.2%}")
     lines.append(f"- 選択戦略の平均IS Sharpe: {summary['mean_selected_is_sharpe']:.4f}")
     lines.append(f"- 選択戦略の平均OOS Sharpe: {summary['mean_selected_oos_sharpe']:.4f}")
     lines.append(f"- 選択戦略のOOS順位平均: {summary['mean_oos_rank']:.2f} / {summary['n_strategies']}")
+    lines.append(f"- OOS順位の読み方: 1位が最良、{n_strategies}位が最下位")
     lines.append("")
     lines.append("## フルサンプル上位5戦略")
     lines.append("")
@@ -603,9 +808,9 @@ def write_markdown_report(path: Path, summary: Dict[str, object], dataq_full: Di
     lines.append("## 解釈")
     lines.append("")
     if summary["pbo_median_or_worse_rate"] >= 0.5:
-        lines.append("簡易PBOが50%を超えているため、今回の候補群と選択プロセスでは、ISで最良だった戦略がOOSでは凡庸以下に落ちるケースが多いという結果になりました。これは、市場そのものにエッジがないという断定ではなく、今回の移動平均クロス候補群をIS Sharpe最大で選ぶ手順の再現性が弱いことを示唆します。")
+        lines.append(f"簡易PBOが50%を超えているため、今回の候補群と選択プロセスでは、ISで最良だった戦略がOOS順位{lower_half_start}〜{n_strategies}位へ落ちるケースが多いという結果になりました。これは、市場そのものにエッジがないという断定ではなく、今回の移動平均クロス候補群をIS Sharpe最大で選ぶ手順の再現性が弱いことを示唆します。")
     else:
-        lines.append("簡易PBOは50%未満でした。ただし、PBOが低いだけで将来の収益性が保証されるわけではありません。別期間のHoldout、WFO、DryRun、コスト・スリッページ再評価が必要です。")
+        lines.append(f"簡易PBO、つまりISで最良だった戦略がOOS順位{lower_half_start}〜{n_strategies}位へ落ちた割合は50%未満でした。ただし、PBOが低いだけで将来の収益性が保証されるわけではありません。別期間のHoldout、WFO、DryRun、コスト・スリッページ再評価が必要です。")
     lines.append("")
     lines.append("## 生成ファイル")
     lines.append("")
