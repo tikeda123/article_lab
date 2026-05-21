@@ -1,5 +1,7 @@
 # lab_3: FX Kelly基準 注文リスク管理ツール
 
+English: [README.md](README.md)
+
 このディレクトリは、Qiita記事「[FXで破産リスクを下げるための実践数学：Kelly基準を「損切り幅」と「注文数量」に落とし込む](https://qiita.com/tikeda123/items/d5e16444da576c545c43)」に対応する教育用HTMLツール、記事骨子、計算仕様をまとめた実験ラボである。
 
 記事の目的は、Kelly基準を「勝てる注文数量を出す公式」としてではなく、1回のトレードで許容できる最大損失額を求め、その金額を注文数量・損切り幅・1pip価値・証拠金条件に落とし込むことである。
@@ -29,7 +31,8 @@
 |---|---|
 | `kelly_fx_position_size_tool.html` | 注文リスク計算タブと破産耐久性シミュレータータブを持つ単体HTMLツール |
 | `fx_kelly_article_outline_with_tools.md` | ツール仕様に対応する記事骨子 |
-| `readme.md` | このラボの正本説明 |
+| `README.md` | このラボの英語版説明 |
+| `README.ja.md` | このラボの日本語版説明 |
 
 このラボには入力CSVやPython集計スクリプトはない。ツール本体はHTML、CSS、JavaScriptだけで動作する。
 
