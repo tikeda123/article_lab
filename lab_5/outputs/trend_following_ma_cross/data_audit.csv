@@ -1,0 +1,3 @@
+timeframe,source_file,raw_rows,missing_timestamp_rows,missing_ohlc_rows,duplicate_timestamps,invalid_ohlc_rows,clean_rows,first_timestamp,last_timestamp,gaps_count,max_gap_hours,selected_start,selected_end_exclusive,selected_rows,dev_rows,oos_rows,note
+60m,/home/tikeda/workspace/trade/nautilus/article_lab/lab_5/USDJPY60.csv,100000,0,0,0,0,100000,2010-03-18 18:00:00,2026-04-02 12:00:00,859,73.0,2023-01-01,2026-01-01,18700,12474,6226,Weekend/holiday gaps are counted; no interpolation is applied.
+240m,/home/tikeda/workspace/trade/nautilus/article_lab/lab_5/USDJPY240.csv,25855,0,0,0,0,25855,2010-03-18 08:00:00,2026-04-02 12:00:00,854,72.0,2023-01-01,2026-01-01,4835,3225,1610,Weekend/holiday gaps are counted; no interpolation is applied.
