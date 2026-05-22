@@ -1,0 +1,3 @@
+timeframe,random_runs,entry_timing_fixed,trade_count_fixed,holding_periods_fixed,direction_only_randomized,long_short_ratio_preserved,actual_total_pnl_pips,actual_profit_factor,actual_total_pnl_percentile,random_total_pnl_exceed_rate_pct,actual_profit_factor_percentile,random_profit_factor_exceed_rate_pct
+60m,1000,True,True,True,True,False,-140.10000000002492,0.9896170692121258,50.3,49.7,50.3,49.7
+240m,1000,True,True,True,True,False,1746.6000000000138,1.3038727861094705,77.5,22.5,77.5,22.5

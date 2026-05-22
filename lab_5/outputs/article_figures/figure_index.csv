@@ -1,0 +1,20 @@
+figure,filename,source,title,caption,status
+1,figure01_equity_curve.png,trend_following_ma_cross/figures/equity_curve.png,Baseline MA 20/80 cumulative PnL,Cumulative net pips for 60m and 240m MA cross strategies.,copied
+2,figure02_drawdown_curve.png,trend_following_ma_cross/figures/drawdown_curve.png,Baseline drawdown curve,Drawdown path for 60m and 240m baseline strategies.,copied
+3,figure03_trade_pnl_histogram.png,trend_following_ma_cross/figures/trade_pnl_histogram.png,Trade PnL distribution,Per-trade net pip distribution and right-tail dependence.,copied
+4,figure04_cost_sensitivity.png,trend_following_ma_cross/figures/cost_sensitivity.png,Cost sensitivity,Total net pips under different round-trip cost assumptions.,copied
+5,figure05_fixed_oos_comparison.png,trend_following_ma_cross/figures/fixed_oos_comparison.png,Fixed-parameter dev vs OOS comparison,Fixed MA 20/80 performance split into 2023-2024 dev and 2025 OOS.,copied
+6,figure06_buy_hold_comparison.png,trend_following_ma_cross/figures/buy_hold_comparison.png,MA cross vs always-long comparison,"MA long/short, MA long-only, and always-long pips by period.",copied
+7,figure07_direction_pnl_breakdown.png,trend_following_ma_cross/figures/direction_pnl_breakdown.png,Direction PnL breakdown,Long and short contribution to baseline total PnL.,copied
+8,figure08_top_trade_exclusion.png,trend_following_ma_cross/figures/top_trade_exclusion.png,Top winning trade exclusion,Sensitivity to removing the largest winning trades.,copied
+9,figure09_random_direction_comparison.png,trend_following_ma_cross/figures/random_direction_comparison.png,Random direction comparison,Actual total PnL location inside the random direction distribution.,copied
+10,figure10_parameter_heatmap_full.png,trend_following_ma_cross/figures/parameter_heatmap_pf_full_2023_2025.png,Full-period parameter PF heatmap,Profit Factor surface for the full 2023-2025 period.,copied
+11,figure11_parameter_heatmap_dev.png,trend_following_ma_cross/figures/parameter_heatmap_pf_dev_2023_2024.png,Dev-period parameter PF heatmap,Profit Factor surface using only 2023-2024 dev data.,copied
+12,figure12_parameter_heatmap_oos.png,trend_following_ma_cross/figures/parameter_heatmap_pf_oos_2025.png,OOS parameter PF heatmap,Profit Factor surface using only 2025 OOS data.,copied
+13,figure13_parameter_dev_vs_oos_pf.png,trend_following_ma_cross/figures/parameter_dev_vs_oos_pf.png,Dev PF vs OOS PF,Whether parameter regions that look good in dev survive in OOS.,copied
+14,figure14_entry_delay_sensitivity.png,trend_following_ma_cross/figures/entry_delay_sensitivity.png,Entry delay sensitivity,Impact of adding extra entry-delay bars after signal confirmation.,copied
+15,figure15_monthly_pnl.png,trend_following_ma_cross/figures/monthly_pnl.png,Monthly PnL,Monthly net pips and the uneven waiting profile of trend following.,copied
+16,figure16_direction_ablation_total_pnl.png,trend_following_direction_ablation/figures/variant_total_pnl.png,Direction ablation full-period PnL,"Full-period PnL for baseline, long-only, and short-suppression variants.",copied
+17,figure17_direction_ablation_oos_60m.png,trend_following_direction_ablation/figures/variant_oos_60m.png,Direction ablation 60m OOS,60m dev/OOS split for direction-control variants.,copied
+18,figure18_direction_ablation_oos_240m.png,trend_following_direction_ablation/figures/variant_oos_240m.png,Direction ablation 240m OOS,240m dev/OOS split for direction-control variants.,copied
+19,figure19_short_side_pnl.png,trend_following_direction_ablation/figures/short_side_pnl.png,Short-side PnL by variant,Short-side contribution after applying short-suppression diagnostics.,copied

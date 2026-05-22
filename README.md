@@ -6,6 +6,12 @@ This repository stores reproducible experiment packages for quant and FX analysi
 
 The root README is an index. Detailed experiment goals, input data, reproduction commands, key outputs, results, and caveats are documented in each lab's own README.
 
+## Learning Log and Feedback
+
+These article labs also serve as a public learning log for ongoing quant and FX research. The code, data summaries, figures, and article notes are shared so that the assumptions and results can be inspected rather than treated as fixed conclusions.
+
+Corrections, reproducibility checks, alternative interpretations, and new perspectives based on the published data or articles are welcome. When pointing out an issue, please refer to the relevant lab, script, output file, or article section where possible.
+
 ## Documentation Languages
 
 The English documentation is the default entry point for GitHub and international readers.

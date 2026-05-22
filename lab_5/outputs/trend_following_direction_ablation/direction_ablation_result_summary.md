@@ -92,4 +92,6 @@ Scope: MA 20/80 USDJPY trend-following ablation.
 ## Interpretation Boundary
 
 These are ablations, not tuned production rules.
+The purpose is to diagnose whether short exposure damaged the baseline result, not to propose a finished filter strategy.
 If a short-suppression rule improves the full period but fails OOS, it should be treated as diagnostic evidence rather than a selected strategy.
+Because 2025 OOS has already been inspected, any additional filter that improves it should be treated as post-hoc exploration until validated on a fresh holdout.

@@ -195,6 +195,7 @@ def simulate_trades(
     long_window: int,
     round_trip_cost_pips: float,
     entry_delay_bars: int = 0,
+    signal_mode: str = "long_short",
 ) -> pd.DataFrame:
     work = add_ma_signal(df, short_window, long_window)
     active = work[(work["datetime"] >= start) & (work["datetime"] < end)].index.to_numpy()
@@ -203,7 +204,13 @@ def simulate_trades(
 
     opens = work["open"].to_numpy(dtype=float)
     timestamps = work["datetime"].to_numpy()
-    signals = work["signal"].to_numpy(dtype=int)
+    if signal_mode == "long_short":
+        signal_series = work["signal"]
+    elif signal_mode == "long_only":
+        signal_series = work["signal"].clip(lower=0)
+    else:
+        raise ValueError(f"unknown signal_mode: {signal_mode}")
+    signals = signal_series.to_numpy(dtype=int)
 
     rows = []
     pos = 0
@@ -447,24 +454,84 @@ def build_top_trade_exclusion(trades_by_timeframe: dict[str, pd.DataFrame]) -> p
     return pd.DataFrame(rows)
 
 
-def build_direction_breakdown(
-    trades_by_timeframe: dict[str, pd.DataFrame],
-    dev_end: pd.Timestamp,
-) -> pd.DataFrame:
+def build_top_trade_contribution(trades_by_timeframe: dict[str, pd.DataFrame]) -> pd.DataFrame:
     rows = []
     for timeframe, trades in trades_by_timeframe.items():
         if trades.empty:
             continue
-        work = trades.copy()
-        work["entry_time"] = pd.to_datetime(work["entry_time"])
-        periods = {
-            "full_2023_2025": work,
-            "dev_2023_2024": work[work["entry_time"] < dev_end],
-            "oos_2025": work[work["entry_time"] >= dev_end],
-        }
-        for period, period_trades in periods.items():
+        pnl = trades["net_pnl_pips"].astype(float)
+        wins = pnl[pnl > 0.0].sort_values(ascending=False)
+        total_win_pips = float(wins.sum())
+        total_net_pips = float(pnl.sum())
+        for top_n in [1, 3, 5]:
+            selected = wins.head(top_n)
+            selected_sum = float(selected.sum())
+            rows.append(
+                {
+                    "timeframe": timeframe,
+                    "measure": f"top_{top_n}_winning_trades",
+                    "trade_count": int(len(pnl)),
+                    "winning_trade_count": int(len(wins)),
+                    "selected_trade_count": int(len(selected)),
+                    "selected_pnl_pips": selected_sum,
+                    "share_of_winning_pips_pct": (
+                        selected_sum / total_win_pips * 100.0 if total_win_pips else math.nan
+                    ),
+                    "share_of_total_net_pnl_pct": (
+                        selected_sum / total_net_pips * 100.0 if total_net_pips else math.nan
+                    ),
+                    "largest_selected_trade_pips": float(selected.max()) if not selected.empty else math.nan,
+                }
+            )
+        for pct in TOP_EXCLUSION_PCTS:
+            win_count = max(1, int(math.ceil(len(wins) * pct / 100.0))) if not wins.empty else 0
+            all_trade_count = max(1, int(math.ceil(len(pnl) * pct / 100.0))) if len(pnl) else 0
+            selected = wins.head(win_count)
+            selected_sum = float(selected.sum())
+            rows.append(
+                {
+                    "timeframe": timeframe,
+                    "measure": f"top_{pct}pct_winning_trades",
+                    "trade_count": int(len(pnl)),
+                    "winning_trade_count": int(len(wins)),
+                    "selected_trade_count": int(win_count),
+                    "selected_trade_count_if_pct_of_all_trades": int(all_trade_count),
+                    "selected_pnl_pips": selected_sum,
+                    "share_of_winning_pips_pct": (
+                        selected_sum / total_win_pips * 100.0 if total_win_pips else math.nan
+                    ),
+                    "share_of_total_net_pnl_pct": (
+                        selected_sum / total_net_pips * 100.0 if total_net_pips else math.nan
+                    ),
+                    "largest_selected_trade_pips": float(selected.max()) if not selected.empty else math.nan,
+                }
+            )
+    return pd.DataFrame(rows)
+
+
+def build_direction_breakdown(
+    frames: dict[str, pd.DataFrame],
+    periods: list[tuple[str, pd.Timestamp, pd.Timestamp]],
+    short_window: int,
+    long_window: int,
+    cost_pips: float,
+) -> pd.DataFrame:
+    rows = []
+    for timeframe, df in frames.items():
+        for period, start, end in periods:
+            trades = simulate_trades(
+                df,
+                timeframe=timeframe,
+                period=period,
+                start=start,
+                end=end,
+                short_window=short_window,
+                long_window=long_window,
+                round_trip_cost_pips=cost_pips,
+                entry_delay_bars=0,
+            )
             for direction in ["long", "short"]:
-                subset = period_trades[period_trades["direction"] == direction]
+                subset = trades[trades["direction"] == direction]
                 rows.append(
                     {
                         "timeframe": timeframe,
@@ -550,41 +617,171 @@ def build_random_direction_comparison(
     return pd.DataFrame(records)
 
 
+def build_random_direction_summary(random_df: pd.DataFrame) -> pd.DataFrame:
+    rows = []
+    actual_rows = random_df[random_df["variant"] == "actual"]
+    for _, actual in actual_rows.iterrows():
+        random_rows = random_df[
+            (random_df["timeframe"] == actual["timeframe"])
+            & (random_df["variant"] == "random_direction")
+        ]
+        rows.append(
+            {
+                "timeframe": actual["timeframe"],
+                "random_runs": int(len(random_rows)),
+                "entry_timing_fixed": True,
+                "trade_count_fixed": True,
+                "holding_periods_fixed": True,
+                "direction_only_randomized": True,
+                "long_short_ratio_preserved": False,
+                "actual_total_pnl_pips": actual["total_pnl_pips"],
+                "actual_profit_factor": actual["profit_factor"],
+                "actual_total_pnl_percentile": actual["actual_total_pnl_percentile"],
+                "random_total_pnl_exceed_rate_pct": 100.0 - actual["actual_total_pnl_percentile"],
+                "actual_profit_factor_percentile": actual["actual_profit_factor_percentile"],
+                "random_profit_factor_exceed_rate_pct": (
+                    100.0 - actual["actual_profit_factor_percentile"]
+                    if pd.notna(actual["actual_profit_factor_percentile"])
+                    else math.nan
+                ),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
 def build_parameter_heatmap(
     frames: dict[str, pd.DataFrame],
-    start: pd.Timestamp,
-    end: pd.Timestamp,
+    periods: list[tuple[str, pd.Timestamp, pd.Timestamp]],
     cost_pips: float,
 ) -> pd.DataFrame:
     rows = []
     for timeframe, df in frames.items():
-        for short_window in PARAM_SHORT_WINDOWS:
-            for long_window in PARAM_LONG_WINDOWS:
-                if short_window >= long_window:
-                    continue
+        for period, start, end in periods:
+            for short_window in PARAM_SHORT_WINDOWS:
+                for long_window in PARAM_LONG_WINDOWS:
+                    if short_window >= long_window:
+                        continue
+                    trades = simulate_trades(
+                        df,
+                        timeframe=timeframe,
+                        period=period,
+                        start=start,
+                        end=end,
+                        short_window=short_window,
+                        long_window=long_window,
+                        round_trip_cost_pips=cost_pips,
+                        entry_delay_bars=0,
+                    )
+                    rows.append(
+                        metrics_row(
+                            trades,
+                            timeframe=timeframe,
+                            period=period,
+                            start=start,
+                            end=end,
+                            short_window=short_window,
+                            long_window=long_window,
+                            cost_pips=cost_pips,
+                            entry_delay_bars=0,
+                        )
+                    )
+    return pd.DataFrame(rows)
+
+
+def build_parameter_heatmap_oos_comparison(heatmap_df: pd.DataFrame) -> pd.DataFrame:
+    keys = ["timeframe", "short_window", "long_window"]
+    dev = heatmap_df[heatmap_df["period"] == "dev_2023_2024"][
+        keys + ["profit_factor", "total_pnl_pips", "max_drawdown_pips"]
+    ].rename(
+        columns={
+            "profit_factor": "dev_profit_factor",
+            "total_pnl_pips": "dev_total_pnl_pips",
+            "max_drawdown_pips": "dev_max_drawdown_pips",
+        }
+    )
+    oos = heatmap_df[heatmap_df["period"] == "oos_2025"][
+        keys + ["profit_factor", "total_pnl_pips", "max_drawdown_pips"]
+    ].rename(
+        columns={
+            "profit_factor": "oos_profit_factor",
+            "total_pnl_pips": "oos_total_pnl_pips",
+            "max_drawdown_pips": "oos_max_drawdown_pips",
+        }
+    )
+    out = dev.merge(oos, on=keys, how="inner")
+    out["pf_delta_oos_minus_dev"] = out["oos_profit_factor"] - out["dev_profit_factor"]
+    out["pnl_delta_oos_minus_dev"] = out["oos_total_pnl_pips"] - out["dev_total_pnl_pips"]
+    out["dev_pf_gt_1"] = out["dev_profit_factor"] > 1.0
+    out["oos_pf_gt_1"] = out["oos_profit_factor"] > 1.0
+    out["dev_positive_oos_positive"] = (out["dev_total_pnl_pips"] > 0.0) & (
+        out["oos_total_pnl_pips"] > 0.0
+    )
+    return out
+
+
+def build_benchmark_comparison(
+    frames: dict[str, pd.DataFrame],
+    periods: list[tuple[str, pd.Timestamp, pd.Timestamp]],
+    short_window: int,
+    long_window: int,
+    cost_pips: float,
+) -> pd.DataFrame:
+    rows = []
+    for timeframe, df in frames.items():
+        for period, start, end in periods:
+            for variant, signal_mode in [
+                ("ma_cross_long_short", "long_short"),
+                ("ma_cross_long_only", "long_only"),
+            ]:
                 trades = simulate_trades(
                     df,
                     timeframe=timeframe,
-                    period="full_2023_2025",
+                    period=period,
                     start=start,
                     end=end,
                     short_window=short_window,
                     long_window=long_window,
                     round_trip_cost_pips=cost_pips,
-                    entry_delay_bars=0,
+                    signal_mode=signal_mode,
                 )
                 rows.append(
-                    metrics_row(
-                        trades,
-                        timeframe=timeframe,
-                        period="full_2023_2025",
-                        start=start,
-                        end=end,
-                        short_window=short_window,
-                        long_window=long_window,
-                        cost_pips=cost_pips,
-                        entry_delay_bars=0,
-                    )
+                    {
+                        "variant": variant,
+                        "timeframe": timeframe,
+                        "period": period,
+                        "entry_time": trades["entry_time"].min() if not trades.empty else pd.NaT,
+                        "exit_time": trades["exit_time"].max() if not trades.empty else pd.NaT,
+                        **calculate_metrics(trades),
+                    }
+                )
+
+            window = df[(df["datetime"] >= start) & (df["datetime"] < end)].copy()
+            if len(window) >= 2:
+                entry = window.iloc[0]
+                exit_ = window.iloc[-1]
+                gross = (float(exit_["open"]) - float(entry["open"])) * PIP_MULTIPLIER
+                net = gross - cost_pips
+                hold_trade = pd.DataFrame(
+                    [
+                        {
+                            "net_pnl_pips": net,
+                            "holding_bars": len(window) - 1,
+                        }
+                    ]
+                )
+                rows.append(
+                    {
+                        "variant": "always_long_buy_hold",
+                        "timeframe": timeframe,
+                        "period": period,
+                        "entry_time": entry["datetime"],
+                        "exit_time": exit_["datetime"],
+                        "entry_price": entry["open"],
+                        "exit_price": exit_["open"],
+                        "gross_pnl_pips": gross,
+                        "cost_pips": cost_pips,
+                        **calculate_metrics(hold_trade),
+                    }
                 )
     return pd.DataFrame(rows)
 
@@ -668,6 +865,109 @@ def build_fixed_oos_summary(
                         entry_delay_bars=0,
                     )
                 )
+    return pd.DataFrame(rows)
+
+
+def build_monthly_pnl(trades_by_timeframe: dict[str, pd.DataFrame]) -> pd.DataFrame:
+    rows = []
+    for timeframe, trades in trades_by_timeframe.items():
+        if trades.empty:
+            continue
+        work = trades.copy()
+        work["exit_time"] = pd.to_datetime(work["exit_time"])
+        work["month"] = work["exit_time"].dt.to_period("M").astype(str)
+        for month, subset in work.groupby("month"):
+            pnl = subset["net_pnl_pips"].astype(float)
+            rows.append(
+                {
+                    "timeframe": timeframe,
+                    "month": month,
+                    "trade_count": int(len(subset)),
+                    "monthly_pnl_pips": float(pnl.sum()),
+                    "win_rate_pct": float((pnl > 0.0).mean() * 100.0),
+                    "profit_factor": profit_factor(pnl),
+                    "max_drawdown_pips": max_drawdown_pips(pnl),
+                }
+            )
+    return pd.DataFrame(rows)
+
+
+def build_run_risk_summary(trades_by_timeframe: dict[str, pd.DataFrame]) -> pd.DataFrame:
+    rows = []
+    for timeframe, trades in trades_by_timeframe.items():
+        if trades.empty:
+            continue
+        work = trades.copy()
+        work["entry_time"] = pd.to_datetime(work["entry_time"])
+        work["exit_time"] = pd.to_datetime(work["exit_time"])
+        pnl = work["net_pnl_pips"].astype(float).reset_index(drop=True)
+        equity = pnl.cumsum()
+
+        max_loss_streak = 0
+        current_loss_streak = 0
+        for value in pnl:
+            if value < 0.0:
+                current_loss_streak += 1
+                max_loss_streak = max(max_loss_streak, current_loss_streak)
+            else:
+                current_loss_streak = 0
+
+        hwm = 0.0
+        hwm_time = work["entry_time"].iloc[0]
+        hwm_index = -1
+        underwater_start_time = None
+        underwater_start_index = None
+        max_tuw_days = 0.0
+        max_tuw_trades = 0
+        recovered_periods = 0
+
+        for i, (timestamp, eq_value) in enumerate(zip(work["exit_time"], equity)):
+            if eq_value >= hwm:
+                if underwater_start_time is not None and underwater_start_index is not None:
+                    duration_days = (timestamp - underwater_start_time).total_seconds() / 86400.0
+                    max_tuw_days = max(max_tuw_days, duration_days)
+                    max_tuw_trades = max(max_tuw_trades, i - underwater_start_index)
+                    recovered_periods += 1
+                    underwater_start_time = None
+                    underwater_start_index = None
+                hwm = float(eq_value)
+                hwm_time = timestamp
+                hwm_index = i
+            elif underwater_start_time is None:
+                underwater_start_time = hwm_time
+                underwater_start_index = hwm_index
+
+        open_underwater_days = 0.0
+        open_underwater_trades = 0
+        ends_underwater = underwater_start_time is not None and underwater_start_index is not None
+        if ends_underwater:
+            last_time = work["exit_time"].iloc[-1]
+            open_underwater_days = (last_time - underwater_start_time).total_seconds() / 86400.0
+            open_underwater_trades = len(work) - 1 - underwater_start_index
+            max_tuw_days = max(max_tuw_days, open_underwater_days)
+            max_tuw_trades = max(max_tuw_trades, open_underwater_trades)
+
+        monthly = build_monthly_pnl({timeframe: trades})
+        rows.append(
+            {
+                "timeframe": timeframe,
+                "trade_count": int(len(work)),
+                "max_consecutive_losses": int(max_loss_streak),
+                "max_time_under_water_days": float(max_tuw_days),
+                "max_time_under_water_trades": int(max_tuw_trades),
+                "recovered_underwater_periods": int(recovered_periods),
+                "ends_underwater": bool(ends_underwater),
+                "open_underwater_days": float(open_underwater_days),
+                "open_underwater_trades": int(open_underwater_trades),
+                "monthly_count": int(len(monthly)),
+                "positive_month_count": int((monthly["monthly_pnl_pips"] > 0.0).sum()),
+                "monthly_win_rate_pct": float(
+                    (monthly["monthly_pnl_pips"] > 0.0).mean() * 100.0
+                ),
+                "worst_month_pips": float(monthly["monthly_pnl_pips"].min()),
+                "best_month_pips": float(monthly["monthly_pnl_pips"].max()),
+            }
+        )
     return pd.DataFrame(rows)
 
 
@@ -800,6 +1100,41 @@ def plot_cost_sensitivity(cost_df: pd.DataFrame, figures_dir: Path, dpi: int) ->
     plt.close(fig)
 
 
+def plot_benchmark_comparison(benchmark_df: pd.DataFrame, figures_dir: Path, dpi: int) -> None:
+    variants = ["ma_cross_long_short", "ma_cross_long_only", "always_long_buy_hold"]
+    variant_labels = {
+        "ma_cross_long_short": "MA L/S",
+        "ma_cross_long_only": "MA long only",
+        "always_long_buy_hold": "Always long",
+    }
+    periods = ["full_2023_2025", "dev_2023_2024", "oos_2025"]
+    period_labels = ["Full", "Dev", "OOS"]
+    timeframes = list(benchmark_df["timeframe"].drop_duplicates())
+    fig, axes = plt.subplots(1, len(timeframes), figsize=(6 * len(timeframes), 4.5), squeeze=False)
+    for ax, timeframe in zip(axes[0], timeframes):
+        subset = benchmark_df[benchmark_df["timeframe"] == timeframe]
+        pivot = subset.pivot(index="period", columns="variant", values="total_pnl_pips")
+        pivot = pivot.reindex(index=periods, columns=variants)
+        x = np.arange(len(periods))
+        width = 0.25
+        for offset, variant in enumerate(variants):
+            ax.bar(
+                x + (offset - 1) * width,
+                pivot[variant].to_numpy(dtype=float),
+                width=width,
+                label=variant_labels[variant],
+            )
+        ax.axhline(0.0, color="black", linewidth=1.0)
+        ax.set_title(f"{timeframe} MA cross vs always long")
+        ax.set_xticks(x, period_labels)
+        ax.set_ylabel("Total net pips")
+        ax.grid(True, axis="y", alpha=0.3)
+    axes[0][-1].legend(loc="best")
+    fig.tight_layout()
+    fig.savefig(figures_dir / "buy_hold_comparison.png", dpi=dpi)
+    plt.close(fig)
+
+
 def plot_top_trade_exclusion(top_df: pd.DataFrame, figures_dir: Path, dpi: int) -> None:
     fig, ax = plt.subplots(figsize=(8, 5))
     for timeframe, subset in top_df.groupby("timeframe"):
@@ -841,28 +1176,55 @@ def plot_random_comparison(random_df: pd.DataFrame, figures_dir: Path, dpi: int)
 
 
 def plot_parameter_heatmap(heatmap_df: pd.DataFrame, figures_dir: Path, dpi: int) -> None:
-    timeframes = list(heatmap_df["timeframe"].drop_duplicates())
-    fig, axes = plt.subplots(1, len(timeframes), figsize=(6 * len(timeframes), 5), squeeze=False)
-    for ax, timeframe in zip(axes[0], timeframes):
-        subset = heatmap_df[heatmap_df["timeframe"] == timeframe]
-        pivot = subset.pivot(index="long_window", columns="short_window", values="profit_factor")
-        pivot = pivot.reindex(index=PARAM_LONG_WINDOWS, columns=PARAM_SHORT_WINDOWS)
-        data = pivot.replace([np.inf, -np.inf], np.nan).to_numpy(dtype=float)
-        masked = np.ma.masked_invalid(data)
-        im = ax.imshow(masked, aspect="auto", origin="lower", cmap="viridis")
-        ax.set_xticks(range(len(PARAM_SHORT_WINDOWS)), labels=PARAM_SHORT_WINDOWS)
-        ax.set_yticks(range(len(PARAM_LONG_WINDOWS)), labels=PARAM_LONG_WINDOWS)
-        ax.set_xlabel("Short MA")
-        ax.set_ylabel("Long MA")
-        ax.set_title(f"{timeframe} PF heatmap")
-        for y in range(data.shape[0]):
-            for x in range(data.shape[1]):
-                value = data[y, x]
-                if np.isfinite(value):
-                    ax.text(x, y, f"{value:.2f}", ha="center", va="center", color="white", fontsize=8)
-        fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+    periods = list(heatmap_df["period"].drop_duplicates())
+    for period in periods:
+        period_df = heatmap_df[heatmap_df["period"] == period]
+        timeframes = list(period_df["timeframe"].drop_duplicates())
+        fig, axes = plt.subplots(1, len(timeframes), figsize=(6 * len(timeframes), 5), squeeze=False)
+        for ax, timeframe in zip(axes[0], timeframes):
+            subset = period_df[period_df["timeframe"] == timeframe]
+            pivot = subset.pivot(index="long_window", columns="short_window", values="profit_factor")
+            pivot = pivot.reindex(index=PARAM_LONG_WINDOWS, columns=PARAM_SHORT_WINDOWS)
+            data = pivot.replace([np.inf, -np.inf], np.nan).to_numpy(dtype=float)
+            masked = np.ma.masked_invalid(data)
+            im = ax.imshow(masked, aspect="auto", origin="lower", cmap="viridis")
+            ax.set_xticks(range(len(PARAM_SHORT_WINDOWS)), labels=PARAM_SHORT_WINDOWS)
+            ax.set_yticks(range(len(PARAM_LONG_WINDOWS)), labels=PARAM_LONG_WINDOWS)
+            ax.set_xlabel("Short MA")
+            ax.set_ylabel("Long MA")
+            ax.set_title(f"{timeframe} PF heatmap: {period}")
+            for y in range(data.shape[0]):
+                for x in range(data.shape[1]):
+                    value = data[y, x]
+                    if np.isfinite(value):
+                        ax.text(x, y, f"{value:.2f}", ha="center", va="center", color="white", fontsize=8)
+            fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+        fig.tight_layout()
+        filename = f"parameter_heatmap_pf_{period}.png"
+        fig.savefig(figures_dir / filename, dpi=dpi)
+        if period == "full_2023_2025":
+            fig.savefig(figures_dir / "parameter_heatmap_pf.png", dpi=dpi)
+        plt.close(fig)
+
+
+def plot_parameter_dev_oos_scatter(comparison_df: pd.DataFrame, figures_dir: Path, dpi: int) -> None:
+    fig, ax = plt.subplots(figsize=(7, 6))
+    for timeframe, subset in comparison_df.groupby("timeframe"):
+        ax.scatter(
+            subset["dev_profit_factor"],
+            subset["oos_profit_factor"],
+            label=timeframe,
+            alpha=0.8,
+        )
+    ax.axhline(1.0, color="black", linewidth=1.0, alpha=0.5)
+    ax.axvline(1.0, color="black", linewidth=1.0, alpha=0.5)
+    ax.set_title("Dev PF vs OOS PF by MA parameter")
+    ax.set_xlabel("2023-2024 dev Profit Factor")
+    ax.set_ylabel("2025 OOS Profit Factor")
+    ax.legend()
+    ax.grid(True, alpha=0.3)
     fig.tight_layout()
-    fig.savefig(figures_dir / "parameter_heatmap_pf.png", dpi=dpi)
+    fig.savefig(figures_dir / "parameter_dev_vs_oos_pf.png", dpi=dpi)
     plt.close(fig)
 
 
@@ -901,14 +1263,37 @@ def plot_fixed_oos(oos_df: pd.DataFrame, figures_dir: Path, dpi: int) -> None:
     plt.close(fig)
 
 
+def plot_monthly_pnl(monthly_df: pd.DataFrame, figures_dir: Path, dpi: int) -> None:
+    timeframes = list(monthly_df["timeframe"].drop_duplicates())
+    fig, axes = plt.subplots(len(timeframes), 1, figsize=(11, 4 * len(timeframes)), squeeze=False)
+    for ax, timeframe in zip(axes[:, 0], timeframes):
+        subset = monthly_df[monthly_df["timeframe"] == timeframe].sort_values("month")
+        colors = ["#2f7ed8" if value >= 0.0 else "#d84a3a" for value in subset["monthly_pnl_pips"]]
+        ax.bar(subset["month"], subset["monthly_pnl_pips"], color=colors)
+        ax.axhline(0.0, color="black", linewidth=1.0)
+        ax.set_title(f"{timeframe} monthly PnL, MA 20/80 cost 1.0")
+        ax.set_ylabel("Net pips")
+        ax.tick_params(axis="x", rotation=60)
+        ax.grid(True, axis="y", alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(figures_dir / "monthly_pnl.png", dpi=dpi)
+    plt.close(fig)
+
+
 def write_article_summary(
     output_dir: Path,
     summary_df: pd.DataFrame,
     cost_df: pd.DataFrame,
     direction_df: pd.DataFrame,
     top_df: pd.DataFrame,
+    top_contribution_df: pd.DataFrame,
     random_df: pd.DataFrame,
+    random_summary_df: pd.DataFrame,
+    benchmark_df: pd.DataFrame,
+    heatmap_comparison_df: pd.DataFrame,
     delay_df: pd.DataFrame,
+    monthly_df: pd.DataFrame,
+    risk_df: pd.DataFrame,
     oos_df: pd.DataFrame,
 ) -> None:
     primary = summary_df[
@@ -949,10 +1334,35 @@ def write_article_summary(
         lines.append(markdown_table(primary, cols))
         lines.append("")
 
+    lines.extend(
+        [
+            "## OOS-Centered Reading",
+            "",
+            "The main result is not that the 240m strategy won over the full period.",
+            "The important diagnostic result is that 240m looked strong in 2023-2024 and then broke in the fixed 2025 OOS period.",
+            "This makes the experiment useful as a backtest-skepticism exercise rather than a parameter search.",
+            "",
+        ]
+    )
+
     lines.extend(["## Cost Sensitivity", ""])
     if not cost_df.empty:
         cols = ["timeframe", "cost_pips", "total_pnl_pips", "profit_factor", "max_drawdown_pips"]
         lines.append(markdown_table(cost_df, cols))
+        lines.append("")
+
+    lines.extend(["## Buy & Hold / Always Long Comparison", ""])
+    if not benchmark_df.empty:
+        cols = [
+            "variant",
+            "timeframe",
+            "period",
+            "trade_count",
+            "total_pnl_pips",
+            "profit_factor",
+            "max_drawdown_pips",
+        ]
+        lines.append(markdown_table(benchmark_df[cols], cols))
         lines.append("")
 
     lines.extend(["## Direction Breakdown", ""])
@@ -976,6 +1386,19 @@ def write_article_summary(
         lines.append(markdown_table(top_df, cols))
         lines.append("")
 
+    lines.extend(["## Top Winning Trade Concentration", ""])
+    if not top_contribution_df.empty:
+        cols = [
+            "timeframe",
+            "measure",
+            "selected_trade_count",
+            "selected_pnl_pips",
+            "share_of_winning_pips_pct",
+            "share_of_total_net_pnl_pct",
+        ]
+        lines.append(markdown_table(top_contribution_df[cols], cols))
+        lines.append("")
+
     lines.extend(["## Random Direction Comparison", ""])
     actual_random = random_df[random_df["variant"] == "actual"].copy()
     if not actual_random.empty:
@@ -989,10 +1412,64 @@ def write_article_summary(
         lines.append(markdown_table(actual_random, cols))
         lines.append("")
 
+    lines.extend(["## Random Direction Test Design", ""])
+    if not random_summary_df.empty:
+        cols = [
+            "timeframe",
+            "random_runs",
+            "entry_timing_fixed",
+            "trade_count_fixed",
+            "holding_periods_fixed",
+            "direction_only_randomized",
+            "long_short_ratio_preserved",
+            "random_total_pnl_exceed_rate_pct",
+        ]
+        lines.append(markdown_table(random_summary_df[cols], cols))
+        lines.append("")
+
+    lines.extend(["## Dev vs OOS Parameter Surface", ""])
+    if not heatmap_comparison_df.empty:
+        compact = heatmap_comparison_df[
+            [
+                "timeframe",
+                "short_window",
+                "long_window",
+                "dev_profit_factor",
+                "oos_profit_factor",
+                "pf_delta_oos_minus_dev",
+                "dev_positive_oos_positive",
+            ]
+        ].copy()
+        compact = compact.sort_values(["timeframe", "dev_profit_factor"], ascending=[True, False]).groupby("timeframe").head(5)
+        lines.append(markdown_table(compact, list(compact.columns)))
+        lines.append("")
+
     lines.extend(["## Entry Delay Sensitivity", ""])
     if not delay_df.empty:
         cols = ["timeframe", "entry_delay_bars", "total_pnl_pips", "profit_factor", "max_drawdown_pips"]
         lines.append(markdown_table(delay_df, cols))
+        lines.append("")
+        lines.extend(
+            [
+                "Lag 1-2 improving on 240m should not be read as a universal rule to enter late.",
+                "It only suggests that the 240m signal captured a longer time-scale continuation in this sample.",
+                "",
+            ]
+        )
+
+    lines.extend(["## Monthly PnL and Time Under Water", ""])
+    if not risk_df.empty:
+        cols = [
+            "timeframe",
+            "max_consecutive_losses",
+            "max_time_under_water_days",
+            "max_time_under_water_trades",
+            "monthly_win_rate_pct",
+            "worst_month_pips",
+            "best_month_pips",
+            "ends_underwater",
+        ]
+        lines.append(markdown_table(risk_df[cols], cols))
         lines.append("")
 
     lines.extend(["## Fixed Parameter OOS", ""])
@@ -1031,6 +1508,11 @@ def run_experiment(args: argparse.Namespace) -> None:
 
     audit_df = build_data_audit(frames, profiles, start, dev_end, end)
     audit_df.to_csv(output_dir / "data_audit.csv", index=False)
+    periods = [
+        ("full_2023_2025", start, end),
+        ("dev_2023_2024", start, dev_end),
+        ("oos_2025", dev_end, end),
+    ]
 
     if args.stage == "audit":
         print_summary(output_dir, audit_df)
@@ -1080,19 +1562,36 @@ def run_experiment(args: argparse.Namespace) -> None:
 
     cost_df = summary_df.copy()
     cost_df.to_csv(output_dir / "cost_sensitivity.csv", index=False)
-    direction_df = build_direction_breakdown(baseline_trades, dev_end=dev_end)
+    direction_df = build_direction_breakdown(
+        frames,
+        periods=periods,
+        short_window=args.short_window,
+        long_window=args.long_window,
+        cost_pips=PRIMARY_COST_PIPS,
+    )
     top_df = build_top_trade_exclusion(baseline_trades)
+    top_contribution_df = build_top_trade_contribution(baseline_trades)
+    monthly_df = build_monthly_pnl(baseline_trades)
+    risk_df = build_run_risk_summary(baseline_trades)
+    benchmark_df = build_benchmark_comparison(
+        frames,
+        periods=periods,
+        short_window=args.short_window,
+        long_window=args.long_window,
+        cost_pips=PRIMARY_COST_PIPS,
+    )
     random_df = build_random_direction_comparison(
         baseline_trades,
         random_runs=args.random_runs,
         seed=args.seed,
     )
+    random_summary_df = build_random_direction_summary(random_df)
     heatmap_df = build_parameter_heatmap(
         frames,
-        start=start,
-        end=end,
+        periods=periods,
         cost_pips=PRIMARY_COST_PIPS,
     )
+    heatmap_comparison_df = build_parameter_heatmap_oos_comparison(heatmap_df)
     delay_df = build_entry_delay_sensitivity(
         frames,
         start=start,
@@ -1104,16 +1603,25 @@ def run_experiment(args: argparse.Namespace) -> None:
 
     direction_df.to_csv(output_dir / "direction_breakdown.csv", index=False)
     top_df.to_csv(output_dir / "top_trade_exclusion.csv", index=False)
+    top_contribution_df.to_csv(output_dir / "top_trade_contribution.csv", index=False)
+    monthly_df.to_csv(output_dir / "monthly_pnl.csv", index=False)
+    risk_df.to_csv(output_dir / "run_risk_summary.csv", index=False)
+    benchmark_df.to_csv(output_dir / "buy_hold_comparison.csv", index=False)
     random_df.to_csv(output_dir / "random_direction_comparison.csv", index=False)
+    random_summary_df.to_csv(output_dir / "random_direction_summary.csv", index=False)
     heatmap_df.to_csv(output_dir / "parameter_heatmap.csv", index=False)
+    heatmap_comparison_df.to_csv(output_dir / "parameter_heatmap_dev_oos_comparison.csv", index=False)
     delay_df.to_csv(output_dir / "entry_delay_sensitivity.csv", index=False)
 
     plot_cost_sensitivity(cost_df, figures_dir, args.dpi)
+    plot_benchmark_comparison(benchmark_df, figures_dir, args.dpi)
     plot_direction_breakdown(direction_df, figures_dir, args.dpi)
     plot_top_trade_exclusion(top_df, figures_dir, args.dpi)
     plot_random_comparison(random_df, figures_dir, args.dpi)
     plot_parameter_heatmap(heatmap_df, figures_dir, args.dpi)
+    plot_parameter_dev_oos_scatter(heatmap_comparison_df, figures_dir, args.dpi)
     plot_entry_delay(delay_df, figures_dir, args.dpi)
+    plot_monthly_pnl(monthly_df, figures_dir, args.dpi)
 
     if args.stage == "robustness":
         print_summary(output_dir, audit_df, summary_df, random_df=random_df)
@@ -1138,8 +1646,14 @@ def run_experiment(args: argparse.Namespace) -> None:
         cost_df=cost_df,
         direction_df=direction_df,
         top_df=top_df,
+        top_contribution_df=top_contribution_df,
         random_df=random_df,
+        random_summary_df=random_summary_df,
+        benchmark_df=benchmark_df,
+        heatmap_comparison_df=heatmap_comparison_df,
         delay_df=delay_df,
+        monthly_df=monthly_df,
+        risk_df=risk_df,
         oos_df=oos_df,
     )
     print_summary(output_dir, audit_df, summary_df, random_df=random_df, oos_df=oos_df)

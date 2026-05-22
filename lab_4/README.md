@@ -10,6 +10,12 @@ The article's purpose is to explain that when AI and Python make it easy to test
 
 This is not a production trading strategy. It is an educational experiment using 144 moving-average crossover candidates, CSCV-style splits, and a simplified PBO measure to observe how much the selection process may depend on historical data.
 
+## Learning Log and Feedback
+
+This lab is also part of a public learning log for learning how to question attractive backtests. The experiment artifacts are shared to make the selection process, assumptions, and limitations visible rather than to claim that a selected strategy is robust.
+
+Corrections, reproducibility checks, objections to the simplified PBO design, and alternative ways to interpret the results are welcome when they are grounded in the shared outputs, script logic, or linked article.
+
 ## Experiment Role
 
 The lab analyzes USDJPY 60-minute data in this order:

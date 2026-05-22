@@ -1,0 +1,3 @@
+timeframe,trade_count,max_consecutive_losses,max_time_under_water_days,max_time_under_water_trades,recovered_underwater_periods,ends_underwater,open_underwater_days,open_underwater_trades,monthly_count,positive_month_count,monthly_win_rate_pct,worst_month_pips,best_month_pips
+60m,292,10,866.5833333333334,228,2,True,866.5833333333334,228,36,21,58.333333333333336,-594.7999999999975,1064.8000000000018
+240m,70,6,344.3333333333333,23,5,True,213.0,23,29,16,55.172413793103445,-571.0999999999992,982.0000000000013

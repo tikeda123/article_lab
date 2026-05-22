@@ -8,6 +8,12 @@ The article's purpose is to convert subjective market language such as "too low"
 
 This is not a finished strategy backtest. It is an exploration phase for turning overbought and oversold ideas into testable hypotheses.
 
+## Learning Log and Feedback
+
+This lab is also part of a public learning log for turning subjective trading language into measurable conditions. The goal is to make the definitions, assumptions, and evidence easy to inspect, challenge, and improve.
+
+Corrections, reproducibility checks, alternative interpretations, and new perspectives are welcome when they are based on the shared AUDJPY data, experiment script, generated outputs, or the linked article.
+
 ## Experiment Role
 
 The lab uses AUDJPY 60-minute data and analyzes it in this order:

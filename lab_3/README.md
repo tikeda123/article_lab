@@ -8,6 +8,12 @@ The article's purpose is to treat the Kelly criterion not as a formula for findi
 
 This lab is not investment advice and does not define a trading strategy. It is an educational pre-order risk-check tool for confirming whether a proposed order is too large under the user's assumptions.
 
+## Learning Log and Feedback
+
+This lab is also part of a public learning log for translating trading-risk theory into practical checks. The tool and article notes are shared so that the calculation assumptions can be inspected, corrected, and improved.
+
+Corrections, edge-case reports, usability comments, and alternative risk-management perspectives are welcome when they are based on the tool behavior, formulas, or linked article.
+
 ## Experiment Role
 
 The lab converts the Kelly criterion into an FX order checklist in this order:

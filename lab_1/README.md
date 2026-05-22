@@ -6,6 +6,12 @@ This lab supports the Qiita article "[Quant Intro: Stop Predicting, Read the Dis
 
 The article's purpose is to inspect the shape of FX return distributions before attempting directional prediction, and to identify which currency pairs and market conditions deserve deeper conditional-return analysis. This is an edge-exploration lab, not a final trading-strategy backtest.
 
+## Learning Log and Feedback
+
+This lab is part of a public learning log for studying quant research methods through reproducible FX experiments. The tables and figures are meant to make the assumptions visible and to support later correction, not to present the final word on return-distribution analysis.
+
+Corrections, alternative readings, and new research angles are welcome when they are grounded in the shared CSV data, script logic, generated outputs, or the linked article.
+
 ## Experiment Role
 
 The lab analyzes USDJPY, EURUSD, and AUDJPY 240-minute bars in the following order:
