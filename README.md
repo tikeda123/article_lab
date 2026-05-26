@@ -49,6 +49,7 @@ The root README should not duplicate full experiment procedures. It should point
 | `lab_2` | Quantifying AUDJPY overbought and oversold conditions | AUDJPY 60-minute bars | [README](lab_2/README.md) | [日本語](lab_2/README.ja.md) | `lab_2/article_outputs/` |
 | `lab_3` | FX Kelly criterion order risk management tool | No CSV; standalone HTML tool | [README](lab_3/README.md) | [日本語](lab_3/README.ja.md) | `lab_3/kelly_fx_position_size_tool.html` |
 | `lab_4` | USDJPY 60-minute backtest overfitting and simplified PBO | USDJPY 60-minute bars | [README](lab_4/README.md) | [日本語](lab_4/README.ja.md) | `lab_4/results_summary.json`, `lab_4/figures/` |
+| `lab_5` | USDJPY trend-following edge diagnostics | USDJPY 60-minute and 240-minute bars | [README](lab_5/README.md) | [日本語](lab_5/README.ja.md) | `lab_5/outputs/trend_following_ma_cross/`, `lab_5/outputs/article_figures/` |
 
 ## lab_1 Summary
 
@@ -110,6 +111,23 @@ The lab demonstrates how to inspect backtest overfitting risk in the AI-assisted
 | Canonical output | `lab_4/results_summary.json`, `lab_4/experiment_report.md`, `lab_4/figures/` |
 | Role | Educational simplified CSCV/PBO overfitting-risk check, not a production strategy |
 
+## lab_5 Summary
+
+`lab_5` supports the Qiita article "[トレンドフォローにエッジはあるのか――「遅れて入る」戦略がなぜ生き残るのか](https://qiita.com/tikeda123/items/e599112d88c912a86125)" and its [English version](https://qiita.com/tikeda123/items/be91a8ff85324c7c39a2).
+
+The lab uses simple MA 20/80 crossover rules on USDJPY 60-minute and 240-minute bars to inspect whether trend following produces a cost-adjusted, right-tail-dependent PnL structure, and whether that structure survives a fixed 2025 OOS check.
+
+| Item | Content |
+|---|---|
+| Details | [lab_5/README.md](lab_5/README.md) |
+| Japanese | [lab_5/README.ja.md](lab_5/README.ja.md) |
+| Article | [Japanese](https://qiita.com/tikeda123/items/e599112d88c912a86125) / [English](https://qiita.com/tikeda123/items/be91a8ff85324c7c39a2) |
+| Scripts | `lab_5/run_trend_following_experiment.py`, `lab_5/run_trend_following_direction_ablation.py`, `lab_5/save_article_figures.py` |
+| Article notes | `lab_5/trend_following_edge_article_outline_improved.md`, `lab_5/trend_following_experiment_analysis_and_discussion.md` |
+| Input data | `lab_5/USDJPY60.csv`, `lab_5/USDJPY240.csv` |
+| Canonical output | `lab_5/outputs/trend_following_ma_cross/`, `lab_5/outputs/trend_following_direction_ablation/`, `lab_5/outputs/article_figures/` |
+| Role | Trend-following structure and OOS-failure diagnostics, not a production strategy |
+
 ## Usage
 
 Start with the README for the lab you want to inspect.
@@ -119,6 +137,7 @@ sed -n '1,220p' lab_1/README.md
 sed -n '1,220p' lab_2/README.md
 sed -n '1,220p' lab_3/README.md
 sed -n '1,220p' lab_4/README.md
+sed -n '1,220p' lab_5/README.md
 ```
 
 Use the Japanese files when working directly with the Japanese Qiita article text.
@@ -128,6 +147,7 @@ sed -n '1,220p' lab_1/README.ja.md
 sed -n '1,220p' lab_2/README.ja.md
 sed -n '1,220p' lab_3/README.ja.md
 sed -n '1,220p' lab_4/README.ja.md
+sed -n '1,220p' lab_5/README.ja.md
 ```
 
 For regeneration, use the commands documented in each lab README.
@@ -157,6 +177,13 @@ python lab_4/run_backtest_overfitting_experiment.py \
   --outdir /tmp/lab4_pbo_check
 ```
 
+For `lab_5`, the input CSVs are included under `lab_5/`.
+
+```bash
+python lab_5/run_trend_following_experiment.py \
+  --output-dir /tmp/lab5_trend_following_check
+```
+
 When experimenting, write to a temporary output directory instead of overwriting canonical outputs.
 
 ## Maintenance Policy
@@ -166,5 +193,5 @@ When experimenting, write to a temporary output directory instead of overwriting
 - Keep the root README focused on the index and lab list.
 - Put experiment details, reproduction commands, current results, and caveats in each lab README.
 - Store regenerable outputs in a dedicated output path inside each lab.
-- Add new articles or experiments as `lab_4`, `lab_5`, and so on.
+- Add new articles or experiments as `lab_6`, `lab_7`, and so on.
 - Cite article numbers from canonical output CSV, JSON, or Markdown files, not from hand-written summaries alone.

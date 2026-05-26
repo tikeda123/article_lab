@@ -49,6 +49,7 @@ READMEを更新する場合は、英語版と日本語版の実験目的、正�
 | `lab_2` | AUDJPY 買われすぎ・売られすぎの定量化 | AUDJPY 60分足 | [README](lab_2/README.md) | [日本語](lab_2/README.ja.md) | `lab_2/article_outputs/` |
 | `lab_3` | FX Kelly基準による注文リスク管理 | 入力CSVなし。単体HTMLツール | [README](lab_3/README.md) | [日本語](lab_3/README.ja.md) | `lab_3/kelly_fx_position_size_tool.html` |
 | `lab_4` | USDJPY 60分足 バックテスト過学習・簡易PBO検証 | USDJPY 60分足 | [README](lab_4/README.md) | [日本語](lab_4/README.ja.md) | `lab_4/results_summary.json`, `lab_4/figures/` |
+| `lab_5` | USDJPY トレンドフォロー・エッジ診断 | USDJPY 60分足・240分足 | [README](lab_5/README.md) | [日本語](lab_5/README.ja.md) | `lab_5/outputs/trend_following_ma_cross/`, `lab_5/outputs/article_figures/` |
 
 ## lab_1 概要
 
@@ -116,6 +117,23 @@ AI時代のクオンツ探索で問題になりやすいバックテスト過学
 | 正本出力 | `lab_4/results_summary.json`, `lab_4/experiment_report.md`, `lab_4/figures/` |
 | 位置づけ | 簡易CSCV/PBOによる過学習リスク確認。完成した売買戦略ではない |
 
+## lab_5 概要
+
+`lab_5` は、Qiita記事「[トレンドフォローにエッジはあるのか――「遅れて入る」戦略がなぜ生き残るのか](https://qiita.com/tikeda123/items/e599112d88c912a86125)」および [英語版](https://qiita.com/tikeda123/items/be91a8ff85324c7c39a2) に対応するラボである。
+
+USDJPY 60分足・240分足に単純な MA 20/80 クロスを適用し、トレンドフォローがコスト控除後でも右テール依存の損益構造を持つか、また固定2025 OOSでその構造が残るかを確認する。
+
+| 項目 | 内容 |
+|---|---|
+| 詳細説明 | [lab_5/README.ja.md](lab_5/README.ja.md) |
+| 英語版 | [lab_5/README.md](lab_5/README.md) |
+| 記事 | [日本語](https://qiita.com/tikeda123/items/e599112d88c912a86125) / [English](https://qiita.com/tikeda123/items/be91a8ff85324c7c39a2) |
+| 実験コード | `lab_5/run_trend_following_experiment.py`, `lab_5/run_trend_following_direction_ablation.py`, `lab_5/save_article_figures.py` |
+| 記事メモ | `lab_5/trend_following_edge_article_outline_improved.md`, `lab_5/trend_following_experiment_analysis_and_discussion.md` |
+| 入力データ | `lab_5/USDJPY60.csv`, `lab_5/USDJPY240.csv` |
+| 正本出力 | `lab_5/outputs/trend_following_ma_cross/`, `lab_5/outputs/trend_following_direction_ablation/`, `lab_5/outputs/article_figures/` |
+| 位置づけ | トレンドフォロー構造とOOS崩れの診断。完成した売買戦略ではない |
+
 ## 使い方
 
 英語圏の読者は、各ラボの `README.md` を読む。
@@ -125,6 +143,7 @@ sed -n '1,220p' lab_1/README.md
 sed -n '1,220p' lab_2/README.md
 sed -n '1,220p' lab_3/README.md
 sed -n '1,220p' lab_4/README.md
+sed -n '1,220p' lab_5/README.md
 ```
 
 日本語記事や日本語での作業では、各ラボの `README.ja.md` を読む。
@@ -134,6 +153,7 @@ sed -n '1,220p' lab_1/README.ja.md
 sed -n '1,220p' lab_2/README.ja.md
 sed -n '1,220p' lab_3/README.ja.md
 sed -n '1,220p' lab_4/README.ja.md
+sed -n '1,220p' lab_5/README.ja.md
 ```
 
 実験を再生成する場合も、各ラボREADMEに記載されたコマンドを正本とする。
@@ -163,6 +183,13 @@ python lab_4/run_backtest_overfitting_experiment.py \
   --outdir /tmp/lab4_pbo_check
 ```
 
+`lab_5` は入力CSVを `lab_5/` に含めている。
+
+```bash
+python lab_5/run_trend_following_experiment.py \
+  --output-dir /tmp/lab5_trend_following_check
+```
+
 既存の正本出力を壊さず試す場合は、各スクリプトの `--output-dir` や `--outdir` を使って一時ディレクトリへ出力する。
 
 ## 管理方針
@@ -172,5 +199,5 @@ python lab_4/run_backtest_overfitting_experiment.py \
 - ルート README は索引とラボ一覧に限定する。
 - 実験の詳細、再現コマンド、主要結果、注意点は各 `lab_xxx/README.md` と `lab_xxx/README.ja.md` に書く。
 - コードから再生成できる成果物は、各ラボ内の専用出力ディレクトリにまとめる。
-- 新しい記事・実験を追加する場合は、`lab_5`、`lab_6` のように新しいディレクトリを作る。
+- 新しい記事・実験を追加する場合は、`lab_6`、`lab_7` のように新しいディレクトリを作る。
 - 記事本文に使う数値は、各ラボの正本出力CSV、JSON、Markdownから引用する。
