@@ -113,7 +113,7 @@ The lab demonstrates how to inspect backtest overfitting risk in the AI-assisted
 
 ## lab_5 Summary
 
-`lab_5` supports the Qiita article "[トレンドフォローにエッジはあるのか――「遅れて入る」戦略がなぜ生き残るのか](https://qiita.com/tikeda123/items/e599112d88c912a86125)" and its [English version](https://qiita.com/tikeda123/items/be91a8ff85324c7c39a2).
+`lab_5` supports the Qiita article "[トレンドフォローにエッジはあるのか――「遅れて入る」戦略がなぜ生き残るのか](https://qiita.com/tikeda123/items/e599112d88c912a86125)" and its English version, [Does Trend Following Have an Edge? — Why a Strategy That "Enters Late" Survives](https://qiita.com/tikeda123/items/be91a8ff85324c7c39a2).
 
 The lab uses simple MA 20/80 crossover rules on USDJPY 60-minute and 240-minute bars to inspect whether trend following produces a cost-adjusted, right-tail-dependent PnL structure, and whether that structure survives a fixed 2025 OOS check.
 
@@ -121,7 +121,7 @@ The lab uses simple MA 20/80 crossover rules on USDJPY 60-minute and 240-minute 
 |---|---|
 | Details | [lab_5/README.md](lab_5/README.md) |
 | Japanese | [lab_5/README.ja.md](lab_5/README.ja.md) |
-| Article | [Japanese](https://qiita.com/tikeda123/items/e599112d88c912a86125) / [English](https://qiita.com/tikeda123/items/be91a8ff85324c7c39a2) |
+| Article | [Japanese](https://qiita.com/tikeda123/items/e599112d88c912a86125) / [Does Trend Following Have an Edge? — Why a Strategy That "Enters Late" Survives](https://qiita.com/tikeda123/items/be91a8ff85324c7c39a2) |
 | Scripts | `lab_5/run_trend_following_experiment.py`, `lab_5/run_trend_following_direction_ablation.py`, `lab_5/save_article_figures.py` |
 | Article notes | `lab_5/trend_following_edge_article_outline_improved.md`, `lab_5/trend_following_experiment_analysis_and_discussion.md` |
 | Input data | `lab_5/USDJPY60.csv`, `lab_5/USDJPY240.csv` |

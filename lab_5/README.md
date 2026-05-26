@@ -2,7 +2,7 @@
 
 Japanese: [README.ja.md](README.ja.md)
 
-This lab supports the Qiita article "[トレンドフォローにエッジはあるのか――「遅れて入る」戦略がなぜ生き残るのか](https://qiita.com/tikeda123/items/e599112d88c912a86125)" and its [English version](https://qiita.com/tikeda123/items/be91a8ff85324c7c39a2). The purpose is to test whether a simple moving-average crossover has a trend-following PnL structure after costs, and whether that structure survives fixed out-of-sample inspection.
+This lab supports the Qiita article "[トレンドフォローにエッジはあるのか――「遅れて入る」戦略がなぜ生き残るのか](https://qiita.com/tikeda123/items/e599112d88c912a86125)" and its English version, [Does Trend Following Have an Edge? — Why a Strategy That "Enters Late" Survives](https://qiita.com/tikeda123/items/be91a8ff85324c7c39a2). The purpose is to test whether a simple moving-average crossover has a trend-following PnL structure after costs, and whether that structure survives fixed out-of-sample inspection.
 
 The main question is not whether MA 20/80 is a production trading strategy. The lab treats it as a small, inspectable case study for asking whether trend following is supported by right-tail profits, cost tolerance, parameter-neighborhood behavior, random-direction comparison, and a fixed 2025 OOS check.
 
@@ -317,7 +317,7 @@ Published articles:
 | Language | Article |
 |---|---|
 | Japanese | [トレンドフォローにエッジはあるのか――「遅れて入る」戦略がなぜ生き残るのか](https://qiita.com/tikeda123/items/e599112d88c912a86125) |
-| English | [Qiita English article](https://qiita.com/tikeda123/items/be91a8ff85324c7c39a2) |
+| English | [Does Trend Following Have an Edge? — Why a Strategy That "Enters Late" Survives](https://qiita.com/tikeda123/items/be91a8ff85324c7c39a2) |
 
 The article draft and supporting notes are:
 
