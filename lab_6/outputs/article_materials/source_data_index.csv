@@ -1,0 +1,6 @@
+source_file,source_type,role
+source_data/BTCUSDT240.csv,OHLCV 4H,BTC base price series
+source_data/ETHUSDT240.csv,OHLCV 4H,ETH base price series
+source_data/SOLUSDT240.csv,OHLCV 4H,SOL base price series
+source_data/funding_rate_history.csv,Binance USD-M funding rate,Funding-regime extension source
+source_data/open_interest_history.csv,Binance USD-M open interest,OI-regime extension source

@@ -1,0 +1,27 @@
+table_file,source_file,phase,category,article_use
+tables/data_profile.csv,outputs/crypto_crash_rebound_ohlcv/data_profile.csv,Phase 0,data quality,Available period rows and missingness
+tables/timestamp_gap_events.csv,outputs/crypto_crash_rebound_ohlcv/timestamp_gap_events.csv,Phase 0,data quality,Timestamp gap evidence
+tables/moment_summary.csv,outputs/crypto_crash_rebound_ohlcv/moment_summary.csv,Phase 1,summary,Mean volatility skewness kurtosis and tail frequency
+tables/direction_return_summary.csv,outputs/crypto_crash_rebound_ohlcv/direction_return_summary.csv,Phase 2,summary,Future returns after directional moves
+tables/shock_mean_reversion_summary.csv,outputs/crypto_crash_rebound_ohlcv/shock_mean_reversion_summary.csv,Phase 2,summary,Shock threshold and forward return summary
+tables/phase2_candidate_summary.csv,outputs/crypto_crash_rebound_ohlcv/phase2_candidate_summary.csv,Phase 2,candidates,Article candidate conditions from event study
+tables/vol_regime_summary.csv,outputs/crypto_crash_rebound_ohlcv/vol_regime_summary.csv,Phase 3,summary,Volatility regime profile
+tables/shock_mean_reversion_by_vol_summary.csv,outputs/crypto_crash_rebound_ohlcv/shock_mean_reversion_by_vol_summary.csv,Phase 3,summary,Shock response by volatility regime
+tables/phase3_lower5_by_vol_candidate_summary.csv,outputs/crypto_crash_rebound_ohlcv/phase3_lower5_by_vol_candidate_summary.csv,Phase 3,candidates,Lower 5 percent shock candidates by volatility
+tables/phase4_candidate_table.csv,outputs/crypto_crash_rebound_ohlcv/phase4_candidate_table.csv,Phase 4,candidates,Next-open entry candidate table
+tables/path_risk_summary.csv,outputs/crypto_crash_rebound_ohlcv/path_risk_summary.csv,Phase 4,summary,MAE MFE and path-risk summary
+tables/simple_backtest_summary.csv,outputs/crypto_crash_rebound_ohlcv/simple_backtest_summary.csv,Phase 4,summary,Simple implementation performance summary
+tables/phase5_close_candidate_table.csv,outputs/crypto_crash_rebound_ohlcv/phase5_close_candidate_table.csv,Phase 5,candidates,Close-based candidate table for annual check
+tables/annual_condition_summary.csv,outputs/crypto_crash_rebound_ohlcv/annual_condition_summary.csv,Phase 5,summary,Annual condition-level summary
+tables/annual_stability_summary.csv,outputs/crypto_crash_rebound_ohlcv/annual_stability_summary.csv,Phase 5,summary,Annual stability metrics
+tables/funding_profile.csv,outputs/crypto_crash_rebound_ohlcv/funding_profile.csv,Phase 6,data profile,Funding-rate coverage and distribution
+tables/shock_mr_by_funding_summary.csv,outputs/crypto_crash_rebound_ohlcv/shock_mr_by_funding_summary.csv,Phase 6,summary,Shock mean reversion by funding regime
+tables/oi_profile.csv,outputs/crypto_crash_rebound_ohlcv/oi_profile.csv,Phase 7,data profile,Open-interest coverage and distribution
+tables/shock_mr_by_oi_summary.csv,outputs/crypto_crash_rebound_ohlcv/shock_mr_by_oi_summary.csv,Phase 7,summary,Shock mean reversion by OI regime
+tables/liquidation_profile.csv,outputs/crypto_crash_rebound_ohlcv/liquidation_profile.csv,Phase 7,data profile,Liquidation coverage and availability
+tables/shock_mr_by_liquidation_summary.csv,outputs/crypto_crash_rebound_ohlcv/shock_mr_by_liquidation_summary.csv,Phase 7,summary,Shock mean reversion by liquidation regime
+event_tables/path_risk_events.csv,outputs/crypto_crash_rebound_ohlcv/path_risk_events.csv,Phase 4,event detail,Entry-level MAE MFE event records
+event_tables/simple_backtest_events.csv,outputs/crypto_crash_rebound_ohlcv/simple_backtest_events.csv,Phase 4,event detail,Simple backtest event records
+event_tables/annual_condition_events.csv,outputs/crypto_crash_rebound_ohlcv/annual_condition_events.csv,Phase 5,event detail,Annual condition event records
+event_tables/shock_mr_by_funding_events.csv,outputs/crypto_crash_rebound_ohlcv/shock_mr_by_funding_events.csv,Phase 6,event detail,Funding-regime event records
+event_tables/shock_mr_by_oi_events.csv,outputs/crypto_crash_rebound_ohlcv/shock_mr_by_oi_events.csv,Phase 7,event detail,OI-regime event records

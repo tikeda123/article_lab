@@ -1,0 +1,10 @@
+candidate_id,candidate_label,event_set,source_phase,entry_model,symbol,shock_side,shock_level,direction,vol_regime_filter,threshold_pct,horizon_bars,horizon_hours
+BTCUSDT_lower5_all_close_h48_long,P2 BTC lower5 all close 48H long,phase2_close,phase2_best_5pct,close_to_close,BTCUSDT,lower,5pct,long,all,-1.8987744291,12,48
+ETHUSDT_lower5_all_close_h24_long,P2 ETH lower5 all close 24H long,phase2_close,phase2_best_5pct,close_to_close,ETHUSDT,lower,5pct,long,all,-2.5346979200,6,24
+SOLUSDT_lower5_all_close_h72_long,P2 SOL lower5 all close 72H long,phase2_close,phase2_best_5pct,close_to_close,SOLUSDT,lower,5pct,long,all,-3.7212992607,18,72
+BTCUSDT_upper5_all_close_h4_short,P2 BTC upper5 all close 4H short,phase2_close,phase2_best_5pct,close_to_close,BTCUSDT,upper,5pct,short,all,1.9012904090,1,4
+ETHUSDT_upper5_all_close_h4_short,P2 ETH upper5 all close 4H short,phase2_close,phase2_best_5pct,close_to_close,ETHUSDT,upper,5pct,short,all,2.5346196347,1,4
+SOLUSDT_upper5_all_close_h4_short,P2 SOL upper5 all close 4H short,phase2_close,phase2_best_5pct,close_to_close,SOLUSDT,upper,5pct,short,all,3.8325049439,1,4
+BTCUSDT_lower5_Q5_close_h48_long,P3 BTC lower5 Q5 close 48H long,phase3_q5_close,phase3_lower5_Q5_best,close_to_close,BTCUSDT,lower,5pct,long,Q5_high,-1.8987744291,12,48
+ETHUSDT_lower5_Q5_close_h72_long,P3 ETH lower5 Q5 close 72H long,phase3_q5_close,phase3_lower5_Q5_best,close_to_close,ETHUSDT,lower,5pct,long,Q5_high,-2.5346979200,18,72
+SOLUSDT_lower5_Q5_close_h72_long,P3 SOL lower5 Q5 close 72H long,phase3_q5_close,phase3_lower5_Q5_best,close_to_close,SOLUSDT,lower,5pct,long,Q5_high,-3.7212992607,18,72

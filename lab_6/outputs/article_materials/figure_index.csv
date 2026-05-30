@@ -1,0 +1,16 @@
+figure_file,source_file,phase,title,article_use
+figures/figure01_moment_std_skew_kurtosis.png,outputs/crypto_crash_rebound_ohlcv/figures/fig_01_moment_std_skew_kurtosis.png,Phase 1,4H returns standard deviation skewness kurtosis,Return distribution characteristics by asset
+figures/figure02_extreme_returns.png,outputs/crypto_crash_rebound_ohlcv/figures/fig_02_extreme_returns.png,Phase 1,Extreme return frequency,Frequency of tail events
+figures/figure03_return_distribution_histograms.png,outputs/crypto_crash_rebound_ohlcv/figures/fig_03_return_distribution_histograms.png,Phase 1,Return distribution histograms,Visual evidence of fat tails
+figures/figure04_return_distribution_qq_plots.png,outputs/crypto_crash_rebound_ohlcv/figures/fig_03b_return_distribution_qq_plots.png,Phase 1,Return distribution QQ plots,Deviation from normal distribution
+figures/figure05_direction_future_returns.png,outputs/crypto_crash_rebound_ohlcv/figures/fig_04_direction_future_returns.png,Phase 2,Future returns after up and down moves,Directional event-study baseline
+figures/figure06_shock_mean_reversion_by_horizon.png,outputs/crypto_crash_rebound_ohlcv/figures/fig_05_shock_mean_reversion_by_horizon.png,Phase 2,Shock mean reversion by horizon,Core crash-rebound evidence
+figures/figure07_vol_regime_future_abs_return.png,outputs/crypto_crash_rebound_ohlcv/figures/fig_06_vol_regime_future_abs_return.png,Phase 3,Future absolute return by volatility regime,Volatility regime context
+figures/figure08_lower5_mr_by_vol.png,outputs/crypto_crash_rebound_ohlcv/figures/fig_07_lower5_mr_by_vol.png,Phase 3,Lower 5 percent mean reversion by volatility,Regime filter evidence
+figures/figure09_path_risk_mae_mfe.png,outputs/crypto_crash_rebound_ohlcv/figures/fig_08_path_risk_mae_mfe.png,Phase 4,MAE and MFE after next-open entry,Path-risk evidence for tradability
+figures/figure10_simple_equity_curve.png,outputs/crypto_crash_rebound_ohlcv/figures/fig_09_simple_equity_curve.png,Phase 4,Simple equity curve,Illustrative implementation result
+figures/figure11_simple_drawdown_curve.png,outputs/crypto_crash_rebound_ohlcv/figures/fig_10_simple_drawdown_curve.png,Phase 4,Simple drawdown curve,Risk view of simple implementation
+figures/figure12_annual_condition_summary.png,outputs/crypto_crash_rebound_ohlcv/figures/fig_11_annual_condition_summary.png,Phase 5,Annual condition summary,Year-by-year stability evidence
+figures/figure13_lower5_mr_by_funding.png,outputs/crypto_crash_rebound_ohlcv/figures/fig_12_lower5_mr_by_funding.png,Phase 6,Lower 5 percent mean reversion by funding regime,Funding condition evidence
+figures/figure14_lower5_mr_by_oi.png,outputs/crypto_crash_rebound_ohlcv/figures/fig_13_lower5_mr_by_oi.png,Phase 7,Lower 5 percent mean reversion by open-interest regime,OI condition evidence
+figures/figure15_liquidation_regime_summary.png,outputs/crypto_crash_rebound_ohlcv/figures/fig_14_liquidation_regime_summary.png,Phase 7,Liquidation regime summary,Liquidation-data limitation and extension note

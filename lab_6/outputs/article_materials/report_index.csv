@@ -1,0 +1,14 @@
+report_file,phase,role
+reports/article_experiment_summary.md,All phases,Overall experiment summary and article narrative base
+reports/phase1_moment_analysis_report.md,Phase 1,Distribution and moment interpretation
+reports/phase2_event_study_analysis_report.md,Phase 2,Article-facing event-study interpretation
+reports/phase2_event_study_report.md,Phase 2,Mechanical event-study output report
+reports/phase3_vol_regime_interpretation_report.md,Phase 3,Article-facing volatility-regime interpretation
+reports/phase3_vol_regime_analysis_report.md,Phase 3,Mechanical volatility-regime output report
+reports/phase4_next_open_path_risk_interpretation_report.md,Phase 4,Article-facing next-open path-risk interpretation
+reports/phase4_next_open_path_risk_report.md,Phase 4,Mechanical next-open path-risk output report
+reports/phase5_annual_stability_report.md,Phase 5,Annual stability report
+reports/phase6_funding_rate_interpretation_report.md,Phase 6,Article-facing funding-rate interpretation
+reports/phase6_funding_rate_report.md,Phase 6,Mechanical funding-rate output report
+reports/phase7_oi_liquidation_interpretation_report.md,Phase 7,Article-facing OI and liquidation interpretation
+reports/phase7_oi_liquidation_report.md,Phase 7,Mechanical OI and liquidation output report

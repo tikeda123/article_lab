@@ -1,0 +1,7 @@
+candidate_id,candidate_label,source_phase,symbol,shock_side,shock_level,direction,vol_regime_filter,threshold_pct,horizon_bars,horizon_hours,source_count,source_mr_return_mean_pct,source_mr_win_rate_pct
+BTCUSDT_lower5_all_h48,BTC all 48H,phase2_lower5_best,BTCUSDT,lower,5pct,long,all,-1.8987744291,12,48,636,0.4942992799,55.6603773585
+ETHUSDT_lower5_all_h24,ETH all 24H,phase2_lower5_best,ETHUSDT,lower,5pct,long,all,-2.5346979200,6,24,636,0.3453408074,55.6603773585
+SOLUSDT_lower5_all_h72,SOL all 72H,phase2_lower5_best,SOLUSDT,lower,5pct,long,all,-3.7212992607,18,72,636,2.5184972485,61.4779874214
+BTCUSDT_lower5_Q5_high_h48,BTC Q5 48H,phase3_lower5_Q5_best,BTCUSDT,lower,5pct,long,Q5_high,-1.8987744291,12,48,324,1.0494961251,57.7160493827
+ETHUSDT_lower5_Q5_high_h72,ETH Q5 72H,phase3_lower5_Q5_best,ETHUSDT,lower,5pct,long,Q5_high,-2.5346979200,18,72,340,0.9077506241,58.2352941176
+SOLUSDT_lower5_Q5_high_h72,SOL Q5 72H,phase3_lower5_Q5_best,SOLUSDT,lower,5pct,long,Q5_high,-3.7212992607,18,72,336,4.3539231462,66.6666666667
