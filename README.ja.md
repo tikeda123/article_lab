@@ -50,6 +50,7 @@ READMEを更新する場合は、英語版と日本語版の実験目的、正�
 | `lab_3` | FX Kelly基準による注文リスク管理 | 入力CSVなし。単体HTMLツール | [README](lab_3/README.md) | [日本語](lab_3/README.ja.md) | `lab_3/kelly_fx_position_size_tool.html` |
 | `lab_4` | USDJPY 60分足 バックテスト過学習・簡易PBO検証 | USDJPY 60分足 | [README](lab_4/README.md) | [日本語](lab_4/README.ja.md) | `lab_4/results_summary.json`, `lab_4/figures/` |
 | `lab_5` | USDJPY トレンドフォロー・エッジ診断 | USDJPY 60分足・240分足 | [README](lab_5/README.md) | [日本語](lab_5/README.ja.md) | `lab_5/outputs/trend_following_ma_cross/`, `lab_5/outputs/article_figures/` |
+| `lab_6` | BTC/ETH/SOL 暗号資産急落後リバウンド診断 | BTCUSDT / ETHUSDT / SOLUSDT 240分足 | [README](lab_6/README.md) | [日本語](lab_6/README.ja.md) | `lab_6/outputs/crypto_crash_rebound_ohlcv/`, `lab_6/outputs/article_materials/` |
 
 ## lab_1 概要
 
@@ -134,6 +135,23 @@ USDJPY 60分足・240分足に単純な MA 20/80 クロスを適用し、トレ�
 | 正本出力 | `lab_5/outputs/trend_following_ma_cross/`, `lab_5/outputs/trend_following_direction_ablation/`, `lab_5/outputs/article_figures/` |
 | 位置づけ | トレンドフォロー構造とOOS崩れの診断。完成した売買戦略ではない |
 
+## lab_6 概要
+
+`lab_6` は、Qiita記事「[仮想通貨市場のエッジはどこに潜むのか？──BTC・ETH・SOLの分布・急変動・Funding Rateから検証する](https://qiita.com/tikeda123/items/8975139eb3ffcc0a7d5a)」と、`lab_6/BTC_ETH_SOL_crypto_quant_article_plan.docx.md` の BTC/ETH/SOL 暗号資産急落後リバウンド記事に対応するラボである。
+
+BTCUSDT、ETHUSDT、SOLUSDT の240分足OHLCVを使い、下位テール急落後に短期リバウンド候補があるのか、それとも買ってはいけない「落ちるナイフ」なのかを診断する。価格分布だけでなく、ボラティリティ階層、次足始値エントリーのMAE/MFE、年別安定性、Funding Rate、Open Interest、清算データ取得制約まで確認する。
+
+| 項目 | 内容 |
+|---|---|
+| 詳細説明 | [lab_6/README.ja.md](lab_6/README.ja.md) |
+| 英語版 | [lab_6/README.md](lab_6/README.md) |
+| 記事 | [仮想通貨市場のエッジはどこに潜むのか？──BTC・ETH・SOLの分布・急変動・Funding Rateから検証する](https://qiita.com/tikeda123/items/8975139eb3ffcc0a7d5a) |
+| 実験コード | `lab_6/run_crypto_crash_rebound_experiment.py` |
+| 記事メモ | `lab_6/BTC_ETH_SOL_crypto_quant_article_plan.docx.md`, `lab_6/crypto_crash_rebound_experiment_plan.md` |
+| 入力データ | `lab_6/BTCUSDT240.csv`, `lab_6/ETHUSDT240.csv`, `lab_6/SOLUSDT240.csv` |
+| 正本出力 | `lab_6/outputs/crypto_crash_rebound_ohlcv/`, `lab_6/outputs/article_materials/` |
+| 位置づけ | 急落後リバウンド候補と市場構造データ制約の診断。完成した売買戦略ではない |
+
 ## 使い方
 
 英語圏の読者は、各ラボの `README.md` を読む。
@@ -144,6 +162,7 @@ sed -n '1,220p' lab_2/README.md
 sed -n '1,220p' lab_3/README.md
 sed -n '1,220p' lab_4/README.md
 sed -n '1,220p' lab_5/README.md
+sed -n '1,220p' lab_6/README.md
 ```
 
 日本語記事や日本語での作業では、各ラボの `README.ja.md` を読む。
@@ -154,6 +173,7 @@ sed -n '1,220p' lab_2/README.ja.md
 sed -n '1,220p' lab_3/README.ja.md
 sed -n '1,220p' lab_4/README.ja.md
 sed -n '1,220p' lab_5/README.ja.md
+sed -n '1,220p' lab_6/README.ja.md
 ```
 
 実験を再生成する場合も、各ラボREADMEに記載されたコマンドを正本とする。
@@ -190,6 +210,13 @@ python lab_5/run_trend_following_experiment.py \
   --output-dir /tmp/lab5_trend_following_check
 ```
 
+`lab_6` は入力CSVを `lab_6/` に含めている。
+
+```bash
+python lab_6/run_crypto_crash_rebound_experiment.py \
+  --output-dir /tmp/lab6_crypto_crash_rebound_check
+```
+
 既存の正本出力を壊さず試す場合は、各スクリプトの `--output-dir` や `--outdir` を使って一時ディレクトリへ出力する。
 
 ## 管理方針
@@ -199,5 +226,5 @@ python lab_5/run_trend_following_experiment.py \
 - ルート README は索引とラボ一覧に限定する。
 - 実験の詳細、再現コマンド、主要結果、注意点は各 `lab_xxx/README.md` と `lab_xxx/README.ja.md` に書く。
 - コードから再生成できる成果物は、各ラボ内の専用出力ディレクトリにまとめる。
-- 新しい記事・実験を追加する場合は、`lab_6`、`lab_7` のように新しいディレクトリを作る。
+- 新しい記事・実験を追加する場合は、`lab_7`、`lab_8` のように新しいディレクトリを作る。
 - 記事本文に使う数値は、各ラボの正本出力CSV、JSON、Markdownから引用する。
