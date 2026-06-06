@@ -51,6 +51,7 @@ READMEを更新する場合は、英語版と日本語版の実験目的、正�
 | `lab_4` | USDJPY 60分足 バックテスト過学習・簡易PBO検証 | USDJPY 60分足 | [README](lab_4/README.md) | [日本語](lab_4/README.ja.md) | `lab_4/results_summary.json`, `lab_4/figures/` |
 | `lab_5` | USDJPY トレンドフォロー・エッジ診断 | USDJPY 60分足・240分足 | [README](lab_5/README.md) | [日本語](lab_5/README.ja.md) | `lab_5/outputs/trend_following_ma_cross/`, `lab_5/outputs/article_figures/` |
 | `lab_6` | BTC/ETH/SOL 暗号資産急落後リバウンド診断 | BTCUSDT / ETHUSDT / SOLUSDT 240分足 | [README](lab_6/README.md) | [日本語](lab_6/README.ja.md) | `lab_6/outputs/crypto_crash_rebound_ohlcv/`, `lab_6/outputs/article_materials/` |
+| `lab_7` | BTC急落後リバウンド交互作用モデル | BTC / Nasdaq / S&P 500 / Dow / DAX 240分足とBTCUSDT Funding Rate | [README](lab_7/README.md) | [日本語](lab_7/README.ja.md) | `lab_7/outputs/interaction_model/` |
 
 ## lab_1 概要
 
@@ -152,6 +153,23 @@ BTCUSDT、ETHUSDT、SOLUSDT の240分足OHLCVを使い、下位テール急落�
 | 正本出力 | `lab_6/outputs/crypto_crash_rebound_ohlcv/`, `lab_6/outputs/article_materials/` |
 | 位置づけ | 急落後リバウンド候補と市場構造データ制約の診断。完成した売買戦略ではない |
 
+## lab_7 概要
+
+`lab_7` は、Qiita記事「[BTC急落は買いなのか？](https://qiita.com/tikeda123/items/c38b1dbc85d02f99c32c)」および英語版「[Is a BTC Crash a "Buy"?](https://qiita.com/tikeda123/items/ef9000ba3d9fd349fadb)」に対応するラボである。
+
+BTC急落を一律に「押し目買い」と扱ってよいのか、それとも Funding Rate と外部リスク環境で「買える急落」と「避けるべき急落」に分けられるのかを確認する。BTC、Nasdaq、S&P 500、Dow、DAX の240分足OHLCVとBTCUSDT Funding Rate履歴を使う。
+
+| 項目 | 内容 |
+|---|---|
+| 詳細説明 | [lab_7/README.ja.md](lab_7/README.ja.md) |
+| 英語版 | [lab_7/README.md](lab_7/README.md) |
+| 記事 | [BTC急落は買いなのか？](https://qiita.com/tikeda123/items/c38b1dbc85d02f99c32c) / [Is a BTC Crash a "Buy"?](https://qiita.com/tikeda123/items/ef9000ba3d9fd349fadb) |
+| 実験コード | `lab_7/run_interaction_model_experiment.py` |
+| 記事草稿 | `lab_7/BTC急落実験.pdf` |
+| 入力データ | `lab_7/data/BTCUSD240.csv`, `lab_7/data/USATECHIDXUSD240.csv`, `lab_7/data/USA500IDXUSD240.csv`, `lab_7/data/USA30IDXUSD240.csv`, `lab_7/data/DEUIDXEUR240.csv`, `lab_7/data/funding_rate_history.csv` |
+| 正本出力 | `lab_7/outputs/interaction_model/` |
+| 位置づけ | BTC急落イベントの条件分類診断。完成した売買戦略ではない |
+
 ## 使い方
 
 英語圏の読者は、各ラボの `README.md` を読む。
@@ -163,6 +181,7 @@ sed -n '1,220p' lab_3/README.md
 sed -n '1,220p' lab_4/README.md
 sed -n '1,220p' lab_5/README.md
 sed -n '1,220p' lab_6/README.md
+sed -n '1,220p' lab_7/README.md
 ```
 
 日本語記事や日本語での作業では、各ラボの `README.ja.md` を読む。
@@ -174,6 +193,7 @@ sed -n '1,220p' lab_3/README.ja.md
 sed -n '1,220p' lab_4/README.ja.md
 sed -n '1,220p' lab_5/README.ja.md
 sed -n '1,220p' lab_6/README.ja.md
+sed -n '1,220p' lab_7/README.ja.md
 ```
 
 実験を再生成する場合も、各ラボREADMEに記載されたコマンドを正本とする。
@@ -217,7 +237,15 @@ python lab_6/run_crypto_crash_rebound_experiment.py \
   --output-dir /tmp/lab6_crypto_crash_rebound_check
 ```
 
-既存の正本出力を壊さず試す場合は、各スクリプトの `--output-dir` や `--outdir` を使って一時ディレクトリへ出力する。
+`lab_7` は入力CSVを `lab_7/data/` に含めている。
+
+```bash
+python lab_7/run_interaction_model_experiment.py
+```
+
+現在の `lab_7` スクリプトは `lab_7/outputs/interaction_model/` に直接出力する。
+
+スクリプトが `--output-dir` や `--outdir` を提供している場合は、既存の正本出力を壊さず試すために一時ディレクトリへ出力する。
 
 ## 管理方針
 
@@ -226,5 +254,5 @@ python lab_6/run_crypto_crash_rebound_experiment.py \
 - ルート README は索引とラボ一覧に限定する。
 - 実験の詳細、再現コマンド、主要結果、注意点は各 `lab_xxx/README.md` と `lab_xxx/README.ja.md` に書く。
 - コードから再生成できる成果物は、各ラボ内の専用出力ディレクトリにまとめる。
-- 新しい記事・実験を追加する場合は、`lab_7`、`lab_8` のように新しいディレクトリを作る。
+- 新しい記事・実験を追加する場合は、`lab_8`、`lab_9` のように新しいディレクトリを作る。
 - 記事本文に使う数値は、各ラボの正本出力CSV、JSON、Markdownから引用する。

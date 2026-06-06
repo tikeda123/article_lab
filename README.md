@@ -51,6 +51,7 @@ The root README should not duplicate full experiment procedures. It should point
 | `lab_4` | USDJPY 60-minute backtest overfitting and simplified PBO | USDJPY 60-minute bars | [README](lab_4/README.md) | [日本語](lab_4/README.ja.md) | `lab_4/results_summary.json`, `lab_4/figures/` |
 | `lab_5` | USDJPY trend-following edge diagnostics | USDJPY 60-minute and 240-minute bars | [README](lab_5/README.md) | [日本語](lab_5/README.ja.md) | `lab_5/outputs/trend_following_ma_cross/`, `lab_5/outputs/article_figures/` |
 | `lab_6` | BTC/ETH/SOL crypto crash-rebound diagnostics | BTCUSDT / ETHUSDT / SOLUSDT 240-minute bars | [README](lab_6/README.md) | [日本語](lab_6/README.ja.md) | `lab_6/outputs/crypto_crash_rebound_ohlcv/`, `lab_6/outputs/article_materials/` |
+| `lab_7` | BTC crash rebound interaction model | BTC / Nasdaq / S&P 500 / Dow / DAX 240-minute bars plus BTCUSDT Funding Rate | [README](lab_7/README.md) | [日本語](lab_7/README.ja.md) | `lab_7/outputs/interaction_model/` |
 
 ## lab_1 Summary
 
@@ -146,6 +147,23 @@ The lab examines whether lower-tail crypto crashes are short-term rebound candid
 | Canonical output | `lab_6/outputs/crypto_crash_rebound_ohlcv/`, `lab_6/outputs/article_materials/` |
 | Role | Crash-rebound candidate diagnostics and market-structure limitations, not a production strategy |
 
+## lab_7 Summary
+
+`lab_7` supports the Japanese Qiita article "[BTC急落は買いなのか？](https://qiita.com/tikeda123/items/c38b1dbc85d02f99c32c)" and its English version, [Is a BTC Crash a "Buy"?](https://qiita.com/tikeda123/items/ef9000ba3d9fd349fadb).
+
+The lab tests whether BTC crashes should be treated as one uniform "buy the dip" category, or whether Funding Rate and the external risk environment can separate buyable crashes from crashes that should be avoided. It uses BTC, Nasdaq, S&P 500, Dow, and DAX 240-minute OHLCV data plus BTCUSDT Funding Rate history.
+
+| Item | Content |
+|---|---|
+| Details | [lab_7/README.md](lab_7/README.md) |
+| Japanese | [lab_7/README.ja.md](lab_7/README.ja.md) |
+| Article | [BTC急落は買いなのか？](https://qiita.com/tikeda123/items/c38b1dbc85d02f99c32c) / [Is a BTC Crash a "Buy"?](https://qiita.com/tikeda123/items/ef9000ba3d9fd349fadb) |
+| Script | `lab_7/run_interaction_model_experiment.py` |
+| Article draft | `lab_7/BTC急落実験.pdf` |
+| Input data | `lab_7/data/BTCUSD240.csv`, `lab_7/data/USATECHIDXUSD240.csv`, `lab_7/data/USA500IDXUSD240.csv`, `lab_7/data/USA30IDXUSD240.csv`, `lab_7/data/DEUIDXEUR240.csv`, `lab_7/data/funding_rate_history.csv` |
+| Canonical output | `lab_7/outputs/interaction_model/` |
+| Role | BTC crash condition-classification diagnostics, not a production strategy |
+
 ## Usage
 
 Start with the README for the lab you want to inspect.
@@ -157,6 +175,7 @@ sed -n '1,220p' lab_3/README.md
 sed -n '1,220p' lab_4/README.md
 sed -n '1,220p' lab_5/README.md
 sed -n '1,220p' lab_6/README.md
+sed -n '1,220p' lab_7/README.md
 ```
 
 Use the Japanese files when working directly with the Japanese Qiita article text.
@@ -168,6 +187,7 @@ sed -n '1,220p' lab_3/README.ja.md
 sed -n '1,220p' lab_4/README.ja.md
 sed -n '1,220p' lab_5/README.ja.md
 sed -n '1,220p' lab_6/README.ja.md
+sed -n '1,220p' lab_7/README.ja.md
 ```
 
 For regeneration, use the commands documented in each lab README.
@@ -211,7 +231,15 @@ python lab_6/run_crypto_crash_rebound_experiment.py \
   --output-dir /tmp/lab6_crypto_crash_rebound_check
 ```
 
-When experimenting, write to a temporary output directory instead of overwriting canonical outputs.
+For `lab_7`, the input CSVs are included under `lab_7/data/`.
+
+```bash
+python lab_7/run_interaction_model_experiment.py
+```
+
+The current `lab_7` script writes directly to `lab_7/outputs/interaction_model/`.
+
+When a script exposes `--output-dir` or `--outdir`, write to a temporary output directory instead of overwriting canonical outputs.
 
 ## Maintenance Policy
 
@@ -220,5 +248,5 @@ When experimenting, write to a temporary output directory instead of overwriting
 - Keep the root README focused on the index and lab list.
 - Put experiment details, reproduction commands, current results, and caveats in each lab README.
 - Store regenerable outputs in a dedicated output path inside each lab.
-- Add new articles or experiments as `lab_7`, `lab_8`, and so on.
+- Add new articles or experiments as `lab_8`, `lab_9`, and so on.
 - Cite article numbers from canonical output CSV, JSON, or Markdown files, not from hand-written summaries alone.

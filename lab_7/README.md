@@ -2,7 +2,7 @@
 
 Japanese: [README.ja.md](README.ja.md)
 
-This lab supports the article draft in `BTC急落実験.pdf` and the interaction-model experiment in `run_interaction_model_experiment.py`. The central question is whether BTC crashes should be treated as one uniform "buy the dip" category, or whether Funding Rate and the external risk environment can separate buyable crashes from crashes that should be avoided.
+This lab supports the Japanese Qiita article "[BTC急落は買いなのか？](https://qiita.com/tikeda123/items/c38b1dbc85d02f99c32c)", its English version "[Is a BTC Crash a "Buy"?](https://qiita.com/tikeda123/items/ef9000ba3d9fd349fadb)", the article draft in `BTC急落実験.pdf`, and the interaction-model experiment in `run_interaction_model_experiment.py`. The central question is whether BTC crashes should be treated as one uniform "buy the dip" category, or whether Funding Rate and the external risk environment can separate buyable crashes from crashes that should be avoided.
 
 The lab does not claim that Nasdaq directly predicts BTC. Nasdaq, S&P 500, Dow, and DAX are used as context variables for judging whether a BTC crash is happening in a broader risk-on or risk-off environment.
 
@@ -38,6 +38,8 @@ The key interpretation is that Funding Rate and external risk context can help c
 | File | Content |
 |---|---|
 | `run_interaction_model_experiment.py` | Main experiment runner for the interaction-model analysis |
+| [BTC急落は買いなのか？](https://qiita.com/tikeda123/items/c38b1dbc85d02f99c32c) | Published Japanese Qiita article |
+| [Is a BTC Crash a "Buy"?](https://qiita.com/tikeda123/items/ef9000ba3d9fd349fadb) | Published English Qiita article |
 | `BTC急落実験.pdf` | Japanese article draft and experiment outline |
 | `data/BTCUSD240.csv` | BTC 240-minute OHLCV input |
 | `data/USATECHIDXUSD240.csv` | Nasdaq 240-minute OHLCV input |

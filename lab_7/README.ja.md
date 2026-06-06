@@ -2,7 +2,7 @@
 
 English: [README.md](README.md)
 
-このラボは、記事草稿 `BTC急落実験.pdf` と、`run_interaction_model_experiment.py` の交互作用モデル実験に対応する実験ラボである。中心の問いは、BTC急落を一律に「押し目買い」と扱ってよいのか、それとも Funding Rate と外部リスク環境によって「買える急落」と「避けるべき急落」に分けられるのかである。
+このラボは、Qiita記事「[BTC急落は買いなのか？](https://qiita.com/tikeda123/items/c38b1dbc85d02f99c32c)」、英語版「[Is a BTC Crash a "Buy"?](https://qiita.com/tikeda123/items/ef9000ba3d9fd349fadb)」、記事草稿 `BTC急落実験.pdf`、および `run_interaction_model_experiment.py` の交互作用モデル実験に対応する実験ラボである。中心の問いは、BTC急落を一律に「押し目買い」と扱ってよいのか、それとも Funding Rate と外部リスク環境によって「買える急落」と「避けるべき急落」に分けられるのかである。
 
 このラボは、NasdaqがBTCを直接予測すると主張するものではない。Nasdaq、S&P 500、Dow、DAXは、BTC急落が広いリスクオン環境で起きているのか、リスクオフ環境で起きているのかを判断する文脈変数として使う。
 
@@ -38,6 +38,8 @@ English: [README.md](README.md)
 | ファイル | 内容 |
 |---|---|
 | `run_interaction_model_experiment.py` | 交互作用モデル分析の主実験スクリプト |
+| [BTC急落は買いなのか？](https://qiita.com/tikeda123/items/c38b1dbc85d02f99c32c) | 公開済み日本語Qiita記事 |
+| [Is a BTC Crash a "Buy"?](https://qiita.com/tikeda123/items/ef9000ba3d9fd349fadb) | 公開済み英語Qiita記事 |
 | `BTC急落実験.pdf` | 日本語の記事草稿と実験骨子 |
 | `data/BTCUSD240.csv` | BTC 240分足OHLCV入力 |
 | `data/USATECHIDXUSD240.csv` | Nasdaq 240分足OHLCV入力 |
