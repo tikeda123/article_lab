@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="620" viewBox="0 0 1000 620">
+<style>text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#1f2933} .muted{fill:#617080} .grid{stroke:#d7dde5;stroke-width:1} .axis{stroke:#667085;stroke-width:1.2}</style>
+<rect x="0" y="0" width="1000" height="620" fill="#ffffff"/>
+<text x="32" y="36" font-size="22" font-weight="700">Experiment 2: G3 Method Stress</text>
+<text x="32" y="62" font-size="13" class="muted">Funding low x risk-on has n=15. Larger bars mean worse drawdown.</text>
+<line x1="245.0" y1="74" x2="245.0" y2="554" class="grid"/>
+<text x="245.0" y="578" font-size="11" text-anchor="middle" class="muted">-1.5%</text>
+<line x1="366.0" y1="74" x2="366.0" y2="554" class="grid"/>
+<text x="366.0" y="578" font-size="11" text-anchor="middle" class="muted">2.9%</text>
+<line x1="487.0" y1="74" x2="487.0" y2="554" class="grid"/>
+<text x="487.0" y="578" font-size="11" text-anchor="middle" class="muted">7.3%</text>
+<line x1="608.0" y1="74" x2="608.0" y2="554" class="grid"/>
+<text x="608.0" y="578" font-size="11" text-anchor="middle" class="muted">11.8%</text>
+<line x1="729.0" y1="74" x2="729.0" y2="554" class="grid"/>
+<text x="729.0" y="578" font-size="11" text-anchor="middle" class="muted">16.2%</text>
+<line x1="850.0" y1="74" x2="850.0" y2="554" class="grid"/>
+<text x="850.0" y="578" font-size="11" text-anchor="middle" class="muted">20.6%</text>
+<line x1="286.7" y1="74" x2="286.7" y2="554" class="axis"/>
+<text x="231" y="110" font-size="13" text-anchor="end">24h Original</text>
+<rect x="286.7" y="92" width="94.8" height="22" rx="3" fill="#B5524A"/>
+<text x="874" y="109" font-size="12" font-weight="600">3.5%</text>
+<text x="231" y="148" font-size="13" text-anchor="end">24h Shuffle</text>
+<rect x="286.7" y="130" width="214.7" height="22" rx="3" fill="#B5524A"/>
+<text x="874" y="147" font-size="12" font-weight="600">7.9%</text>
+<text x="231" y="186" font-size="13" text-anchor="end">24h i.i.d.</text>
+<rect x="286.7" y="168" width="277.4" height="22" rx="3" fill="#B5524A"/>
+<text x="874" y="185" font-size="12" font-weight="600">10.2%</text>
+<text x="231" y="224" font-size="13" text-anchor="end">24h Block</text>
+<rect x="286.7" y="206" width="160.6" height="22" rx="3" fill="#B5524A"/>
+<text x="874" y="223" font-size="12" font-weight="600">5.9%</text>
+<text x="231" y="262" font-size="13" text-anchor="end">24h Stationary</text>
+<rect x="286.7" y="244" width="173.5" height="22" rx="3" fill="#B5524A"/>
+<text x="874" y="261" font-size="12" font-weight="600">6.4%</text>
+<text x="231" y="300" font-size="13" text-anchor="end">24h Regime-aware</text>
+<rect x="286.7" y="282" width="283.8" height="22" rx="3" fill="#B5524A"/>
+<text x="874" y="299" font-size="12" font-weight="600">10.4%</text>
+<text x="231" y="338" font-size="13" text-anchor="end">48h Original</text>
+<rect x="286.7" y="320" width="216.1" height="22" rx="3" fill="#B5524A"/>
+<text x="874" y="337" font-size="12" font-weight="600">7.9%</text>
+<text x="231" y="376" font-size="13" text-anchor="end">48h Shuffle</text>
+<rect x="286.7" y="358" width="346.7" height="22" rx="3" fill="#B5524A"/>
+<text x="874" y="375" font-size="12" font-weight="600">12.7%</text>
+<text x="231" y="414" font-size="13" text-anchor="end">48h i.i.d.</text>
+<rect x="286.7" y="396" width="460.9" height="22" rx="3" fill="#B5524A"/>
+<text x="874" y="413" font-size="12" font-weight="600">16.9%</text>
+<text x="231" y="452" font-size="13" text-anchor="end">48h Block</text>
+<rect x="286.7" y="434" width="493.3" height="22" rx="3" fill="#B5524A"/>
+<text x="874" y="451" font-size="12" font-weight="600">18.1%</text>
+<text x="231" y="490" font-size="13" text-anchor="end">48h Stationary</text>
+<rect x="286.7" y="472" width="451.2" height="22" rx="3" fill="#B5524A"/>
+<text x="874" y="489" font-size="12" font-weight="600">16.5%</text>
+<text x="231" y="528" font-size="13" text-anchor="end">48h Regime-aware</text>
+<rect x="286.7" y="510" width="521.6" height="22" rx="3" fill="#B5524A"/>
+<text x="874" y="527" font-size="12" font-weight="600">19.1%</text>
+<text x="547.5" y="602" font-size="12" text-anchor="middle" class="muted">Max drawdown 5th percentile, absolute value</text>
+</svg>

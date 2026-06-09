@@ -1,0 +1,16 @@
+{
+  "panel_rows": 13515,
+  "panel_start": "2017-05-23 04:00:00",
+  "panel_end": "2026-06-05 16:00:00",
+  "rolling_sigma_window": 180,
+  "cooldown_bars": 6,
+  "risk_on_definition": "Nasdaq 5-day log return > 0",
+  "funding_low_definition": "expanding percentile <= 20% or funding_rate < 0",
+  "funding_high_definition": "expanding percentile >= 80%",
+  "n_sims": 5000,
+  "seed": 20260609,
+  "block_len": 5,
+  "stationary_mean_block_len": 5,
+  "trade_events_after_cooldown_with_funding": 201,
+  "output_dir": "/Users/tikeda/workspace/article_lab/lab_8/outputs/monte_carlo"
+}

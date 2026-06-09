@@ -1,0 +1,7 @@
+asset,file_name,raw_rows,timestamp_parse_fail_rows,duplicate_timestamps,missing_ohlc_rows,missing_volume_rows,clean_rows,start,end,nonpositive_ohlc_rows,symbols
+btc,BTCUSD240.csv,17775,0.0,0.0,0.0,0.0,17775,2017-05-23 00:00:00,2026-06-05 20:00:00,0.0,
+nasdaq,USATECHIDXUSD240.csv,19175,0.0,0.0,0.0,0.0,19175,2013-05-22 12:00:00,2026-06-05 20:00:00,0.0,
+sp500,USA500IDXUSD240.csv,19102,0.0,0.0,0.0,0.0,19102,2013-05-23 00:00:00,2026-06-05 20:00:00,0.0,
+dow,USA30IDXUSD240.csv,19652,0.0,0.0,0.0,0.0,19652,2013-05-23 00:00:00,2026-06-05 20:00:00,0.0,
+dax,DEUIDXEUR240.csv,19400,0.0,0.0,0.0,0.0,19400,2013-05-21 12:00:00,2026-06-05 16:00:00,0.0,
+BTCUSDT_funding,funding_rate_history.csv,19036,,,,,6354,2020-08-11 00:00:00,2026-05-29 16:00:00,,"BTCUSDT,ETHUSDT,SOLUSDT"

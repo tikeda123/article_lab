@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="520" viewBox="0 0 1000 520">
+<style>text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#1f2933} .muted{fill:#617080} .grid{stroke:#d7dde5;stroke-width:1} .axis{stroke:#667085;stroke-width:1.2}</style>
+<rect x="0" y="0" width="1000" height="520" fill="#ffffff"/>
+<text x="32" y="36" font-size="22" font-weight="700">Experiment 6: Cost Sensitivity</text>
+<text x="32" y="62" font-size="13" class="muted">i.i.d. bootstrap, 24h horizon, 1x leverage.</text>
+<line x1="86" y1="438.0" x2="740" y2="438.0" class="grid"/>
+<text x="74" y="442.0" font-size="11" text-anchor="end" class="muted">0.0%</text>
+<line x1="86" y1="367.2" x2="740" y2="367.2" class="grid"/>
+<text x="74" y="371.2" font-size="11" text-anchor="end" class="muted">20.0%</text>
+<line x1="86" y1="296.4" x2="740" y2="296.4" class="grid"/>
+<text x="74" y="300.4" font-size="11" text-anchor="end" class="muted">40.0%</text>
+<line x1="86" y1="225.6" x2="740" y2="225.6" class="grid"/>
+<text x="74" y="229.6" font-size="11" text-anchor="end" class="muted">60.0%</text>
+<line x1="86" y1="154.8" x2="740" y2="154.8" class="grid"/>
+<text x="74" y="158.8" font-size="11" text-anchor="end" class="muted">80.0%</text>
+<line x1="86" y1="84.0" x2="740" y2="84.0" class="grid"/>
+<text x="74" y="88.0" font-size="11" text-anchor="end" class="muted">100.0%</text>
+<line x1="86.0" y1="84" x2="86.0" y2="438" class="grid"/>
+<text x="86.0" y="464" font-size="12" text-anchor="middle">0.0</text>
+<line x1="249.5" y1="84" x2="249.5" y2="438" class="grid"/>
+<text x="249.5" y="464" font-size="12" text-anchor="middle">5.0</text>
+<line x1="413.0" y1="84" x2="413.0" y2="438" class="grid"/>
+<text x="413.0" y="464" font-size="12" text-anchor="middle">10.0</text>
+<line x1="740.0" y1="84" x2="740.0" y2="438" class="grid"/>
+<text x="740.0" y="464" font-size="12" text-anchor="middle">20.0</text>
+<line x1="86" y1="438" x2="740" y2="438" class="axis"/>
+<line x1="86" y1="84" x2="86" y2="438" class="axis"/>
+<polyline points="86.0,206.8 249.5,178.9 413.0,155.9 740.0,114.7" fill="none" stroke="#315F9B" stroke-width="3"/>
+<circle cx="86.0" cy="206.8" r="4.2" fill="#315F9B"/>
+<circle cx="249.5" cy="178.9" r="4.2" fill="#315F9B"/>
+<circle cx="413.0" cy="155.9" r="4.2" fill="#315F9B"/>
+<circle cx="740.0" cy="114.7" r="4.2" fill="#315F9B"/>
+<rect x="774" y="73" width="14" height="14" rx="2" fill="#315F9B"/>
+<text x="796" y="85" font-size="12">G0 all</text>
+<polyline points="86.0,438.0 249.5,438.0 413.0,438.0 740.0,438.0" fill="none" stroke="#D4882F" stroke-width="3"/>
+<circle cx="86.0" cy="438.0" r="4.2" fill="#D4882F"/>
+<circle cx="249.5" cy="438.0" r="4.2" fill="#D4882F"/>
+<circle cx="413.0" cy="438.0" r="4.2" fill="#D4882F"/>
+<circle cx="740.0" cy="438.0" r="4.2" fill="#D4882F"/>
+<rect x="774" y="98" width="14" height="14" rx="2" fill="#D4882F"/>
+<text x="796" y="110" font-size="12">G3 low x on</text>
+<polyline points="86.0,243.3 249.5,213.6 413.0,185.5 740.0,141.3" fill="none" stroke="#546A7B" stroke-width="3"/>
+<circle cx="86.0" cy="243.3" r="4.2" fill="#546A7B"/>
+<circle cx="249.5" cy="213.6" r="4.2" fill="#546A7B"/>
+<circle cx="413.0" cy="185.5" r="4.2" fill="#546A7B"/>
+<circle cx="740.0" cy="141.3" r="4.2" fill="#546A7B"/>
+<rect x="774" y="123" width="14" height="14" rx="2" fill="#546A7B"/>
+<text x="796" y="135" font-size="12">G4 avoid bad</text>
+<text x="413.0" y="500" font-size="12" text-anchor="middle" class="muted">One-way cost, bps</text>
+<text x="22" y="261.0" font-size="12" text-anchor="middle" class="muted" transform="rotate(-90 22 261.0)">Probability of reaching 30% DD</text>
+</svg>

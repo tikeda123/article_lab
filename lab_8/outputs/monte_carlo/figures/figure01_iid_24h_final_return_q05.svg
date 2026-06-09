@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="392" viewBox="0 0 1000 392">
+<style>text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;fill:#1f2933} .muted{fill:#617080} .grid{stroke:#d7dde5;stroke-width:1} .axis{stroke:#667085;stroke-width:1.2}</style>
+<rect x="0" y="0" width="1000" height="392" fill="#ffffff"/>
+<text x="32" y="36" font-size="22" font-weight="700">Experiment 1: 24h Downside Return Tail</text>
+<text x="32" y="62" font-size="13" class="muted">i.i.d. bootstrap, 1x leverage, zero cost. Higher is better.</text>
+<line x1="245.0" y1="74" x2="245.0" y2="326" class="grid"/>
+<text x="245.0" y="350" font-size="11" text-anchor="middle" class="muted">-32.5%</text>
+<line x1="366.0" y1="74" x2="366.0" y2="326" class="grid"/>
+<text x="366.0" y="350" font-size="11" text-anchor="middle" class="muted">-22.7%</text>
+<line x1="487.0" y1="74" x2="487.0" y2="326" class="grid"/>
+<text x="487.0" y="350" font-size="11" text-anchor="middle" class="muted">-13.0%</text>
+<line x1="608.0" y1="74" x2="608.0" y2="326" class="grid"/>
+<text x="608.0" y="350" font-size="11" text-anchor="middle" class="muted">-3.2%</text>
+<line x1="729.0" y1="74" x2="729.0" y2="326" class="grid"/>
+<text x="729.0" y="350" font-size="11" text-anchor="middle" class="muted">6.6%</text>
+<line x1="850.0" y1="74" x2="850.0" y2="326" class="grid"/>
+<text x="850.0" y="350" font-size="11" text-anchor="middle" class="muted">16.4%</text>
+<line x1="647.4" y1="74" x2="647.4" y2="326" class="axis"/>
+<text x="231" y="110" font-size="13" text-anchor="end">G0 all</text>
+<rect x="360.1" y="92" width="287.3" height="22" rx="3" fill="#B5524A"/>
+<text x="874" y="109" font-size="12" font-weight="600">-23.2%</text>
+<text x="231" y="148" font-size="13" text-anchor="end">G1 low funding</text>
+<rect x="647.4" y="130" width="160.9" height="22" rx="3" fill="#3D8B6D"/>
+<text x="874" y="147" font-size="12" font-weight="600">13.0%</text>
+<text x="231" y="186" font-size="13" text-anchor="end">G2 risk-on</text>
+<rect x="450.7" y="168" width="196.8" height="22" rx="3" fill="#B5524A"/>
+<text x="874" y="185" font-size="12" font-weight="600">-15.9%</text>
+<text x="231" y="224" font-size="13" text-anchor="end">G3 low x on</text>
+<rect x="635.5" y="206" width="11.9" height="22" rx="3" fill="#B5524A"/>
+<text x="874" y="223" font-size="12" font-weight="600">-1.0%</text>
+<text x="231" y="262" font-size="13" text-anchor="end">G4 avoid bad</text>
+<rect x="483.6" y="244" width="163.8" height="22" rx="3" fill="#B5524A"/>
+<text x="874" y="261" font-size="12" font-weight="600">-13.2%</text>
+<text x="231" y="300" font-size="13" text-anchor="end">G5 bad only</text>
+<rect x="286.7" y="282" width="360.7" height="22" rx="3" fill="#B5524A"/>
+<text x="874" y="299" font-size="12" font-weight="600">-29.1%</text>
+<text x="547.5" y="374" font-size="12" text-anchor="middle" class="muted">Final return 5th percentile</text>
+</svg>

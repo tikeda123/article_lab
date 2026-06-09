@@ -1,0 +1,7 @@
+file_name,title,description
+figures/figure01_iid_24h_final_return_q05.svg,Experiment 1: 24h downside return tail,Compares the 5th percentile of final returns across the six crash groups.
+figures/figure02_iid_24h_mdd_q05.svg,Experiment 1: 24h drawdown tail,Compares adverse max-drawdown tails across the six crash groups.
+figures/figure03_g3_method_mdd_q05.svg,Experiment 2: G3 method stress,Shows how G3 drawdown tail changes across Monte Carlo methods and horizons.
+figures/figure04_horizon_tradeoff_final_return_q05.svg,Experiment 3: horizon tradeoff,Contrasts the small G3 cell against the broader 48h risk-on group.
+figures/figure05_leverage_prob_dd30.svg,Experiment 5: leverage sensitivity,Shows how 30% drawdown hit probability rises with leverage.
+figures/figure06_cost_prob_dd30.svg,Experiment 6: cost sensitivity,Shows how 30% drawdown hit probability changes under transaction-cost stress.
