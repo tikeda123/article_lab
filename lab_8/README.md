@@ -2,7 +2,9 @@
 
 日本語: [README.ja.md](README.ja.md)
 
-This lab implements the experiment described in `実験設計ドキュメント.pdf`. It stress-tests the BTC crash-filter candidate from lab_7, especially the `BTC crash x low Funding x external risk-on` condition, with Monte Carlo drawdown, survival, leverage, and cost diagnostics.
+This lab supports the Japanese Qiita article "[BTC急落は本当に買えるのか？ ── モンテカルロで見る最大DDと生存確率](https://qiita.com/tikeda123/items/00fd5022d0d0ca0c80d5)".
+
+It implements the experiment described in `実験設計ドキュメント.pdf`. It stress-tests the BTC crash-filter candidate from lab_7, especially the `BTC crash x low Funding x external risk-on` condition, with Monte Carlo drawdown, survival, leverage, and cost diagnostics.
 
 This is an educational article experiment, not investment advice or a production trading system.
 
@@ -12,6 +14,7 @@ The lab_8 experiment is self-contained in this directory.
 
 | Type | Path |
 |---|---|
+| Published article | [BTC急落は本当に買えるのか？ ── モンテカルロで見る最大DDと生存確率](https://qiita.com/tikeda123/items/00fd5022d0d0ca0c80d5) |
 | Experiment design | `実験設計ドキュメント.pdf` |
 | Input data | `data/` |
 | Experiment script | `run_monte_carlo_experiment.py` |

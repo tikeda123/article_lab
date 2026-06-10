@@ -52,6 +52,7 @@ The root README should not duplicate full experiment procedures. It should point
 | `lab_5` | USDJPY trend-following edge diagnostics | USDJPY 60-minute and 240-minute bars | [README](lab_5/README.md) | [日本語](lab_5/README.ja.md) | `lab_5/outputs/trend_following_ma_cross/`, `lab_5/outputs/article_figures/` |
 | `lab_6` | BTC/ETH/SOL crypto crash-rebound diagnostics | BTCUSDT / ETHUSDT / SOLUSDT 240-minute bars | [README](lab_6/README.md) | [日本語](lab_6/README.ja.md) | `lab_6/outputs/crypto_crash_rebound_ohlcv/`, `lab_6/outputs/article_materials/` |
 | `lab_7` | BTC crash rebound interaction model | BTC / Nasdaq / S&P 500 / Dow / DAX 240-minute bars plus BTCUSDT Funding Rate | [README](lab_7/README.md) | [日本語](lab_7/README.ja.md) | `lab_7/outputs/interaction_model/` |
+| `lab_8` | BTC crash-filter Monte Carlo survival diagnostics | BTC / Nasdaq / S&P 500 / Dow / DAX 240-minute bars plus BTCUSDT Funding Rate | [README](lab_8/README.md) | [日本語](lab_8/README.ja.md) | `lab_8/outputs/monte_carlo/` |
 
 ## lab_1 Summary
 
@@ -164,6 +165,23 @@ The lab tests whether BTC crashes should be treated as one uniform "buy the dip"
 | Canonical output | `lab_7/outputs/interaction_model/` |
 | Role | BTC crash condition-classification diagnostics, not a production strategy |
 
+## lab_8 Summary
+
+`lab_8` supports the Japanese Qiita article "[BTC急落は本当に買えるのか？ ── モンテカルロで見る最大DDと生存確率](https://qiita.com/tikeda123/items/00fd5022d0d0ca0c80d5)".
+
+The lab stress-tests the BTC crash-filter candidates found in `lab_7`, especially `BTC crash x low Funding x external risk-on`, using Monte Carlo final-return, max-drawdown, drawdown-hit, leverage, and cost diagnostics. It focuses on whether an edge candidate can survive being traded repeatedly, not only whether it looked good in one historical order.
+
+| Item | Content |
+|---|---|
+| Details | [lab_8/README.md](lab_8/README.md) |
+| Japanese | [lab_8/README.ja.md](lab_8/README.ja.md) |
+| Article | [BTC急落は本当に買えるのか？ ── モンテカルロで見る最大DDと生存確率](https://qiita.com/tikeda123/items/00fd5022d0d0ca0c80d5) |
+| Script | `lab_8/run_monte_carlo_experiment.py` |
+| Experiment design | `lab_8/実験設計ドキュメント.pdf` |
+| Input data | `lab_8/data/BTCUSD240.csv`, `lab_8/data/USATECHIDXUSD240.csv`, `lab_8/data/USA500IDXUSD240.csv`, `lab_8/data/USA30IDXUSD240.csv`, `lab_8/data/DEUIDXEUR240.csv`, `lab_8/data/funding_rate_history.csv` |
+| Canonical output | `lab_8/outputs/monte_carlo/` |
+| Role | Monte Carlo survival and drawdown diagnostics, not a production strategy |
+
 ## Usage
 
 Start with the README for the lab you want to inspect.
@@ -176,6 +194,7 @@ sed -n '1,220p' lab_4/README.md
 sed -n '1,220p' lab_5/README.md
 sed -n '1,220p' lab_6/README.md
 sed -n '1,220p' lab_7/README.md
+sed -n '1,220p' lab_8/README.md
 ```
 
 Use the Japanese files when working directly with the Japanese Qiita article text.
@@ -188,6 +207,7 @@ sed -n '1,220p' lab_4/README.ja.md
 sed -n '1,220p' lab_5/README.ja.md
 sed -n '1,220p' lab_6/README.ja.md
 sed -n '1,220p' lab_7/README.ja.md
+sed -n '1,220p' lab_8/README.ja.md
 ```
 
 For regeneration, use the commands documented in each lab README.
@@ -239,6 +259,14 @@ python lab_7/run_interaction_model_experiment.py
 
 The current `lab_7` script writes directly to `lab_7/outputs/interaction_model/`.
 
+For `lab_8`, the input CSVs are included under `lab_8/data/`.
+
+```bash
+python3 lab_8/run_monte_carlo_experiment.py
+```
+
+The current `lab_8` script writes directly to `lab_8/outputs/monte_carlo/`.
+
 When a script exposes `--output-dir` or `--outdir`, write to a temporary output directory instead of overwriting canonical outputs.
 
 ## Maintenance Policy
@@ -248,5 +276,5 @@ When a script exposes `--output-dir` or `--outdir`, write to a temporary output 
 - Keep the root README focused on the index and lab list.
 - Put experiment details, reproduction commands, current results, and caveats in each lab README.
 - Store regenerable outputs in a dedicated output path inside each lab.
-- Add new articles or experiments as `lab_8`, `lab_9`, and so on.
+- Add new articles or experiments as `lab_9`, `lab_10`, and so on.
 - Cite article numbers from canonical output CSV, JSON, or Markdown files, not from hand-written summaries alone.
