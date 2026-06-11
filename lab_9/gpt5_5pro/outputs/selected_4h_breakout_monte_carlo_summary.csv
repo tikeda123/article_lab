@@ -1,0 +1,2 @@
+mc_terminal_return_median,mc_terminal_return_5pct,mc_terminal_return_95pct,mc_maxdd_median,mc_maxdd_5pct,mc_prob_terminal_loss,mc_prob_dd_gt_20pct,mc_prob_dd_gt_30pct,monthly_cvar_5pct
+0.5722819989026121,-0.1041295078412887,1.6652679439018783,-0.22577578874983534,-0.3900997520464566,0.096,0.6615,0.192,-0.05716553081102617
