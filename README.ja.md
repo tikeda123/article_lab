@@ -53,6 +53,7 @@ READMEを更新する場合は、英語版と日本語版の実験目的、正�
 | `lab_6` | BTC/ETH/SOL 暗号資産急落後リバウンド診断 | BTCUSDT / ETHUSDT / SOLUSDT 240分足 | [README](lab_6/README.md) | [日本語](lab_6/README.ja.md) | `lab_6/outputs/crypto_crash_rebound_ohlcv/`, `lab_6/outputs/article_materials/` |
 | `lab_7` | BTC急落後リバウンド交互作用モデル | BTC / Nasdaq / S&P 500 / Dow / DAX 240分足とBTCUSDT Funding Rate | [README](lab_7/README.md) | [日本語](lab_7/README.ja.md) | `lab_7/outputs/interaction_model/` |
 | `lab_8` | BTC急落フィルター候補のモンテカルロ生存性診断 | BTC / Nasdaq / S&P 500 / Dow / DAX 240分足とBTCUSDT Funding Rate | [README](lab_8/README.md) | [日本語](lab_8/README.ja.md) | `lab_8/outputs/monte_carlo/` |
+| `lab_9` | USDJPY戦略開発における生成AIモデル評価 | USDJPY 30分足・60分足・240分足と共通プロンプト | [README](lab_9/README.md) | [日本語](lab_9/README.ja.md) | `lab_9/AI_MODEL_EVALUATION_SUMMARY.md`, `lab_9/gpt5_5pro/outputs/` |
 
 ## lab_1 概要
 
@@ -188,6 +189,22 @@ BTC急落を一律に「押し目買い」と扱ってよいのか、それと�
 | 正本出力 | `lab_8/outputs/monte_carlo/` |
 | 位置づけ | モンテカルロによる生存性・ドローダウン診断。完成した売買戦略ではない |
 
+## lab_9 概要
+
+`lab_9` は、Qiita記事「[クオンツトレードに最適な生成AIはどれか？ ― Claude Fable5 / GPT 5.5 Pro / GPT 5.5 High をUSDJPY戦略開発で比較した](https://qiita.com/tikeda123/items/63e6882cacadbdce1bc4)」に対応するラボである。
+
+Claude Fable5、GPT 5.5 Pro、GPT 5.5 Highに同一のUSDJPYクオンツリサーチプロンプトを与え、データ診断、戦略候補の設計、WFO、コスト考慮、ロバスト性確認、ベンチマーク比較、採用/棄却判断の品質を比較する。
+
+| 項目 | 内容 |
+|---|---|
+| 詳細説明 | [lab_9/README.ja.md](lab_9/README.ja.md) |
+| 英語版 | [lab_9/README.md](lab_9/README.md) |
+| 記事 | [クオンツトレードに最適な生成AIはどれか？ ― Claude Fable5 / GPT 5.5 Pro / GPT 5.5 High をUSDJPY戦略開発で比較した](https://qiita.com/tikeda123/items/63e6882cacadbdce1bc4) |
+| 共通プロンプト | `lab_9/inputdata/prompto.md` |
+| 入力データ | `lab_9/inputdata/USDJPY30.csv`, `lab_9/inputdata/USDJPY60.csv`, `lab_9/inputdata/USDJPY240.csv` |
+| 正本出力 | `lab_9/AI_MODEL_EVALUATION_SUMMARY.md`, `lab_9/gpt5_5pro/outputs/` |
+| 位置づけ | クオンツリサーチ工程におけるAIモデル評価。完成した売買戦略ではない |
+
 ## 使い方
 
 英語圏の読者は、各ラボの `README.md` を読む。
@@ -201,6 +218,7 @@ sed -n '1,220p' lab_5/README.md
 sed -n '1,220p' lab_6/README.md
 sed -n '1,220p' lab_7/README.md
 sed -n '1,220p' lab_8/README.md
+sed -n '1,220p' lab_9/README.md
 ```
 
 日本語記事や日本語での作業では、各ラボの `README.ja.md` を読む。
@@ -214,6 +232,7 @@ sed -n '1,220p' lab_5/README.ja.md
 sed -n '1,220p' lab_6/README.ja.md
 sed -n '1,220p' lab_7/README.ja.md
 sed -n '1,220p' lab_8/README.ja.md
+sed -n '1,220p' lab_9/README.ja.md
 ```
 
 実験を再生成する場合も、各ラボREADMEに記載されたコマンドを正本とする。
@@ -273,6 +292,15 @@ python3 lab_8/run_monte_carlo_experiment.py
 
 現在の `lab_8` スクリプトは `lab_8/outputs/monte_carlo/` に直接出力する。
 
+`lab_9` は、まずモデル評価サマリを読む。GPT 5.5 ProとGPT 5.5 Highのスクリプトは、リポジトリ相対パスで再実行できる。
+
+```bash
+sed -n '1,220p' lab_9/AI_MODEL_EVALUATION_SUMMARY.md
+python3 lab_9/gpt5_5pro/usdjpy_wfo_quant_research.py \
+  --files lab_9/inputdata/USDJPY30.csv lab_9/inputdata/USDJPY60.csv lab_9/inputdata/USDJPY240.csv \
+  --outdir /tmp/lab9_gpt55pro_check
+```
+
 スクリプトが `--output-dir` や `--outdir` を提供している場合は、既存の正本出力を壊さず試すために一時ディレクトリへ出力する。
 
 ## 管理方針
@@ -282,5 +310,5 @@ python3 lab_8/run_monte_carlo_experiment.py
 - ルート README は索引とラボ一覧に限定する。
 - 実験の詳細、再現コマンド、主要結果、注意点は各 `lab_xxx/README.md` と `lab_xxx/README.ja.md` に書く。
 - コードから再生成できる成果物は、各ラボ内の専用出力ディレクトリにまとめる。
-- 新しい記事・実験を追加する場合は、`lab_9`、`lab_10` のように新しいディレクトリを作る。
+- 新しい記事・実験を追加する場合は、`lab_10`、`lab_11` のように新しいディレクトリを作る。
 - 記事本文に使う数値は、各ラボの正本出力CSV、JSON、Markdownから引用する。

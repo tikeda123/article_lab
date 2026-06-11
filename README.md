@@ -53,6 +53,7 @@ The root README should not duplicate full experiment procedures. It should point
 | `lab_6` | BTC/ETH/SOL crypto crash-rebound diagnostics | BTCUSDT / ETHUSDT / SOLUSDT 240-minute bars | [README](lab_6/README.md) | [日本語](lab_6/README.ja.md) | `lab_6/outputs/crypto_crash_rebound_ohlcv/`, `lab_6/outputs/article_materials/` |
 | `lab_7` | BTC crash rebound interaction model | BTC / Nasdaq / S&P 500 / Dow / DAX 240-minute bars plus BTCUSDT Funding Rate | [README](lab_7/README.md) | [日本語](lab_7/README.ja.md) | `lab_7/outputs/interaction_model/` |
 | `lab_8` | BTC crash-filter Monte Carlo survival diagnostics | BTC / Nasdaq / S&P 500 / Dow / DAX 240-minute bars plus BTCUSDT Funding Rate | [README](lab_8/README.md) | [日本語](lab_8/README.ja.md) | `lab_8/outputs/monte_carlo/` |
+| `lab_9` | AI model evaluation for USDJPY quant research | USDJPY 30-minute, 60-minute, and 240-minute bars plus shared prompt | [README](lab_9/README.md) | [日本語](lab_9/README.ja.md) | `lab_9/AI_MODEL_EVALUATION_SUMMARY.md`, `lab_9/gpt5_5pro/outputs/` |
 
 ## lab_1 Summary
 
@@ -182,6 +183,22 @@ The lab stress-tests the BTC crash-filter candidates found in `lab_7`, especiall
 | Canonical output | `lab_8/outputs/monte_carlo/` |
 | Role | Monte Carlo survival and drawdown diagnostics, not a production strategy |
 
+## lab_9 Summary
+
+`lab_9` supports the Japanese Qiita article "[クオンツトレードに最適な生成AIはどれか？ ― Claude Fable5 / GPT 5.5 Pro / GPT 5.5 High をUSDJPY戦略開発で比較した](https://qiita.com/tikeda123/items/63e6882cacadbdce1bc4)".
+
+The lab compares Claude Fable5, GPT 5.5 Pro, and GPT 5.5 High on the same USDJPY quant-research prompt. Each model was asked to diagnose the data, design simple explainable strategies, run WFO, account for costs, check robustness, compare against benchmarks, and reject the strategy if no durable OOS edge was found.
+
+| Item | Content |
+|---|---|
+| Details | [lab_9/README.md](lab_9/README.md) |
+| Japanese | [lab_9/README.ja.md](lab_9/README.ja.md) |
+| Article | [クオンツトレードに最適な生成AIはどれか？ ― Claude Fable5 / GPT 5.5 Pro / GPT 5.5 High をUSDJPY戦略開発で比較した](https://qiita.com/tikeda123/items/63e6882cacadbdce1bc4) |
+| Shared prompt | `lab_9/inputdata/prompto.md` |
+| Input data | `lab_9/inputdata/USDJPY30.csv`, `lab_9/inputdata/USDJPY60.csv`, `lab_9/inputdata/USDJPY240.csv` |
+| Canonical output | `lab_9/AI_MODEL_EVALUATION_SUMMARY.md`, `lab_9/gpt5_5pro/outputs/` |
+| Role | AI model evaluation for quant-research workflow quality, not a production strategy |
+
 ## Usage
 
 Start with the README for the lab you want to inspect.
@@ -195,6 +212,7 @@ sed -n '1,220p' lab_5/README.md
 sed -n '1,220p' lab_6/README.md
 sed -n '1,220p' lab_7/README.md
 sed -n '1,220p' lab_8/README.md
+sed -n '1,220p' lab_9/README.md
 ```
 
 Use the Japanese files when working directly with the Japanese Qiita article text.
@@ -208,6 +226,7 @@ sed -n '1,220p' lab_5/README.ja.md
 sed -n '1,220p' lab_6/README.ja.md
 sed -n '1,220p' lab_7/README.ja.md
 sed -n '1,220p' lab_8/README.ja.md
+sed -n '1,220p' lab_9/README.ja.md
 ```
 
 For regeneration, use the commands documented in each lab README.
@@ -267,6 +286,15 @@ python3 lab_8/run_monte_carlo_experiment.py
 
 The current `lab_8` script writes directly to `lab_8/outputs/monte_carlo/`.
 
+For `lab_9`, start from the model-evaluation summary. The GPT 5.5 Pro and GPT 5.5 High scripts also support repository-relative re-runs.
+
+```bash
+sed -n '1,220p' lab_9/AI_MODEL_EVALUATION_SUMMARY.md
+python3 lab_9/gpt5_5pro/usdjpy_wfo_quant_research.py \
+  --files lab_9/inputdata/USDJPY30.csv lab_9/inputdata/USDJPY60.csv lab_9/inputdata/USDJPY240.csv \
+  --outdir /tmp/lab9_gpt55pro_check
+```
+
 When a script exposes `--output-dir` or `--outdir`, write to a temporary output directory instead of overwriting canonical outputs.
 
 ## Maintenance Policy
@@ -276,5 +304,5 @@ When a script exposes `--output-dir` or `--outdir`, write to a temporary output 
 - Keep the root README focused on the index and lab list.
 - Put experiment details, reproduction commands, current results, and caveats in each lab README.
 - Store regenerable outputs in a dedicated output path inside each lab.
-- Add new articles or experiments as `lab_9`, `lab_10`, and so on.
+- Add new articles or experiments as `lab_10`, `lab_11`, and so on.
 - Cite article numbers from canonical output CSV, JSON, or Markdown files, not from hand-written summaries alone.
