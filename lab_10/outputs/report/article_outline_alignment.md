@@ -1,25 +1,38 @@
-# BTC-Only Article Outline Alignment
+# Article Alignment Report
 
-## 日本語要約
+Source article: https://qiita.com/tikeda123/items/091519af64bd22367c2d
 
-この記事ではBTCのみを扱う。USDJPYは本文には出さない。
+## Purpose
 
-BTCのみでも、記事骨子の中心主張は成立する。むしろ `Funding low x risk-on` という一見よい候補が、サンプル数・bootstrap・定義変更・期間分割で脆さを見せるため、`error on error` の説明としてはBTCに絞った方が読みやすい。
+This report checks whether the lab_10 outputs support the published article. The answer is yes: the outputs now focus on the BTC `Funding low x risk-on` candidate and the assumptions that make it fragile.
 
 ## Alignment Table
 
-| article_claim | evidence | judgment | article_handling | revision_needed |
-| --- | --- | --- | --- | --- |
-| BTC急落は一律に買えるわけではない | All crashes 48h MaxDD is -42.441%; Funding high x risk-off 48h mean is -0.100%. | support | Use classification framing instead of universal dip-buying. | Avoid any headline that reads as BTC crash buy signal. |
-| `Funding low x risk-on` は候補だが証明ではない | 48h mean is 1.115% with PF 2.073, but n=15. | support | Present it as a candidate to stress, not as an edge conclusion. | Place n=15 next to the first mention of the candidate. |
-| エッジ候補にも error on error がある | Bootstrap 48h mean 5% lower bound is -0.380%. | support | Use bootstrap uncertainty as the clearest empirical expression of error-on-error. | Do not lead with PF; lead with estimate uncertainty. |
-| 定義を変えると候補は壊れ得る | 48h full-sample lower 2.5% mean is -1.082% with PF 0.666. | support | Use the crash-definition heatmap in the body. | Add a sentence that crash definition is a subjective stress dial. |
-| 期間分割でレジーム依存を見る必要がある | 2022 stress-period 48h mean is -0.789% with n=4. | support | Use the 2022 slice as a warning against smooth all-period conclusions. | Do not claim the candidate is stable across regimes. |
-| 外部市場はBTCの直接予測ではなく文脈変数である | Risk-on proxy changes the estimate in robustness tables. | support | Use external risk-on/off as classification context. | Remove or soften any sentence saying Nasdaq predicts BTC. |
-| 分析は運用ルールへ変換する | 9 BTC matrix rows map assumptions to practical responses. | support | Use the BTC Fragility Matrix as the final practical section. | Add responses such as cost ceilings, entry-delay tolerance, leverage caps, and avoid-condition filters. |
+| article_section | experiment_support | status |
+| --- | --- | --- |
+| 8 まず見るべきは平均ではなくn | 48h Funding low x risk-on is n=15. | support |
+| 9 error on error | 48h bootstrap mean 5% lower bound is -0.380%; 24h is -0.057%. | support |
+| 10 crash定義を動かす | 48h full_sample_q025 changes mean to -1.082% and PF to 0.666. | support |
+| 11 期間・コスト・約定・レバレッジ | 2022 stress is negative; cost_x5 and delay_4h compress the estimate; 3x MAE reaches -28.277%. | support |
+| 12 Fragility Matrix | 7 rows map breakable assumptions to practical responses. | support |
+| 14 避けるべき誤解 | Baseline and stress results support weaker wording: candidate, not proven strategy. | support |
 
-## Overall Judgment
+## Key Metrics
 
-BTC-only構成で問題ない。記事の主張は、次の形に絞る。
+| topic | value | article_role |
+| --- | --- | --- |
+| 48h Funding low x risk-on baseline | n=15, mean 1.115%, PF 2.073 | 面白い候補だが結論ではない基準線 |
+| 24h Funding low x risk-on baseline | n=15, mean 1.297%, PF 3.122 | 24hでも小標本制約は同じ |
+| 48h bootstrap lower bound | mean 5% -0.380% | error on errorの中心証拠 |
+| 24h bootstrap lower bound | mean 5% -0.057% | 24hでも下限は0を下回る |
+| Crash definition stress | full_sample_q025 mean -1.082%, PF 0.666 | 急落定義を動かすと候補が壊れる |
+| 2022 stress period | n=4, mean -0.789%, PF 0.505 | レジーム依存を示す |
+| 48h Funding high x risk-off | mean -0.100%, PF 0.935 | 避ける急落候補 |
+| 48h all crashes | MaxDD -42.441% | 一律の急落買いは左尾・DDが重い |
 
-> BTC急落の `Funding low x risk-on` は面白い候補に見える。しかし、`n=15`、bootstrap下限、定義依存、期間依存を考えると、これを有効戦略とは言えない。重要なのは、候補が壊れる条件を先に見つけることである。
+## Remaining Guardrails
+
+- Do not call `Funding low x risk-on` a proven edge.
+- Do not describe Nasdaq or S&P500 as direct BTC predictors.
+- Keep `n=15` and bootstrap lower bounds near the first mention of the candidate.
+- Treat the Fragility Matrix as a conversion table from weak assumptions to operating rules, not as proof of profitability.

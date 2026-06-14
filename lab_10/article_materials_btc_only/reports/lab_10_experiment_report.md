@@ -1,40 +1,27 @@
-# BTC-Only Experiment Report
+# lab_10 BTC Article-Support Experiment Report
 
-## 日本語要約
+Source article: https://qiita.com/tikeda123/items/091519af64bd22367c2d
 
-この記事ではBTCのみを扱う。USDJPYの実験ログは残しているが、記事本文・図表選定・骨子整合性分析には使わない。
+## Executive Summary
 
-中心テーマは、BTC急落後の `Funding low x risk-on` が「買える急落」候補に見えるとしても、それをそのまま有効戦略として扱ってよいのか、という点である。
+This lab now supports the published BTC-only article. The experiment does not try to re-prove `Funding low x risk-on` as an edge. It treats that candidate as a baseline estimate and asks where the estimate breaks.
 
-結論は明確である。`Funding low x risk-on` は面白い候補だが、主条件は `n=15` と小さく、bootstrapの下限も0を下回る。したがって、記事では成功例ではなく、`error on error` を説明するための「壊れる条件を調べる候補」として扱う。
+The core article claim is supported: `Funding low x risk-on` looks interesting at the point-estimate level, but the claim is fragile under small-sample uncertainty, crash-definition changes, 2022 stress-period slicing, cost, execution delay, and leverage path risk.
 
-## 1. Purpose And Non-Purpose
+## Key Metrics For The Article
 
-Purpose:
+| topic | value | article_role |
+| --- | --- | --- |
+| 48h Funding low x risk-on baseline | n=15, mean 1.115%, PF 2.073 | 面白い候補だが結論ではない基準線 |
+| 24h Funding low x risk-on baseline | n=15, mean 1.297%, PF 3.122 | 24hでも小標本制約は同じ |
+| 48h bootstrap lower bound | mean 5% -0.380% | error on errorの中心証拠 |
+| 24h bootstrap lower bound | mean 5% -0.057% | 24hでも下限は0を下回る |
+| Crash definition stress | full_sample_q025 mean -1.082%, PF 0.666 | 急落定義を動かすと候補が壊れる |
+| 2022 stress period | n=4, mean -0.789%, PF 0.505 | レジーム依存を示す |
+| 48h Funding high x risk-off | mean -0.100%, PF 0.935 | 避ける急落候補 |
+| 48h all crashes | MaxDD -42.441% | 一律の急落買いは左尾・DDが重い |
 
-- BTC急落後の反発候補が、どの前提で壊れるかを見る。
-- Funding、外部リスク環境、コスト、定義、期間、約定、MAE/DDを疑いのダイヤルとして扱う。
-- 記事骨子の「エッジ候補にも error on error がある」を実データで説明する。
-
-Non-purpose:
-
-- BTC急落は買いだと主張すること。
-- `Funding low x risk-on` を有効戦略として証明すること。
-- NasdaqがBTCを直接予測すると主張すること。
-
-## 2. Reproducibility
-
-Main commands used:
-
-```bash
-/Users/toikeda/miniconda3/bin/python lab_10/scripts/00_lab7_interaction_model_base.py
-/Users/toikeda/miniconda3/bin/python lab_10/scripts/02_btc_crash_fragility.py
-/Users/toikeda/miniconda3/bin/python lab_10/scripts/03_fragility_matrix.py
-```
-
-Phase 0 reproduced the copied `lab_7` baseline. The regenerated major CSVs matched the copied reference CSVs.
-
-## 3. BTC Baseline
+## Baseline: Measure First
 
 | horizon | group | n | mean_ret_pct | profit_factor | mean_mae_pct | worst_mae_pct | maxdd_pct | fragility_status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -48,33 +35,19 @@ Phase 0 reproduced the copied `lab_7` baseline. The regenerated major CSVs match
 | 5d | funding_low_x_risk_on | 15 | 2.194 | 2.907 | -4.454 | -14.642 | -12.193 | fragile |
 | 5d | funding_high_x_risk_off | 26 | 0.089 | 1.033 | -7.458 | -28.058 | -25.112 | watch |
 
-## 4. Bootstrap Uncertainty
+## Error On Error: Bootstrap Uncertainty
 
-| horizon | n | mean_p05_pct | mean_p50_pct | mean_p95_pct | pf_p05 | pf_p50 | pf_p95 | is_ci_fragile |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 24h | 15 | -0.057 | 1.247 | 2.781 | 0.940 | 3.126 | 13.946 | True |
-| 48h | 15 | -0.380 | 1.155 | 2.479 | 0.798 | 2.135 | 8.714 | True |
+| horizon | n | mean_p05_pct | mean_p50_pct | mean_p95_pct | pf_p05 | pf_p50 | pf_p95 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 24h | 15 | -0.057 | 1.247 | 2.781 | 0.940 | 3.126 | 13.946 |
+| 48h | 15 | -0.380 | 1.155 | 2.479 | 0.798 | 2.135 | 8.714 |
 
-Interpretation:
+Article reading:
 
-- 24h/48hとも点推定は良いが、`n=15` しかない。
-- bootstrap mean 5% lower bound は24h/48hとも0を下回る。
-- 記事本文では、平均リターンやPFより先に `n` と不確実性を出す。
+- The 48h point estimate is positive, but the 5% bootstrap lower bound is negative.
+- This does not prove the edge is absent. It means the positive expectation cannot be stated strongly with `n=15`.
 
-## 5. Cost Stress
-
-| horizon | cost_case | cost_bps | n | mean_ret_pct | profit_factor | fragility_status |
-| --- | --- | --- | --- | --- | --- | --- |
-| 24h | gross | 0.000 | 15 | 1.297 | 3.122 | fragile |
-| 24h | base_cost | 10.000 | 15 | 1.197 | 2.857 | fragile |
-| 24h | cost_x2 | 20.000 | 15 | 1.097 | 2.611 | fragile |
-| 24h | cost_x5 | 50.000 | 15 | 0.797 | 1.988 | fragile |
-| 48h | gross | 0.000 | 15 | 1.115 | 2.073 | fragile |
-| 48h | base_cost | 10.000 | 15 | 1.015 | 1.952 | fragile |
-| 48h | cost_x2 | 20.000 | 15 | 0.915 | 1.837 | fragile |
-| 48h | cost_x5 | 50.000 | 15 | 0.615 | 1.524 | fragile |
-
-## 6. Crash Definition Robustness
+## Definition Stress
 
 | event_def | n | mean_ret_pct | profit_factor | maxdd_pct | fragility_status |
 | --- | --- | --- | --- | --- | --- |
@@ -84,7 +57,14 @@ Interpretation:
 | full_sample_q05 | 24 | 2.525 | 4.470 | -9.841 | watch |
 | full_sample_q025 | 8 | -1.082 | 0.666 | -18.213 | broken |
 
-## 7. Subperiod Stability
+Article reading:
+
+- The `full_sample_q025` stress changes the 48h mean from positive to negative.
+- This is the clearest definition-dependence result and should remain near the center of the article.
+
+## Regime, Cost, Execution, And Leverage
+
+Subperiod:
 
 | period | n | mean_ret_pct | profit_factor | maxdd_pct | fragility_status |
 | --- | --- | --- | --- | --- | --- |
@@ -95,20 +75,44 @@ Interpretation:
 | 2025_2026 | 6 | 2.077 | 4.626 | -3.378 | fragile |
 | post_btc_etf | 8 | 2.588 | 7.025 | -3.378 | fragile |
 
-## 8. BTC Fragility Matrix
+Cost:
 
-| fragility_source | stress_case | fragility_status | article_message | practical_response |
-| --- | --- | --- | --- | --- |
-| sample_size | Bootstrap, 48h Funding low x risk-on | fragile | The subgroup is interesting, but n is too small for a strong claim. | Lead with sample size and uncertainty before mentioning PF. |
-| cost | 48h cost x5 | fragile | Gross backtests are not enough. | Set cost ceilings and report net results. |
-| execution | 48h entry delayed by 4H | fragile | Execution assumptions are part of the risk model. | Require entry-delay tolerance before treating the signal as usable. |
-| crash_definition | 48h full-sample lower 2.5% | broken | Edge estimates depend on definitions. | Publish definition robustness before naming a condition buyable. |
-| risk_env_definition | 48h S&P500 5D up | fragile | External markets are context filters, not direct BTC predictors. | Use multiple risk-on proxies and avoid causal wording. |
-| funding_definition | 48h Funding negative only | fragile | Subjective thresholds must be explicit. | Report Funding definitions side by side. |
-| subperiod | 48h 2022 stress period | broken | Regime dependence is central to edge uncertainty. | Use period splits to weaken or qualify public claims. |
-| mae_dd_leverage | 48h 3x leverage | watch | Mean return must be read with path loss and leverage tolerance. | Define leverage caps and forced-reduction rules from MAE/DD. |
-| avoid_condition | 48h Funding high x risk-off | broken | The useful claim is classification, not universal dip buying. | Use high-funding/risk-off as an avoid or size-reduction condition. |
+| cost_case | cost_bps | n | mean_ret_pct | profit_factor | maxdd_pct | fragility_status |
+| --- | --- | --- | --- | --- | --- | --- |
+| gross | 0.000 | 15 | 1.115 | 2.073 | -6.181 | fragile |
+| base_cost | 10.000 | 15 | 1.015 | 1.952 | -6.368 | fragile |
+| cost_x2 | 20.000 | 15 | 0.915 | 1.837 | -6.555 | fragile |
+| cost_x5 | 50.000 | 15 | 0.615 | 1.524 | -7.114 | fragile |
 
-## 9. Article-Ready Conclusion
+Execution:
 
-BTC急落の `Funding low x risk-on` は、平均リターンだけを見ると面白い候補に見える。しかし、この条件は `n=15` と小さく、bootstrapの下限も0を下回る。さらに、crash定義や期間分割を変えると壊れるケースがある。したがって、ここで見るべきなのは「勝てる条件」ではなく、「どの前提が崩れたら候補が壊れるか」である。
+| entry_case | entry_lag_bars | adverse_entry_bps | n | mean_ret_pct | profit_factor | fragility_status |
+| --- | --- | --- | --- | --- | --- | --- |
+| next_open | 1 | 0.000 | 15 | 1.115 | 2.073 | fragile |
+| delay_4h | 2 | 0.000 | 15 | 0.475 | 1.324 | fragile |
+| delay_8h | 3 | 0.000 | 15 | 1.057 | 1.684 | fragile |
+| adverse_25bps | 1 | 25.000 | 15 | 0.865 | 1.782 | fragile |
+
+Leverage:
+
+| leverage | n | mean_ret_pct | worst_mae_pct | maxdd_pct | margin_breach_30pct_count |
+| --- | --- | --- | --- | --- | --- |
+| 1.000 | 15.000 | 1.115 | -9.426 | -6.181 | 0.000 |
+| 2.000 | 15.000 | 2.230 | -18.851 | -11.979 | 0.000 |
+| 3.000 | 15.000 | 3.345 | -28.277 | -17.419 | 0.000 |
+
+## Fragility Matrix
+
+| breakable_assumption | stress_case | baseline_value | stressed_value | fragility_status | practical_response |
+| --- | --- | --- | --- | --- | --- |
+| 小標本でも平均が安定 | 48h bootstrap | 1.115% | -0.380% | fragile | 主張を弱め、サイズを落とす。 |
+| 急落定義に依存しない | 48h full_sample_q025 | 1.115% / PF 2.073 | -1.082% / PF 0.666 | broken | 複数定義で確認し、定義ロバスト性を先に公開する。 |
+| 特定レジームだけでない | 48h 2022 stress period | 1.115% / PF 2.073 | -0.789% / PF 0.505 | broken | 期間分割で主張を弱める、または限定する。 |
+| コスト後も残る | 48h cost_x5 | 1.115% / PF 2.073 | 0.615% / PF 1.524 | fragile | コスト上限を設定し、ネットで報告する。 |
+| 想定通り約定できる | 48h delay_4h | 1.115% / PF 2.073 | 0.475% / PF 1.324 | fragile | 約定遅延耐性を確認し、指値/成行ルールを再設計する。 |
+| 含み損に耐えられる | 48h 3x leverage | -9.426% | -28.277% | watch | MAE/DDからレバレッジ上限と強制縮小ルールを設計する。 |
+| proxyは1つで十分 | 48h S&P500 5D up | 1.115% / PF 2.073 | 0.811% / PF 1.616 | fragile | risk-on proxyを複数化し、因果表現を避ける。 |
+
+## Article-Safe Conclusion
+
+BTC急落の `Funding low x risk-on` は、平均リターンだけを見ると面白い候補に見える。しかし、`n=15`、bootstrap下限、crash定義、期間分割、コスト、約定、レバレッジを動かすと、強い主張はできない。ここで見るべきなのは「勝てる条件」ではなく、「どの前提が崩れたら候補が壊れるか」である。

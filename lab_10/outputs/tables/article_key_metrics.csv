@@ -1,0 +1,9 @@
+topic,value,article_role
+48h Funding low x risk-on baseline,"n=15, mean 1.115%, PF 2.073",面白い候補だが結論ではない基準線
+24h Funding low x risk-on baseline,"n=15, mean 1.297%, PF 3.122",24hでも小標本制約は同じ
+48h bootstrap lower bound,mean 5% -0.380%,error on errorの中心証拠
+24h bootstrap lower bound,mean 5% -0.057%,24hでも下限は0を下回る
+Crash definition stress,"full_sample_q025 mean -1.082%, PF 0.666",急落定義を動かすと候補が壊れる
+2022 stress period,"n=4, mean -0.789%, PF 0.505",レジーム依存を示す
+48h Funding high x risk-off,"mean -0.100%, PF 0.935",避ける急落候補
+48h all crashes,MaxDD -42.441%,一律の急落買いは左尾・DDが重い
