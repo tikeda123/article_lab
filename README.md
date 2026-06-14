@@ -54,6 +54,7 @@ The root README should not duplicate full experiment procedures. It should point
 | `lab_7` | BTC crash rebound interaction model | BTC / Nasdaq / S&P 500 / Dow / DAX 240-minute bars plus BTCUSDT Funding Rate | [README](lab_7/README.md) | [日本語](lab_7/README.ja.md) | `lab_7/outputs/interaction_model/` |
 | `lab_8` | BTC crash-filter Monte Carlo survival diagnostics | BTC / Nasdaq / S&P 500 / Dow / DAX 240-minute bars plus BTCUSDT Funding Rate | [README](lab_8/README.md) | [日本語](lab_8/README.ja.md) | `lab_8/outputs/monte_carlo/` |
 | `lab_9` | AI model evaluation for USDJPY quant research | USDJPY 30-minute, 60-minute, and 240-minute bars plus shared prompt | [README](lab_9/README.md) | [日本語](lab_9/README.ja.md) | `lab_9/AI_MODEL_EVALUATION_SUMMARY.md`, `lab_9/gpt5_5pro/outputs/` |
+| `lab_10` | BTC fragility diagnostics for fat-tail risk practice | BTC / Nasdaq / S&P 500 / Dow / DAX 240-minute bars plus BTCUSDT Funding Rate | [README](lab_10/README.md) | [日本語材料](lab_10/article_materials_btc_only/README.ja.md) | `lab_10/outputs/report/lab_10_experiment_report.md`, `lab_10/outputs/tables/fragility_matrix.csv` |
 
 ## lab_1 Summary
 
@@ -199,6 +200,22 @@ The lab compares Claude Fable5, GPT 5.5 Pro, and GPT 5.5 High on the same USDJPY
 | Canonical output | `lab_9/AI_MODEL_EVALUATION_SUMMARY.md`, `lab_9/gpt5_5pro/outputs/` |
 | Role | AI model evaluation for quant-research workflow quality, not a production strategy |
 
+## lab_10 Summary
+
+`lab_10` supports the Japanese Qiita article "[ファットテールを織り込んだ\"つもり\"になっていないか](https://qiita.com/tikeda123/items/091519af64bd22367c2d)".
+
+The lab turns the `lab_7` BTC crash condition candidate, especially `Funding low x risk-on`, into a fragility diagnostic package. It does not try to prove that BTC crashes are buyable. It checks where the attractive point estimate breaks under small-sample bootstrap uncertainty, crash-definition changes, 2022 stress-period slicing, cost stress, execution delay, risk-proxy changes, and levered MAE.
+
+| Item | Content |
+|---|---|
+| Details | [lab_10/README.md](lab_10/README.md) |
+| Japanese materials | [lab_10/article_materials_btc_only/README.ja.md](lab_10/article_materials_btc_only/README.ja.md) |
+| Article | [ファットテールを織り込んだ"つもり"になっていないか](https://qiita.com/tikeda123/items/091519af64bd22367c2d) |
+| Scripts | `lab_10/scripts/00_lab7_interaction_model_base.py`, `lab_10/scripts/02_btc_crash_fragility.py`, `lab_10/scripts/03_fragility_matrix.py` |
+| Input data | `lab_10/data/lab_7/` |
+| Canonical output | `lab_10/outputs/report/lab_10_experiment_report.md`, `lab_10/outputs/tables/fragility_matrix.csv`, `lab_10/article_materials_btc_minimal_ai/` |
+| Role | Fat-tail and error-on-error fragility diagnostics, not a production strategy |
+
 ## Usage
 
 Start with the README for the lab you want to inspect.
@@ -213,6 +230,7 @@ sed -n '1,220p' lab_6/README.md
 sed -n '1,220p' lab_7/README.md
 sed -n '1,220p' lab_8/README.md
 sed -n '1,220p' lab_9/README.md
+sed -n '1,220p' lab_10/README.md
 ```
 
 Use the Japanese files when working directly with the Japanese Qiita article text.
@@ -227,6 +245,7 @@ sed -n '1,220p' lab_6/README.ja.md
 sed -n '1,220p' lab_7/README.ja.md
 sed -n '1,220p' lab_8/README.ja.md
 sed -n '1,220p' lab_9/README.ja.md
+sed -n '1,220p' lab_10/article_materials_btc_only/README.ja.md
 ```
 
 For regeneration, use the commands documented in each lab README.
@@ -295,6 +314,14 @@ python3 lab_9/gpt5_5pro/usdjpy_wfo_quant_research.py \
   --outdir /tmp/lab9_gpt55pro_check
 ```
 
+For `lab_10`, the input CSVs are included under `lab_10/data/lab_7/`.
+
+```bash
+/Users/toikeda/miniconda3/bin/python lab_10/scripts/00_lab7_interaction_model_base.py
+/Users/toikeda/miniconda3/bin/python lab_10/scripts/02_btc_crash_fragility.py
+/Users/toikeda/miniconda3/bin/python lab_10/scripts/03_fragility_matrix.py
+```
+
 When a script exposes `--output-dir` or `--outdir`, write to a temporary output directory instead of overwriting canonical outputs.
 
 ## Maintenance Policy
@@ -304,5 +331,5 @@ When a script exposes `--output-dir` or `--outdir`, write to a temporary output 
 - Keep the root README focused on the index and lab list.
 - Put experiment details, reproduction commands, current results, and caveats in each lab README.
 - Store regenerable outputs in a dedicated output path inside each lab.
-- Add new articles or experiments as `lab_10`, `lab_11`, and so on.
+- Add new articles or experiments as `lab_11`, `lab_12`, and so on.
 - Cite article numbers from canonical output CSV, JSON, or Markdown files, not from hand-written summaries alone.

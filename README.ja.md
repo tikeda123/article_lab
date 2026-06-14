@@ -54,6 +54,7 @@ READMEを更新する場合は、英語版と日本語版の実験目的、正�
 | `lab_7` | BTC急落後リバウンド交互作用モデル | BTC / Nasdaq / S&P 500 / Dow / DAX 240分足とBTCUSDT Funding Rate | [README](lab_7/README.md) | [日本語](lab_7/README.ja.md) | `lab_7/outputs/interaction_model/` |
 | `lab_8` | BTC急落フィルター候補のモンテカルロ生存性診断 | BTC / Nasdaq / S&P 500 / Dow / DAX 240分足とBTCUSDT Funding Rate | [README](lab_8/README.md) | [日本語](lab_8/README.ja.md) | `lab_8/outputs/monte_carlo/` |
 | `lab_9` | USDJPY戦略開発における生成AIモデル評価 | USDJPY 30分足・60分足・240分足と共通プロンプト | [README](lab_9/README.md) | [日本語](lab_9/README.ja.md) | `lab_9/AI_MODEL_EVALUATION_SUMMARY.md`, `lab_9/gpt5_5pro/outputs/` |
+| `lab_10` | BTC ファットテール実務・Fragility診断 | BTC / Nasdaq / S&P 500 / Dow / DAX 240分足とBTCUSDT Funding Rate | [README](lab_10/README.md) | [日本語材料](lab_10/article_materials_btc_only/README.ja.md) | `lab_10/outputs/report/lab_10_experiment_report.md`, `lab_10/outputs/tables/fragility_matrix.csv` |
 
 ## lab_1 概要
 
@@ -205,6 +206,22 @@ Claude Fable5、GPT 5.5 Pro、GPT 5.5 Highに同一のUSDJPYクオンツリサ�
 | 正本出力 | `lab_9/AI_MODEL_EVALUATION_SUMMARY.md`, `lab_9/gpt5_5pro/outputs/` |
 | 位置づけ | クオンツリサーチ工程におけるAIモデル評価。完成した売買戦略ではない |
 
+## lab_10 概要
+
+`lab_10` は、Qiita記事「[ファットテールを織り込んだ"つもり"になっていないか](https://qiita.com/tikeda123/items/091519af64bd22367c2d)」に対応するラボである。
+
+`lab_7` のBTC急落条件候補、特に `Funding low x risk-on` を、有効戦略として証明するのではなく、どの前提で壊れるかを診断する。小標本bootstrap、crash定義変更、2022年ストレス期、コスト、約定遅延、risk-on proxy変更、レバレッジ時MAEを確認し、Fragility Matrixとして運用対応へ変換する。
+
+| 項目 | 内容 |
+|---|---|
+| 詳細説明 | [lab_10/README.md](lab_10/README.md) |
+| 日本語材料 | [lab_10/article_materials_btc_only/README.ja.md](lab_10/article_materials_btc_only/README.ja.md) |
+| 記事 | [ファットテールを織り込んだ"つもり"になっていないか](https://qiita.com/tikeda123/items/091519af64bd22367c2d) |
+| 実験コード | `lab_10/scripts/00_lab7_interaction_model_base.py`, `lab_10/scripts/02_btc_crash_fragility.py`, `lab_10/scripts/03_fragility_matrix.py` |
+| 入力データ | `lab_10/data/lab_7/` |
+| 正本出力 | `lab_10/outputs/report/lab_10_experiment_report.md`, `lab_10/outputs/tables/fragility_matrix.csv`, `lab_10/article_materials_btc_minimal_ai/` |
+| 位置づけ | ファットテールとerror on errorのFragility診断。完成した売買戦略ではない |
+
 ## 使い方
 
 英語圏の読者は、各ラボの `README.md` を読む。
@@ -219,6 +236,7 @@ sed -n '1,220p' lab_6/README.md
 sed -n '1,220p' lab_7/README.md
 sed -n '1,220p' lab_8/README.md
 sed -n '1,220p' lab_9/README.md
+sed -n '1,220p' lab_10/README.md
 ```
 
 日本語記事や日本語での作業では、各ラボの `README.ja.md` を読む。
@@ -233,6 +251,7 @@ sed -n '1,220p' lab_6/README.ja.md
 sed -n '1,220p' lab_7/README.ja.md
 sed -n '1,220p' lab_8/README.ja.md
 sed -n '1,220p' lab_9/README.ja.md
+sed -n '1,220p' lab_10/article_materials_btc_only/README.ja.md
 ```
 
 実験を再生成する場合も、各ラボREADMEに記載されたコマンドを正本とする。
@@ -301,6 +320,14 @@ python3 lab_9/gpt5_5pro/usdjpy_wfo_quant_research.py \
   --outdir /tmp/lab9_gpt55pro_check
 ```
 
+`lab_10` は入力CSVを `lab_10/data/lab_7/` に含めている。
+
+```bash
+/Users/toikeda/miniconda3/bin/python lab_10/scripts/00_lab7_interaction_model_base.py
+/Users/toikeda/miniconda3/bin/python lab_10/scripts/02_btc_crash_fragility.py
+/Users/toikeda/miniconda3/bin/python lab_10/scripts/03_fragility_matrix.py
+```
+
 スクリプトが `--output-dir` や `--outdir` を提供している場合は、既存の正本出力を壊さず試すために一時ディレクトリへ出力する。
 
 ## 管理方針
@@ -310,5 +337,5 @@ python3 lab_9/gpt5_5pro/usdjpy_wfo_quant_research.py \
 - ルート README は索引とラボ一覧に限定する。
 - 実験の詳細、再現コマンド、主要結果、注意点は各 `lab_xxx/README.md` と `lab_xxx/README.ja.md` に書く。
 - コードから再生成できる成果物は、各ラボ内の専用出力ディレクトリにまとめる。
-- 新しい記事・実験を追加する場合は、`lab_10`、`lab_11` のように新しいディレクトリを作る。
+- 新しい記事・実験を追加する場合は、`lab_11`、`lab_12` のように新しいディレクトリを作る。
 - 記事本文に使う数値は、各ラボの正本出力CSV、JSON、Markdownから引用する。
