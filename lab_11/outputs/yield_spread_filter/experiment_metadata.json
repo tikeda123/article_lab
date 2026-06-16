@@ -1,0 +1,95 @@
+{
+  "experiment_title": "FX 2Y yield-spread filter experiment",
+  "pairs": [
+    "EURUSD",
+    "USDJPY"
+  ],
+  "since": "2021-06-16",
+  "fx_nexus_root": "/Users/tikeda/workspace/fx_nexus",
+  "fx_nexus_db": "/Users/tikeda/workspace/fx_nexus/var/fx_nexus.duckdb",
+  "mof_jgb_historical_csv_url": "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/historical/jgbcme_all.csv",
+  "mof_jgb_page_url": "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/index.htm",
+  "leakage_rule": "T-day yield features are available from T+1; daily forward returns start from the merged price date.",
+  "horizons_days": [
+    5,
+    10,
+    20
+  ],
+  "master_rows": 3105,
+  "experiment_sample_rows": 3065,
+  "pair_feature_rows": 2396,
+  "data_coverage": [
+    {
+      "type": "sovereign_yield",
+      "name": "EUR",
+      "rows": 1277,
+      "first": "2021-06-16",
+      "last": "2026-06-12",
+      "quality": "ok"
+    },
+    {
+      "type": "sovereign_yield",
+      "name": "JPY",
+      "rows": 1210,
+      "first": "2021-06-16",
+      "last": "2026-05-29",
+      "quality": "ok"
+    },
+    {
+      "type": "sovereign_yield",
+      "name": "USD",
+      "rows": 1248,
+      "first": "2021-06-16",
+      "last": "2026-06-12",
+      "quality": "ok"
+    },
+    {
+      "type": "pair_yield_spread",
+      "name": "EURUSD",
+      "rows": 1232,
+      "first": "2021-06-16",
+      "last": "2026-06-12",
+      "quality": "ok"
+    },
+    {
+      "type": "pair_yield_spread",
+      "name": "USDJPY",
+      "rows": 1164,
+      "first": "2021-06-16",
+      "last": "2026-05-29",
+      "quality": "ok"
+    },
+    {
+      "type": "price_1d",
+      "name": "EURUSD",
+      "rows": 1555,
+      "first": "2021-06-16",
+      "last": "2026-06-12",
+      "quality": "fx_nexus_ohlcv"
+    },
+    {
+      "type": "price_1d",
+      "name": "USDJPY",
+      "rows": 1552,
+      "first": "2021-06-16",
+      "last": "2026-06-12",
+      "quality": "fx_nexus_ohlcv"
+    },
+    {
+      "type": "experiment_master",
+      "name": "EURUSD",
+      "rows": 1534,
+      "first": "2021-06-17",
+      "last": "2026-05-15",
+      "quality": "leak_shifted_t_plus_1"
+    },
+    {
+      "type": "experiment_master",
+      "name": "USDJPY",
+      "rows": 1531,
+      "first": "2021-06-17",
+      "last": "2026-05-15",
+      "quality": "leak_shifted_t_plus_1"
+    }
+  ]
+}

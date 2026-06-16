@@ -1,0 +1,10 @@
+type,name,rows,first,last,quality
+sovereign_yield,EUR,1277,2021-06-16,2026-06-12,ok
+sovereign_yield,JPY,1210,2021-06-16,2026-05-29,ok
+sovereign_yield,USD,1248,2021-06-16,2026-06-12,ok
+pair_yield_spread,EURUSD,1232,2021-06-16,2026-06-12,ok
+pair_yield_spread,USDJPY,1164,2021-06-16,2026-05-29,ok
+price_1d,EURUSD,1555,2021-06-16,2026-06-12,fx_nexus_ohlcv
+price_1d,USDJPY,1552,2021-06-16,2026-06-12,fx_nexus_ohlcv
+experiment_master,EURUSD,1534,2021-06-17,2026-05-15,leak_shifted_t_plus_1
+experiment_master,USDJPY,1531,2021-06-17,2026-05-15,leak_shifted_t_plus_1

@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="540" viewBox="0 0 1040 540">
+<style>
+  text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #111827; }
+  .title { font-size: 20px; font-weight: 700; }
+  .tick { font-size: 11px; fill: #4b5563; }
+  .legend { font-size: 13px; fill: #111827; }
+  .barlabel { font-size: 10px; fill: #111827; }
+  .axis { stroke: #374151; stroke-width: 1.2; }
+  .grid { stroke: #e5e7eb; stroke-width: 1; }
+</style>
+<text x="520.0" y="30" text-anchor="middle" class="title">Regime robustness: 10d trend-follow return</text>
+<line x1="80" y1="227.5" x2="1010" y2="227.5" class="axis"/>
+<line x1="80" y1="60" x2="80" y2="395" class="axis"/>
+<line x1="80" y1="395.0" x2="1010" y2="395.0" class="grid"/>
+<text x="70" y="399.0" text-anchor="end" class="tick">-41</text>
+<line x1="80" y1="339.2" x2="1010" y2="339.2" class="grid"/>
+<text x="70" y="343.2" text-anchor="end" class="tick">-27</text>
+<line x1="80" y1="283.3" x2="1010" y2="283.3" class="grid"/>
+<text x="70" y="287.3" text-anchor="end" class="tick">-14</text>
+<line x1="80" y1="227.5" x2="1010" y2="227.5" class="grid"/>
+<text x="70" y="231.5" text-anchor="end" class="tick">0</text>
+<line x1="80" y1="171.7" x2="1010" y2="171.7" class="grid"/>
+<text x="70" y="175.7" text-anchor="end" class="tick">14</text>
+<line x1="80" y1="115.8" x2="1010" y2="115.8" class="grid"/>
+<text x="70" y="119.8" text-anchor="end" class="tick">27</text>
+<line x1="80" y1="60.0" x2="1010" y2="60.0" class="grid"/>
+<text x="70" y="64.0" text-anchor="end" class="tick">41</text>
+<rect x="80.0" y="192.8" width="85.8" height="34.7" fill="#2563eb" opacity="0.82"/>
+<text x="122.9" y="186.8" text-anchor="middle" class="barlabel">8.5</text>
+<text transform="translate(122.9,413) rotate(48)" text-anchor="start" class="tick">EURUSD / high_volatility / high</text>
+<rect x="173.8" y="178.8" width="85.8" height="48.7" fill="#2563eb" opacity="0.82"/>
+<text x="216.7" y="172.8" text-anchor="middle" class="barlabel">11.9</text>
+<text transform="translate(216.7,413) rotate(48)" text-anchor="start" class="tick">EURUSD / range_market / normal</text>
+<rect x="267.6" y="224.5" width="85.8" height="3.0" fill="#2563eb" opacity="0.82"/>
+<text x="310.5" y="218.5" text-anchor="middle" class="barlabel">0.7</text>
+<text transform="translate(310.5,413) rotate(48)" text-anchor="start" class="tick">EURUSD / trend_market / normal</text>
+<rect x="361.4" y="227.5" width="85.8" height="9.2" fill="#dc2626" opacity="0.82"/>
+<text x="404.3" y="252.7" text-anchor="middle" class="barlabel">-2.2</text>
+<text transform="translate(404.3,413) rotate(48)" text-anchor="start" class="tick">EURUSD / usd_strength / normal</text>
+<rect x="455.2" y="218.8" width="85.8" height="8.7" fill="#0f766e" opacity="0.82"/>
+<text x="498.1" y="212.8" text-anchor="middle" class="barlabel">2.1</text>
+<text transform="translate(498.1,413) rotate(48)" text-anchor="start" class="tick">USDJPY / carry_build / normal</text>
+<rect x="549.0" y="65.6" width="85.8" height="161.9" fill="#0f766e" opacity="0.82"/>
+<text x="591.9" y="59.6" text-anchor="middle" class="barlabel">39.6</text>
+<text transform="translate(591.9,413) rotate(48)" text-anchor="start" class="tick">USDJPY / carry_unwind / high</text>
+<rect x="642.8" y="227.5" width="85.8" height="81.6" fill="#9333ea" opacity="0.82"/>
+<text x="685.7" y="325.1" text-anchor="middle" class="barlabel">-20.0</text>
+<text transform="translate(685.7,413) rotate(48)" text-anchor="start" class="tick">USDJPY / carry_unwind / normal</text>
+<rect x="736.6" y="60.0" width="85.8" height="167.5" fill="#0f766e" opacity="0.82"/>
+<text x="779.5" y="54.0" text-anchor="middle" class="barlabel">41.0</text>
+<text transform="translate(779.5,413) rotate(48)" text-anchor="start" class="tick">USDJPY / high_volatility / high</text>
+<rect x="830.4" y="209.5" width="85.8" height="18.0" fill="#0f766e" opacity="0.82"/>
+<text x="873.3" y="203.5" text-anchor="middle" class="barlabel">4.4</text>
+<text transform="translate(873.3,413) rotate(48)" text-anchor="start" class="tick">USDJPY / range_market / normal</text>
+<rect x="924.2" y="195.2" width="85.8" height="32.3" fill="#0f766e" opacity="0.82"/>
+<text x="967.1" y="189.2" text-anchor="middle" class="barlabel">7.9</text>
+<text transform="translate(967.1,413) rotate(48)" text-anchor="start" class="tick">USDJPY / usd_strength / normal</text>
+</svg>
