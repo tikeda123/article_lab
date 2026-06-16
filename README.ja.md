@@ -55,6 +55,7 @@ READMEを更新する場合は、英語版と日本語版の実験目的、正�
 | `lab_8` | BTC急落フィルター候補のモンテカルロ生存性診断 | BTC / Nasdaq / S&P 500 / Dow / DAX 240分足とBTCUSDT Funding Rate | [README](lab_8/README.md) | [日本語](lab_8/README.ja.md) | `lab_8/outputs/monte_carlo/` |
 | `lab_9` | USDJPY戦略開発における生成AIモデル評価 | USDJPY 30分足・60分足・240分足と共通プロンプト | [README](lab_9/README.md) | [日本語](lab_9/README.ja.md) | `lab_9/AI_MODEL_EVALUATION_SUMMARY.md`, `lab_9/gpt5_5pro/outputs/` |
 | `lab_10` | BTC ファットテール実務・Fragility診断 | BTC / Nasdaq / S&P 500 / Dow / DAX 240分足とBTCUSDT Funding Rate | [README](lab_10/README.md) | [日本語材料](lab_10/article_materials_btc_only/README.ja.md) | `lab_10/outputs/report/lab_10_experiment_report.md`, `lab_10/outputs/tables/fragility_matrix.csv` |
+| `lab_11` | FX 2年金利差トレンドフィルター | EURUSD / USDJPY 日次価格、USD / EUR / JPY 2年金利、FX Nexus レジーム・コスト文脈 | [README](lab_11/README.md) | [日本語](lab_11/README.ja.md) | `lab_11/outputs/yield_spread_filter/` |
 
 ## lab_1 概要
 
@@ -222,6 +223,23 @@ Claude Fable5、GPT 5.5 Pro、GPT 5.5 Highに同一のUSDJPYクオンツリサ�
 | 正本出力 | `lab_10/outputs/report/lab_10_experiment_report.md`, `lab_10/outputs/tables/fragility_matrix.csv`, `lab_10/article_materials_btc_minimal_ai/` |
 | 位置づけ | ファットテールとerror on errorのFragility診断。完成した売買戦略ではない |
 
+## lab_11 概要
+
+`lab_11` は、Qiita記事「[FXは2年金利差でどこまで説明できるのか？ ― 水準ではなく「変化の向き」で見るトレンドフィルター](https://qiita.com/tikeda123/items/2bf3c18cbec6b4f3527a)」に対応するラボである。
+
+EURUSD と USDJPY を対象に、2年金利差が価格トレンドをどこまで説明できるかを検証する。金利差の水準、変化方向、価格と金利差の一致、乖離、レジーム別の効き方を比較し、金利特徴量はT+1以降にだけ使うリーク防止を入れている。
+
+| 項目 | 内容 |
+|---|---|
+| 詳細説明 | [lab_11/README.ja.md](lab_11/README.ja.md) |
+| 英語版 | [lab_11/README.md](lab_11/README.md) |
+| 記事 | [FXは2年金利差でどこまで説明できるのか？ ― 水準ではなく「変化の向き」で見るトレンドフィルター](https://qiita.com/tikeda123/items/2bf3c18cbec6b4f3527a) |
+| 実験コード | `lab_11/run_yield_spread_experiment.py` |
+| 記事メモ | `lab_11/article_base.md`, `lab_11/lab_base.md` |
+| 入力データ | ローカル FX Nexus DuckDB と財務省 historical JGB CSV |
+| 正本出力 | `lab_11/outputs/yield_spread_filter/` |
+| 位置づけ | FX金利差の環境フィルター診断。完成した売買戦略ではない |
+
 ## 使い方
 
 英語圏の読者は、各ラボの `README.md` を読む。
@@ -237,6 +255,7 @@ sed -n '1,220p' lab_7/README.md
 sed -n '1,220p' lab_8/README.md
 sed -n '1,220p' lab_9/README.md
 sed -n '1,220p' lab_10/README.md
+sed -n '1,220p' lab_11/README.md
 ```
 
 日本語記事や日本語での作業では、各ラボの `README.ja.md` を読む。
@@ -252,6 +271,7 @@ sed -n '1,220p' lab_7/README.ja.md
 sed -n '1,220p' lab_8/README.ja.md
 sed -n '1,220p' lab_9/README.ja.md
 sed -n '1,220p' lab_10/article_materials_btc_only/README.ja.md
+sed -n '1,220p' lab_11/README.ja.md
 ```
 
 実験を再生成する場合も、各ラボREADMEに記載されたコマンドを正本とする。
@@ -328,6 +348,14 @@ python3 lab_9/gpt5_5pro/usdjpy_wfo_quant_research.py \
 /Users/toikeda/miniconda3/bin/python lab_10/scripts/03_fragility_matrix.py
 ```
 
+`lab_11` はローカル FX Nexus DuckDB に依存し、財務省 historical JGB CSV を取得して再生成する。
+
+```bash
+python3 lab_11/run_yield_spread_experiment.py
+```
+
+現在の `lab_11` スクリプトは `lab_11/outputs/yield_spread_filter/` に直接出力する。
+
 スクリプトが `--output-dir` や `--outdir` を提供している場合は、既存の正本出力を壊さず試すために一時ディレクトリへ出力する。
 
 ## 管理方針
@@ -337,5 +365,5 @@ python3 lab_9/gpt5_5pro/usdjpy_wfo_quant_research.py \
 - ルート README は索引とラボ一覧に限定する。
 - 実験の詳細、再現コマンド、主要結果、注意点は各 `lab_xxx/README.md` と `lab_xxx/README.ja.md` に書く。
 - コードから再生成できる成果物は、各ラボ内の専用出力ディレクトリにまとめる。
-- 新しい記事・実験を追加する場合は、`lab_11`、`lab_12` のように新しいディレクトリを作る。
+- 新しい記事・実験を追加する場合は、`lab_12`、`lab_13` のように新しいディレクトリを作る。
 - 記事本文に使う数値は、各ラボの正本出力CSV、JSON、Markdownから引用する。

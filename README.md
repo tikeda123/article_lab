@@ -55,6 +55,7 @@ The root README should not duplicate full experiment procedures. It should point
 | `lab_8` | BTC crash-filter Monte Carlo survival diagnostics | BTC / Nasdaq / S&P 500 / Dow / DAX 240-minute bars plus BTCUSDT Funding Rate | [README](lab_8/README.md) | [日本語](lab_8/README.ja.md) | `lab_8/outputs/monte_carlo/` |
 | `lab_9` | AI model evaluation for USDJPY quant research | USDJPY 30-minute, 60-minute, and 240-minute bars plus shared prompt | [README](lab_9/README.md) | [日本語](lab_9/README.ja.md) | `lab_9/AI_MODEL_EVALUATION_SUMMARY.md`, `lab_9/gpt5_5pro/outputs/` |
 | `lab_10` | BTC fragility diagnostics for fat-tail risk practice | BTC / Nasdaq / S&P 500 / Dow / DAX 240-minute bars plus BTCUSDT Funding Rate | [README](lab_10/README.md) | [日本語材料](lab_10/article_materials_btc_only/README.ja.md) | `lab_10/outputs/report/lab_10_experiment_report.md`, `lab_10/outputs/tables/fragility_matrix.csv` |
+| `lab_11` | FX 2Y yield-spread trend filter | EURUSD / USDJPY daily prices, USD / EUR / JPY 2Y yields, and FX Nexus regime/cost context | [README](lab_11/README.md) | [日本語](lab_11/README.ja.md) | `lab_11/outputs/yield_spread_filter/` |
 
 ## lab_1 Summary
 
@@ -216,6 +217,23 @@ The lab turns the `lab_7` BTC crash condition candidate, especially `Funding low
 | Canonical output | `lab_10/outputs/report/lab_10_experiment_report.md`, `lab_10/outputs/tables/fragility_matrix.csv`, `lab_10/article_materials_btc_minimal_ai/` |
 | Role | Fat-tail and error-on-error fragility diagnostics, not a production strategy |
 
+## lab_11 Summary
+
+`lab_11` supports the Japanese Qiita article "[FXは2年金利差でどこまで説明できるのか？ ― 水準ではなく「変化の向き」で見るトレンドフィルター](https://qiita.com/tikeda123/items/2bf3c18cbec6b4f3527a)".
+
+The lab tests whether 2-year sovereign yield spreads help explain EURUSD and USDJPY price trends. It compares yield-spread level, spread-change direction, price/rate alignment, divergence, and regime robustness while applying a T+1 leakage guard to yield features.
+
+| Item | Content |
+|---|---|
+| Details | [lab_11/README.md](lab_11/README.md) |
+| Japanese | [lab_11/README.ja.md](lab_11/README.ja.md) |
+| Article | [FXは2年金利差でどこまで説明できるのか？ ― 水準ではなく「変化の向き」で見るトレンドフィルター](https://qiita.com/tikeda123/items/2bf3c18cbec6b4f3527a) |
+| Script | `lab_11/run_yield_spread_experiment.py` |
+| Article notes | `lab_11/article_base.md`, `lab_11/lab_base.md` |
+| Input data | Local FX Nexus DuckDB plus Ministry of Finance historical JGB CSV |
+| Canonical output | `lab_11/outputs/yield_spread_filter/` |
+| Role | FX rate-spread environment filter diagnostics, not a production strategy |
+
 ## Usage
 
 Start with the README for the lab you want to inspect.
@@ -231,6 +249,7 @@ sed -n '1,220p' lab_7/README.md
 sed -n '1,220p' lab_8/README.md
 sed -n '1,220p' lab_9/README.md
 sed -n '1,220p' lab_10/README.md
+sed -n '1,220p' lab_11/README.md
 ```
 
 Use the Japanese files when working directly with the Japanese Qiita article text.
@@ -246,6 +265,7 @@ sed -n '1,220p' lab_7/README.ja.md
 sed -n '1,220p' lab_8/README.ja.md
 sed -n '1,220p' lab_9/README.ja.md
 sed -n '1,220p' lab_10/article_materials_btc_only/README.ja.md
+sed -n '1,220p' lab_11/README.ja.md
 ```
 
 For regeneration, use the commands documented in each lab README.
@@ -322,6 +342,14 @@ For `lab_10`, the input CSVs are included under `lab_10/data/lab_7/`.
 /Users/toikeda/miniconda3/bin/python lab_10/scripts/03_fragility_matrix.py
 ```
 
+For `lab_11`, regeneration depends on the local FX Nexus DuckDB and downloads the Ministry of Finance historical JGB CSV.
+
+```bash
+python3 lab_11/run_yield_spread_experiment.py
+```
+
+The current `lab_11` script writes directly to `lab_11/outputs/yield_spread_filter/`.
+
 When a script exposes `--output-dir` or `--outdir`, write to a temporary output directory instead of overwriting canonical outputs.
 
 ## Maintenance Policy
@@ -331,5 +359,5 @@ When a script exposes `--output-dir` or `--outdir`, write to a temporary output 
 - Keep the root README focused on the index and lab list.
 - Put experiment details, reproduction commands, current results, and caveats in each lab README.
 - Store regenerable outputs in a dedicated output path inside each lab.
-- Add new articles or experiments as `lab_11`, `lab_12`, and so on.
+- Add new articles or experiments as `lab_12`, `lab_13`, and so on.
 - Cite article numbers from canonical output CSV, JSON, or Markdown files, not from hand-written summaries alone.
