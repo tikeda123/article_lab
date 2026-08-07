@@ -56,6 +56,7 @@ The root README should not duplicate full experiment procedures. It should point
 | `lab_9` | AI model evaluation for USDJPY quant research | USDJPY 30-minute, 60-minute, and 240-minute bars plus shared prompt | [README](lab_9/README.md) | [日本語](lab_9/README.ja.md) | `lab_9/AI_MODEL_EVALUATION_SUMMARY.md`, `lab_9/gpt5_5pro/outputs/` |
 | `lab_10` | BTC fragility diagnostics for fat-tail risk practice | BTC / Nasdaq / S&P 500 / Dow / DAX 240-minute bars plus BTCUSDT Funding Rate | [README](lab_10/README.md) | [日本語材料](lab_10/article_materials_btc_only/README.ja.md) | `lab_10/outputs/report/lab_10_experiment_report.md`, `lab_10/outputs/tables/fragility_matrix.csv` |
 | `lab_11` | FX 2Y yield-spread trend filter | EURUSD / USDJPY daily prices, USD / EUR / JPY 2Y yields, and FX Nexus regime/cost context | [README](lab_11/README.md) | [日本語](lab_11/README.ja.md) | `lab_11/outputs/yield_spread_filter/` |
+| `lab_12` | Portfolio diversification, covariance, and fat-tail risk | No external data; fixed-seed synthetic experiments | [README](lab_12/README.md) | [日本語](lab_12/README.ja.md) | `lab_12/figs/` |
 
 ## lab_1 Summary
 
@@ -234,6 +235,22 @@ The lab tests whether 2-year sovereign yield spreads help explain EURUSD and USD
 | Canonical output | `lab_11/outputs/yield_spread_filter/` |
 | Role | FX rate-spread environment filter diagnostics, not a production strategy |
 
+## lab_12 Summary
+
+`lab_12` supports the Japanese Qiita article "[「分散したつもり」の罠 — 共分散とファットテールから考えるポートフォリオリスク](https://qiita.com/tikeda123/items/125802e6ed4468c7037e)".
+
+The lab uses five fixed-seed synthetic experiments to examine diversification limits under positive common correlation, regime-dependent covariance, slow volatility-estimate convergence under fat tails, lower-tail dependence, and strategies that share the same arithmetic mean and volatility but fail in different ways.
+
+| Item | Content |
+|---|---|
+| Details | [lab_12/README.md](lab_12/README.md) |
+| Japanese | [lab_12/README.ja.md](lab_12/README.ja.md) |
+| Article | [「分散したつもり」の罠 — 共分散とファットテールから考えるポートフォリオリスク](https://qiita.com/tikeda123/items/125802e6ed4468c7037e) |
+| Scripts | `lab_12/exp1_n_vs_correlation.py` through `lab_12/exp5_fat_tail_strategies.py` |
+| Input data | None; synthetic data generated inside each script |
+| Canonical output | `lab_12/figs/` |
+| Role | Educational diversification and tail-risk diagnostics, not a production portfolio system |
+
 ## Usage
 
 Start with the README for the lab you want to inspect.
@@ -250,6 +267,7 @@ sed -n '1,220p' lab_8/README.md
 sed -n '1,220p' lab_9/README.md
 sed -n '1,220p' lab_10/README.md
 sed -n '1,220p' lab_11/README.md
+sed -n '1,220p' lab_12/README.md
 ```
 
 Use the Japanese files when working directly with the Japanese Qiita article text.
@@ -266,6 +284,7 @@ sed -n '1,220p' lab_8/README.ja.md
 sed -n '1,220p' lab_9/README.ja.md
 sed -n '1,220p' lab_10/article_materials_btc_only/README.ja.md
 sed -n '1,220p' lab_11/README.ja.md
+sed -n '1,220p' lab_12/README.ja.md
 ```
 
 For regeneration, use the commands documented in each lab README.
@@ -350,6 +369,18 @@ python3 lab_11/run_yield_spread_experiment.py
 
 The current `lab_11` script writes directly to `lab_11/outputs/yield_spread_filter/`.
 
+For `lab_12`, no external market data is required. Run the five independent synthetic experiments from the repository root.
+
+```bash
+python3 lab_12/exp1_n_vs_correlation.py
+python3 lab_12/exp2_regime_correlation.py
+python3 lab_12/exp3_sample_variance_stability.py
+python3 lab_12/exp4_tail_dependence.py
+python3 lab_12/exp5_fat_tail_strategies.py
+```
+
+The scripts write the article figures directly to `lab_12/figs/`.
+
 When a script exposes `--output-dir` or `--outdir`, write to a temporary output directory instead of overwriting canonical outputs.
 
 ## Maintenance Policy
@@ -359,5 +390,5 @@ When a script exposes `--output-dir` or `--outdir`, write to a temporary output 
 - Keep the root README focused on the index and lab list.
 - Put experiment details, reproduction commands, current results, and caveats in each lab README.
 - Store regenerable outputs in a dedicated output path inside each lab.
-- Add new articles or experiments as `lab_12`, `lab_13`, and so on.
+- Add new articles or experiments as `lab_13`, `lab_14`, and so on.
 - Cite article numbers from canonical output CSV, JSON, or Markdown files, not from hand-written summaries alone.

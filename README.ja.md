@@ -56,6 +56,7 @@ READMEを更新する場合は、英語版と日本語版の実験目的、正�
 | `lab_9` | USDJPY戦略開発における生成AIモデル評価 | USDJPY 30分足・60分足・240分足と共通プロンプト | [README](lab_9/README.md) | [日本語](lab_9/README.ja.md) | `lab_9/AI_MODEL_EVALUATION_SUMMARY.md`, `lab_9/gpt5_5pro/outputs/` |
 | `lab_10` | BTC ファットテール実務・Fragility診断 | BTC / Nasdaq / S&P 500 / Dow / DAX 240分足とBTCUSDT Funding Rate | [README](lab_10/README.md) | [日本語材料](lab_10/article_materials_btc_only/README.ja.md) | `lab_10/outputs/report/lab_10_experiment_report.md`, `lab_10/outputs/tables/fragility_matrix.csv` |
 | `lab_11` | FX 2年金利差トレンドフィルター | EURUSD / USDJPY 日次価格、USD / EUR / JPY 2年金利、FX Nexus レジーム・コスト文脈 | [README](lab_11/README.md) | [日本語](lab_11/README.ja.md) | `lab_11/outputs/yield_spread_filter/` |
+| `lab_12` | ポートフォリオ分散・共分散・ファットテール | 外部データなし。固定シードの人工実験 | [README](lab_12/README.md) | [日本語](lab_12/README.ja.md) | `lab_12/figs/` |
 
 ## lab_1 概要
 
@@ -240,6 +241,22 @@ EURUSD と USDJPY を対象に、2年金利差が価格トレンドをどこま�
 | 正本出力 | `lab_11/outputs/yield_spread_filter/` |
 | 位置づけ | FX金利差の環境フィルター診断。完成した売買戦略ではない |
 
+## lab_12 概要
+
+`lab_12` は、Qiita記事「[「分散したつもり」の罠 — 共分散とファットテールから考えるポートフォリオリスク](https://qiita.com/tikeda123/items/125802e6ed4468c7037e)」に対応するラボである。
+
+固定シードの5つの人工実験を使い、正の共通相関がある場合の分散効果の下限、レジーム依存の共分散、ファットテール下でのボラ推定の遅い収束、下側テール依存、算術平均とボラが同じでも異なる戦略の壊れ方を確認する。
+
+| 項目 | 内容 |
+|---|---|
+| 詳細説明 | [lab_12/README.ja.md](lab_12/README.ja.md) |
+| 英語版 | [lab_12/README.md](lab_12/README.md) |
+| 記事 | [「分散したつもり」の罠 — 共分散とファットテールから考えるポートフォリオリスク](https://qiita.com/tikeda123/items/125802e6ed4468c7037e) |
+| 実験コード | `lab_12/exp1_n_vs_correlation.py` から `lab_12/exp5_fat_tail_strategies.py` |
+| 入力データ | なし。各スクリプト内で人工データを生成 |
+| 正本出力 | `lab_12/figs/` |
+| 位置づけ | 分散効果とテールリスクの教育用診断。実運用ポートフォリオではない |
+
 ## 使い方
 
 英語圏の読者は、各ラボの `README.md` を読む。
@@ -256,6 +273,7 @@ sed -n '1,220p' lab_8/README.md
 sed -n '1,220p' lab_9/README.md
 sed -n '1,220p' lab_10/README.md
 sed -n '1,220p' lab_11/README.md
+sed -n '1,220p' lab_12/README.md
 ```
 
 日本語記事や日本語での作業では、各ラボの `README.ja.md` を読む。
@@ -272,6 +290,7 @@ sed -n '1,220p' lab_8/README.ja.md
 sed -n '1,220p' lab_9/README.ja.md
 sed -n '1,220p' lab_10/article_materials_btc_only/README.ja.md
 sed -n '1,220p' lab_11/README.ja.md
+sed -n '1,220p' lab_12/README.ja.md
 ```
 
 実験を再生成する場合も、各ラボREADMEに記載されたコマンドを正本とする。
@@ -356,6 +375,18 @@ python3 lab_11/run_yield_spread_experiment.py
 
 現在の `lab_11` スクリプトは `lab_11/outputs/yield_spread_filter/` に直接出力する。
 
+`lab_12` は外部の市場データを必要としない。リポジトリルートから5本の人工実験を個別に実行する。
+
+```bash
+python3 lab_12/exp1_n_vs_correlation.py
+python3 lab_12/exp2_regime_correlation.py
+python3 lab_12/exp3_sample_variance_stability.py
+python3 lab_12/exp4_tail_dependence.py
+python3 lab_12/exp5_fat_tail_strategies.py
+```
+
+各スクリプトは記事用の図を `lab_12/figs/` に直接出力する。
+
 スクリプトが `--output-dir` や `--outdir` を提供している場合は、既存の正本出力を壊さず試すために一時ディレクトリへ出力する。
 
 ## 管理方針
@@ -365,5 +396,5 @@ python3 lab_11/run_yield_spread_experiment.py
 - ルート README は索引とラボ一覧に限定する。
 - 実験の詳細、再現コマンド、主要結果、注意点は各 `lab_xxx/README.md` と `lab_xxx/README.ja.md` に書く。
 - コードから再生成できる成果物は、各ラボ内の専用出力ディレクトリにまとめる。
-- 新しい記事・実験を追加する場合は、`lab_12`、`lab_13` のように新しいディレクトリを作る。
+- 新しい記事・実験を追加する場合は、`lab_13`、`lab_14` のように新しいディレクトリを作る。
 - 記事本文に使う数値は、各ラボの正本出力CSV、JSON、Markdownから引用する。
